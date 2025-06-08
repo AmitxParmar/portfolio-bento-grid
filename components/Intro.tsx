@@ -7,7 +7,7 @@ type Props = {}
 const Intro = (props: Props) => {
   return (
     <div className="grid grid-cols-2 gap-20 px-8">
-      <div className="border px-4 ">
+      <div className="px-4 ">
         <h1 className="p-6 font-sans text-7xl font-bold">
           <span>Hi, I&apos;m Amit Parmar</span>
           <span className="text-nowrap text-lg font-bold text-gray-400">
@@ -15,9 +15,9 @@ const Intro = (props: Props) => {
           </span>
         </h1>
       </div>
-      <div className="flex flex-row-reverse gap-3 border px-8 py-4">
+      <div className="flex flex-row-reverse gap-3 px-8 py-4">
         <Button className="rounded-3xl p-7 font-semibold">Subscribe</Button>
-        <Button className="rounded-2xl border bg-transparent px-6 py-7  font-semibold text-white hover:bg-black/50">
+        <Button className="rounded-2xl border bg-transparent px-6 py-7  font-semibold text-white transition-all duration-500 hover:bg-white/70 hover:text-black">
           <span className="">
             <svg
               width="25px"

@@ -1,4 +1,4 @@
-const { fontFamily } = require("tailwindcss/defaultTheme")
+const { fontFamily } = require("tailwindcss/defaultTheme");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -14,13 +14,19 @@ module.exports = {
     },
     extend: {
       colors: {
+        iconCard: "#191919",
+        bg: "#050505",
+        darkText: "#e6e6e6",
+        cardBg: "#101010",
+        lightText: "#999999",
+        iconBg: "#282828",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
+          DEFAULT: "#916CE7",
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
@@ -49,7 +55,7 @@ module.exports = {
         },
       },
       borderRadius: {
-        lg: `var(--radius)`,
+        lg: `20px`,
         md: `calc(var(--radius) - 2px)`,
         sm: "calc(var(--radius) - 4px)",
       },
@@ -73,4 +79,4 @@ module.exports = {
     },
   },
   plugins: [require("tailwindcss-animate")],
-}
+};
