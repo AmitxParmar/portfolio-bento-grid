@@ -1,8 +1,4 @@
-import React from "react";
-
-type Props = {};
-
-const AchievementGrid = (props: Props) => {
+const AchievementGrid = () => {
   return (
     <>
       {/* Achievements */}

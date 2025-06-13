@@ -1,21 +1,41 @@
 "use client";
 import { LucideLayers } from "lucide-react";
+import { Icons } from "../icons";
+import { Badge } from "../ui/badge";
+import { Marquee } from "../magicui/marquee";
 
 const TechStack = () => {
   return (
     /* Tech stack card */
-    <div className="row-span-2 flex flex-col items-center rounded-lg border border-iconBg bg-cardBg p-4">
-      <div className="mb-4 flex items-center gap-2">
-        <LucideLayers className="text-primary" size={24} />
-        <h3 className="text-xl font-semibold text-lightText">My Stack</h3>
+    <div className="row-span-2 flex flex-col items-center overflow-hidden rounded-lg border border-iconBg bg-cardBg p-4">
+      <div className="flex flex-col items-center justify-center">
+        <h4 className="text-md mb-2 flex items-center gap-2 text-lightText">
+          <LucideLayers className="text-primary" /> Tech Stack
+        </h4>
+        <h3 className="text-xl text-darkText">Tech Arsenal</h3>
       </div>
-      <h3 className="mb-2 text-xl font-semibold">Tech Arsenal</h3>
-      <div className="flex flex-wrap gap-2">
-        <span className="rounded bg-iconBg px-3 py-1 text-sm">React</span>
-        <span className="rounded bg-iconBg px-3 py-1 text-sm">Next.js</span>
-        <span className="rounded bg-iconBg px-3 py-1 text-sm">TypeScript</span>
-        <span className="rounded bg-iconBg px-3 py-1 text-sm">Node.js</span>
-        <span className="rounded bg-iconBg px-3 py-1 text-sm">MongoDB</span>
+
+      <div className="m-auto grid grid-flow-col gap-2 p-2">
+        <Marquee>
+          <Badge className="flex flex-col rounded bg-iconBg px-2 py-1 text-sm text-white ">
+            <Icons.mongodb className="size-20" /> MongoDB
+          </Badge>
+          <Badge className="flex flex-col rounded bg-iconBg px-2 py-1 text-sm text-white ">
+            <Icons.express className="size-20" /> ExpressJS
+          </Badge>
+          <Badge className="flex flex-col rounded bg-iconBg px-2 py-1 text-sm text-white ">
+            <Icons.react className="size-20" /> React
+          </Badge>
+          <Badge className="flex flex-col rounded bg-iconBg px-2 py-1 text-sm text-white ">
+            <Icons.nodejs className="size-20" /> NodeJS
+          </Badge>
+          <Badge className="flex flex-col rounded bg-iconBg px-2 py-1 text-sm text-white ">
+            <Icons.nextjs className="size-20" /> NextJS
+          </Badge>
+          <Badge className="flex flex-col rounded bg-iconBg px-2 py-1 text-sm text-white ">
+            <Icons.tailwind className="size-20" /> Tailwind
+          </Badge>
+        </Marquee>
       </div>
     </div>
   );

@@ -1,8 +1,6 @@
 "use client";
 import React from "react";
 import { Book, Globe, Hammer, Puzzle, Settings, Star } from "lucide-react";
-import WireFrameIcon from "/public/wireframe.svg";
-import Image from "next/image";
 
 const WorkFlow = () => {
   return (

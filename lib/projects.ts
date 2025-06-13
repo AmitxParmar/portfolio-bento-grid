@@ -10,11 +10,11 @@ export const projects: Project[] = [
     repositoryLink: "https://github.com/AmitxParmar/job-portal-mern",
     features: ["Developed this using doing that"],
   },
-  /*   {
+  {
     name: "Quick Chat",
     images: ["/projects/quick-chat/index.png"],
     description: "lorem Ipsum",
     type: "Realtime Chat",
     skills: ["typescript", "socket.io", "redux", "react", "next.js"],
-  }, */
+  },
 ];

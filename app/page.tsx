@@ -5,6 +5,14 @@ import OnlinePresence from "@/components/Cards/OnlinePresence";
 import ProjectsGallery from "@/components/Cards/ProjectsGallery";
 import TechStack from "@/components/Cards/TechStack";
 import WorkFlow from "@/components/Cards/WorkFlow";
+import dynamic from "next/dynamic";
+const OrbitingIcons = dynamic(
+  () => import("@/components/Cards/OrbitingIcons"),
+  {
+    loading: () => <div>Loading...</div>,
+    ssr: false,
+  }
+);
 
 export default function IndexPage() {
   return (
@@ -49,10 +57,12 @@ export default function IndexPage() {
       {/* Third */}
       <div className="col-span-5 grid grid-rows-6 gap-2">
         <div className="row-span-3 grid grid-cols-5 gap-2">
+          {/* Orbiting Icons */}
           {/* Testemonials */}
           <div className="col-span-3 rounded-lg border border-iconBg bg-cardBg">
-            Testimonials
+            <OrbitingIcons />
           </div>
+
           {/* Work Flow */}
           <WorkFlow />
         </div>

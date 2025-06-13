@@ -17,7 +17,7 @@ import Image from "next/image";
 const AboutMe = () => {
   return (
     <>
-      <div className="col-span-4 row-span-3 rounded-lg border border-iconBg bg-cardBg p-6">
+      <div className="relative col-span-4 row-span-3 rounded-lg border border-iconBg bg-cardBg p-6">
         <div className="flex flex-row ">
           <Image
             src={"/profile-pic.jpg"}
@@ -72,13 +72,13 @@ const AboutMe = () => {
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-4">
-          <InteractiveHoverButton className="group">
+        <div className="absolute inset-x-8 bottom-6 mt-6 grid grid-cols-2 gap-4">
+          <InteractiveHoverButton className="group h-16 ">
             <a
               href="https://github.com/amitxparmar"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-lg  p-4 font-medium "
+              className="flex items-center justify-center gap-2 rounded-lg"
             >
               <Github className="text-primary group-hover:text-black" /> GitHub
             </a>
