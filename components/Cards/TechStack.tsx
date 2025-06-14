@@ -17,24 +17,24 @@ const TechStack = () => {
 
       <div className="m-auto grid grid-flow-col gap-2 p-2">
         <Marquee>
-          <Badge className="flex flex-col rounded bg-iconBg px-2 py-1 text-sm text-white ">
+          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-sm text-white ">
             <Icons.mongodb className="size-20" /> MongoDB
-          </Badge>
-          <Badge className="flex flex-col rounded bg-iconBg px-2 py-1 text-sm text-white ">
+          </div>
+          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-sm text-white ">
             <Icons.express className="size-20" /> ExpressJS
-          </Badge>
-          <Badge className="flex flex-col rounded bg-iconBg px-2 py-1 text-sm text-white ">
+          </div>
+          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-sm text-white ">
             <Icons.react className="size-20" /> React
-          </Badge>
-          <Badge className="flex flex-col rounded bg-iconBg px-2 py-1 text-sm text-white ">
+          </div>
+          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-sm text-white ">
             <Icons.nodejs className="size-20" /> NodeJS
-          </Badge>
-          <Badge className="flex flex-col rounded bg-iconBg px-2 py-1 text-sm text-white ">
+          </div>
+          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-sm text-white ">
             <Icons.nextjs className="size-20" /> NextJS
-          </Badge>
-          <Badge className="flex flex-col rounded bg-iconBg px-2 py-1 text-sm text-white ">
+          </div>
+          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-sm text-white ">
             <Icons.tailwind className="size-20" /> Tailwind
-          </Badge>
+          </div>
         </Marquee>
       </div>
     </div>

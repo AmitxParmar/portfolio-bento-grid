@@ -53,7 +53,7 @@ const AboutMe = () => {
           </div>
         </div>
         <div className="flex flex-wrap gap-2 rounded-[10px] border border-iconCard bg-[#141414] p-5 text-base text-lightText">
-          <div className="grid grid-flow-col gap-2 rounded-full border border-iconBg bg-iconCard px-3 py-1.5 text-darkText">
+          <div className="grid grid-flow-col gap-2 rounded-full border border-iconBg bg-iconBg px-3 py-1.5 text-darkText">
             <TerminalSquare className="text-primary" />
             Full-stack Developer
           </div>

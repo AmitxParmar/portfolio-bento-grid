@@ -3,8 +3,10 @@ import AchievementGrid from "@/components/Cards/AchievementGrid";
 import ContactMe from "@/components/Cards/ContactMe";
 import OnlinePresence from "@/components/Cards/OnlinePresence";
 import ProjectsGallery from "@/components/Cards/ProjectsGallery";
+import ProjectStructures from "@/components/Cards/ProjectStructure/ProjectStructures";
 import TechStack from "@/components/Cards/TechStack";
 import WorkFlow from "@/components/Cards/WorkFlow";
+import { Server } from "lucide-react";
 import dynamic from "next/dynamic";
 const OrbitingIcons = dynamic(
   () => import("@/components/Cards/OrbitingIcons"),
@@ -23,23 +25,9 @@ export default function IndexPage() {
           <TechStack />
 
           {/* Projects gallery */}
-          <div className="row-span-2 rounded-lg border border-iconBg bg-cardBg p-4">
-            <h3 className="mb-2 text-xl font-semibold">Projects Gallery</h3>
-            <div className="h-24 rounded bg-iconBg"></div>
-            <button className="mt-4 rounded bg-primary px-4 py-2 text-black">
-              View Works
-            </button>
-          </div>
+          <ProjectStructures.Frontend />
           {/* Solutions Suite */}
-          <div className="row-span-2 rounded-lg border border-iconBg bg-cardBg p-4">
-            <h3 className="mb-2 text-xl font-semibold">Solutions Suite</h3>
-            <p className="text-sm text-lightText">
-              Web Apps, APIs, Full-stack Development
-            </p>
-            <button className="mt-4 rounded bg-primary px-4 py-2 text-black">
-              View All Services
-            </button>
-          </div>
+          <ProjectStructures.Backend />
         </div>
 
         {/* Second */}
