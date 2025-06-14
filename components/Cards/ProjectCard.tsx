@@ -3,6 +3,7 @@ import { Badge } from "../ui/badge";
 import Image from "next/image";
 import { ChevronsRight, Github, Globe } from "lucide-react";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { Project } from "@/types/general";
 
 const ProjectCard = ({
   project: {

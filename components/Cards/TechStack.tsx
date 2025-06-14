@@ -7,7 +7,7 @@ import { Marquee } from "../magicui/marquee";
 const TechStack = () => {
   return (
     /* Tech stack card */
-    <div className="row-span-2 flex flex-col items-center overflow-hidden rounded-lg border border-iconBg bg-cardBg p-4">
+    <div className="row-span-2 flex h-full flex-col items-center overflow-hidden rounded-lg border border-iconBg bg-cardBg p-4">
       <div className="flex flex-col items-center justify-center">
         <h4 className="text-md mb-2 flex items-center gap-2 text-lightText">
           <LucideLayers className="text-primary" /> Tech Stack

@@ -11,9 +11,7 @@ export const ProjectStructures = {
         </h4>
         <h3 className="text-xl text-darkText">Project Structure</h3>
       </div>
-      <div>
-        <Frontend />
-      </div>
+      <Frontend />
     </div>
   ),
   Backend: () => (

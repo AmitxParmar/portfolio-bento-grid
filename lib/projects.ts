@@ -1,3 +1,5 @@
+import { Project } from "@/types/general";
+
 export const projects: Project[] = [
   {
     name: "HIRECROWD",

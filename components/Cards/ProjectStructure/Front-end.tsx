@@ -2,7 +2,7 @@ import { File, Folder, Tree } from "@/components/magicui/file-tree";
 
 export default function Frontend() {
   return (
-    <div className="relative mx-auto flex h-[200px] w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-background">
+    <div className="relative mx-auto flex h-[200px] w-fit flex-col items-center justify-center overflow-hidden rounded-lg">
       <Tree
         className="overflow-hidden rounded-md bg-background p-2"
         initialExpandedItems={["1"]}

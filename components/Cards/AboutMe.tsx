@@ -57,16 +57,16 @@ const AboutMe = () => {
             <TerminalSquare className="text-primary" />
             Full-stack Developer
           </div>
-          <div className="grid grid-flow-col gap-2 rounded-full border border-iconBg bg-iconCard px-3 py-1.5 text-darkText">
+          <div className="grid grid-flow-col gap-2 rounded-full border border-iconBg bg-iconBg px-3 py-1.5 text-darkText">
             <Clock5 className="text-primary" /> IST
           </div>
-          <div className="grid grid-flow-col gap-2 rounded-full border border-iconBg bg-iconCard px-3 py-1.5 text-darkText">
+          <div className="grid grid-flow-col gap-2 rounded-full border border-iconBg bg-iconBg px-3 py-1.5 text-darkText">
             <MapPin className="text-primary" /> Amreli, Gujarat
           </div>
-          <div className="grid grid-flow-col gap-2 rounded-full border border-iconBg bg-iconCard px-3 py-1.5 text-darkText">
+          <div className="grid grid-flow-col gap-2 rounded-full border border-iconBg bg-iconBg px-3 py-1.5 text-darkText">
             <Languages className="text-primary" /> Gujarati, Hindi & English
           </div>
-          <div className="grid grid-flow-col gap-2 rounded-full border border-iconBg bg-iconCard px-3 py-1.5 text-darkText">
+          <div className="grid grid-flow-col gap-2 rounded-full border border-iconBg bg-iconBg px-3 py-1.5 text-darkText">
             <LucideGraduationCap className="text-primary" /> Saurashtra
             University (BCA)
           </div>
