@@ -1,7 +1,6 @@
 "use client";
 import { LucideLayers } from "lucide-react";
 import { Icons } from "../icons";
-import { Badge } from "../ui/badge";
 import { Marquee } from "../magicui/marquee";
 
 const TechStack = () => {

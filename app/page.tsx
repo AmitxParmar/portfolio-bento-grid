@@ -6,13 +6,18 @@ import ProjectsGallery from "@/components/Cards/ProjectsGallery";
 import ProjectStructures from "@/components/Cards/ProjectStructure/ProjectStructures";
 import TechStack from "@/components/Cards/TechStack";
 import WorkFlow from "@/components/Cards/WorkFlow";
+import { Icons } from "@/components/icons";
 import { Ripple } from "@/components/magicui/ripple";
 import dynamic from "next/dynamic";
 
 const OrbitingIcons = dynamic(
   () => import("@/components/Cards/OrbitingIcons"),
   {
-    loading: () => <div>Loading...</div>,
+    loading: () => (
+      <div className="flex size-full items-center justify-center text-center">
+        <Icons.react className="animate-spin" />
+      </div>
+    ),
     ssr: false,
   }
 );
@@ -47,8 +52,8 @@ export default function IndexPage() {
               />
               <path d="M15 14H11V16H15V14Z" fill="#999999" />
               <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
+                fillRule="evenodd"
+                clipRule="evenodd"
                 d="M2 2C0.895431 2 0 2.89543 0 4V20C0 21.1046 0.89543 22 2 22H22C23.1046 22 24 21.1046 24 20V4C24 2.89543 23.1046 2 22 2H2ZM22 4H2L2 20H22V4Z"
                 fill="#999999"
               />
