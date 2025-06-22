@@ -14,7 +14,7 @@ const OrbitingIcons = dynamic(
   () => import("@/components/Cards/OrbitingIcons"),
   {
     loading: () => (
-      <div className="flex size-full items-center justify-center text-center">
+      <div className="flex  size-full items-center justify-center text-center">
         <Icons.react className="animate-spin" />
       </div>
     ),
@@ -24,10 +24,10 @@ const OrbitingIcons = dynamic(
 
 export default function IndexPage() {
   return (
-    <div className="grid min-h-screen grid-cols-12 gap-2 bg-bg px-6 py-3 text-darkText">
-      <div className="col-span-7 grid grid-cols-7 gap-2">
+    <div className="flex flex-col gap-2 bg-bg px-2 py-3 text-darkText lg:grid lg:min-h-screen lg:grid-cols-12 lg:px-6">
+      <div className="flex flex-col gap-2 lg:col-span-7 lg:grid lg:grid-cols-7">
         {/* First Grid */}
-        <div className="col-span-3 grid grid-rows-6 gap-2">
+        <div className="order-2 col-span-3 flex grid-rows-6 flex-col gap-2 lg:order-1 lg:grid">
           <div className="row-span-2">
             <TechStack />
           </div>
@@ -63,7 +63,7 @@ export default function IndexPage() {
         </div>
 
         {/* Second */}
-        <div className="col-span-4 grid grid-cols-4 grid-rows-6 gap-2">
+        <div className="order-1 col-span-4 grid gap-2 lg:order-2 lg:grid-cols-4 lg:grid-rows-6">
           <AchievementGrid />
 
           {/* About me */}
@@ -75,11 +75,11 @@ export default function IndexPage() {
       </div>
 
       {/* Third */}
-      <div className="col-span-5 grid grid-rows-6 gap-2">
-        <div className="row-span-3 grid grid-cols-5 gap-2">
+      <div className="flex flex-col gap-2 lg:col-span-5 lg:grid lg:grid-rows-6">
+        <div className="flex flex-col gap-2 lg:row-span-3 lg:grid lg:grid-cols-5">
           {/* Orbiting Icons */}
           {/* Testemonials */}
-          <div className="col-span-3 rounded-lg border border-iconBg bg-cardBg">
+          <div className="flex rounded-lg border border-iconBg bg-cardBg lg:col-span-3">
             <OrbitingIcons />
           </div>
 
@@ -87,7 +87,7 @@ export default function IndexPage() {
           <WorkFlow />
         </div>
 
-        <div className="row-span-3 grid grid-cols-5 gap-2">
+        <div className="flex flex-col gap-2 lg:row-span-3 lg:grid lg:grid-cols-5">
           <OnlinePresence />
           <ContactMe />
         </div>

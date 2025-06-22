@@ -9,7 +9,7 @@ const OnlinePresence = () => {
         </h4>
         <h3 className="text-xl text-darkText">Online Presence</h3>
       </div>
-      <div className="grid grid-rows-4 gap-2 px-6">
+      <div className="grid grid-rows-4 gap-2 p-4 lg:px-6 lg:py-0">
         <a
           href="https://github.com/AmitxParmar"
           target="_blank"

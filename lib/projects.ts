@@ -33,7 +33,6 @@ export const projects: Project[] = [
     type: "Realtime Chat",
     features: [
       "Login with Google using Firebase: Seamlessly sign in with your Google account via Firebase integration",
-      "Switch between multiple databases using Prisma: Customize your database preferences to suit your needs effortlessly",
       "Send and Receive Messages using Sockets: Real-time messaging capabilities using Socket.io for instant communication",
       "Voice Call and Video Call Feature: Enjoy crystal clear voice and video calls within the app",
       "Voice Notes with Live Audio Waveforms: Send and receive voice notes accompanied by live audio waveforms for an enhanced messaging experience",
@@ -44,6 +43,7 @@ export const projects: Project[] = [
       "Capture Photo From Camera: Take instant photos using your device's camera and send them instantly",
       "Message Read Status: Know when your messages have been read by your recipients",
       "Message Time: Stay updated with the time stamps of messages for better organization",
+      "Switch between multiple databases using Prisma: Customize your database preferences to suit your needs effortlessly",
     ],
     skills: [
       "tailwindcss",

@@ -2,7 +2,7 @@ const AchievementGrid = () => {
   return (
     <>
       {/* Achievements */}
-      <div className="col-span-4 row-span-1 grid grid-cols-3 items-stretch gap-2">
+      <div className="hidden col-span-4 row-span-1 lg:grid grid-cols-3 items-stretch gap-2">
         {/* Projects */}
         <div className="flex-1 rounded-lg border border-iconBg bg-cardBg p-6">
           <h3 className="mb-4 text-xl font-semibold">Projects</h3>

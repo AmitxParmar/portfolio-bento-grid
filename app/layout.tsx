@@ -44,7 +44,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           )}
         >
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <div className="relative flex max-h-screen min-h-screen flex-col overflow-hidden">
+            <div className="relative flex overflow-auto max-w-screen overflow-x-hidden lg:max-h-screen min-h-screen flex-col lg:overflow-hidden">
               <div className="flex-1">{children}</div>
             </div>
             <TailwindIndicator />
