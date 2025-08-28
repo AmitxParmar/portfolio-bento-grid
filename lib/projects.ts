@@ -1,12 +1,23 @@
 import { Project } from "@/types/general";
 
 export const projects: Project[] = [
+  // job portal
   {
+    completionDate: "13/12/2024",
     name: "HIRECROWD",
     images: ["/projects/job-portal/index.png"],
     description:
       "Responsive job portal with recruiter and job seeker roles, featuring job management, applicant tracking, resume viewing, bookmarking, and an inbuilt resume builder",
-    skills: ["javascript", "node.js", "express", "mongodb", "tailwindCSS"],
+    skills: [
+      "javascript",
+      "node.js",
+      "express",
+      "mongodb",
+      "tailwindCSS",
+      "reactquery",
+      "jwt",
+      "cookie",
+    ],
     type: "Job Portal",
     liveLink: "https://job-portal-mern-sigma.vercel.app/",
     repositoryLink: "https://github.com/AmitxParmar/job-portal-mern",
@@ -25,12 +36,16 @@ export const projects: Project[] = [
       "Built-in resume builder: Create professional resumes using the platform's resume builder tool",
     ],
   },
+  // quick-chat
   {
+    completionDate: "27/08/2025",
     name: "Quick Chat",
     images: ["/projects/quick-chat/index.png"],
     description:
       "QuickChat is a web app offering seamless Google login via Firebase, real-time messaging with Socket.io, voice and video calls, voice notes with live audio waveforms, emoji support, image sharing, online/offline status, message search, camera photo capture, and message read statuses with timestamps.",
     type: "Realtime Chat",
+    repositoryLink: "https://github.com/AmitxParmar/rapid-quest-assignment",
+    liveLink: "https://quick-chat-redesigned-five.vercel.app/",
     features: [
       "Login with Google using Firebase: Seamlessly sign in with your Google account via Firebase integration",
       "Send and Receive Messages using Sockets: Real-time messaging capabilities using Socket.io for instant communication",
@@ -52,6 +67,84 @@ export const projects: Project[] = [
       "redux",
       "react",
       "next.js",
+      "reactQuery",
+      "mongoose",
+      "MongoDB",
+    ],
+  },
+  // streamio (youtube clone)
+  {
+    name: "Streamio",
+    type: "Video Platform",
+    images: ["/projects/streamio/index.png"],
+    description:
+      "A React web app that integrates the YouTube Data API to retrieve and display video information. Features include a search bar, video player, and channel details page.",
+    skills: ["react", "mui", "reactrouter", "axios", "rapid"],
+    features: [
+      "Integrated the YouTube Data API to fetch and display video content",
+      "Implemented a search bar for finding videos",
+      "Built a custom video player for seamless playback",
+      "Channel details page with channel information and video lists",
+    ],
+    liveLink: "https://startling-croissant-d44195.netlify.app/",
+    repositoryLink: "https://github.com/AmitxParmar/youtube-clone",
+    completionDate: "29/11/2022",
+  },
+  // firebase insta clone
+  {
+    name: "Full-stack Instagram Clone",
+    type: "Social Media",
+    images: ["/projects/instagram-clone/index.png"],
+    description:
+      "A full-stack Instagram clone with user authentication, post creation and viewing, like and comment features, and follow/unfollow functionality. Managed state with Context API, handled Firebase queries, and implemented dark theme, sidebar, and profile bio updates.",
+    skills: ["react", "reactrouter", "tailwindcss", "firebase"],
+    features: [
+      "User authentication system: Secure sign up and login functionality",
+      "Create, view, like, and comment on posts: Core social media interactions",
+      "Follow and unfollow users: Build your own network",
+      "State management with Context API: Efficient and scalable state handling",
+      "Firebase integration: Real-time data and authentication",
+      "Dark theme support: Switch between light and dark modes",
+      "Sidebar navigation: Easy access to main app sections",
+      "Profile bio update: Edit and update user bio information",
+    ],
+    liveLink: "",
+    repositoryLink: "https://github.com/AmitxParmar/instagram-clone",
+    completionDate: "12/01/2023",
+  },
+  // MERN hotel booking app (inspired by Lamadev tutorial)
+  {
+    completionDate: "9/08/2023",
+    name: "MERN Hotel Booking",
+    images: ["/projects/hotel-booking/index.png"],
+    description:
+      "A full-stack MERN hotel booking application inspired by Lamadev's YouTube tutorial. Features JWT authentication, role-based access (admin/user), hotel and room management, booking system, and an admin panel for managing hotels, rooms, and users.",
+    skills: [
+      "mongodb",
+      "express",
+      "react",
+      "node.js",
+      "jwt",
+      "tailwindcss",
+      "axios",
+      "react-router",
+      "cloudinary",
+    ],
+    type: "Hotel Booking",
+    repositoryLink: "https://github.com/AmitxParmar/MERN-hotel-booking",
+    features: [
+      "JWT authentication: Secure login and registration for users and admins",
+      "Role-based access: Admins can manage hotels, rooms, and users; users can book hotels and view their bookings",
+      "Admin panel: Dashboard for adding, editing, and deleting hotels and rooms",
+      "Hotel and room management: CRUD operations for hotels and rooms",
+      "Booking system: Users can search, filter, and book available hotels and rooms",
+      "Date availability: Prevent double-booking by checking room availability for selected dates",
+      "User profile: View and manage personal bookings",
+      "Image upload: Upload hotel and room images using Cloudinary",
+      "Responsive UI: Modern, mobile-friendly design with Tailwind CSS",
+      "Logout and session management: Securely handle user sessions with JWT and cookies",
+      "Password hashing: Secure user passwords with bcrypt",
+      "Error handling: User-friendly error messages and validation",
     ],
   },
 ];

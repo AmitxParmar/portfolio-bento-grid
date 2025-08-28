@@ -1,4 +1,5 @@
 export type Project = {
+  completionDate?: string;
   name: string;
   description?: string;
   skills: string[];
