@@ -17,11 +17,11 @@ import Image from "next/image";
 const AboutMe = () => {
   return (
     <>
-      <div className="relative col-span-4 row-span-3 rounded-lg border border-iconBg bg-cardBg p-4 sm:p-6">
+      <div className="relative col-span-4 row-span-3 rounded-lg border border-iconBg bg-iconBg/40 p-4 sm:p-6">
         <div className="flex flex-col-reverse sm:flex-row ">
           <Image
             src={"/profile-pic.jpg"}
-            className="relative mx-auto mb-4 aspect-square size-28 rounded-lg sm:mx-0 sm:mb-0 sm:mr-4"
+            className="relative mx-auto mb-4 aspect-square size-28 rounded-lg border-4 border-gray-400/50 sm:mx-0 sm:mb-0 sm:mr-4"
             height={112}
             width={112}
             alt={"Avatar"}
@@ -55,7 +55,7 @@ const AboutMe = () => {
             </p>
           </div>
         </div>
-        <div className="flex flex-wrap justify-center gap-2 rounded-[10px] border border-iconCard bg-[#141414] p-3 text-base text-lightText sm:p-5">
+        <div className="flex flex-wrap justify-center gap-2 rounded-[10px] border border-iconCard bg-iconBg/50 p-3 text-base text-lightText sm:p-5">
           <div className="grid grid-flow-col gap-2 rounded-full border border-iconBg bg-iconBg px-3 py-1.5 text-darkText">
             <TerminalSquare className="text-primary" />
             Full-stack Developer

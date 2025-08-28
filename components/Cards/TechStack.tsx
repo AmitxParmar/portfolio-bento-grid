@@ -15,7 +15,7 @@ const TechStack = () => {
       </div>
 
       <div className="m-auto grid grid-flow-col gap-2 p-2">
-        <Marquee>
+        <Marquee reverse>
           <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-sm text-white ">
             <Icons.mongodb className="size-20" /> MongoDB
           </div>
