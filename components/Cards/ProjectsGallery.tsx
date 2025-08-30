@@ -12,7 +12,7 @@ const ProjectsGallery = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="col-span-4 row-span-3 rounded-lg border border-iconBg bg-cardBg p-6">
+    <div className="col-span-4 row-span-3 rounded-lg border border-iconBg bg-cardBg p-2 lg:p-6">
       <div className="flex flex-col items-center justify-center">
         <h4 className="text-md mb-2 flex items-center gap-2 text-lightText">
           <Briefcase className="text-primary" /> Projects
