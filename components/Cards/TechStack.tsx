@@ -16,37 +16,37 @@ const TechStack = () => {
 
       <div className="m-auto grid">
         <Marquee reverse>
-          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-xs text-white ">
-            <Icons.typescript className="mx-auto size-14" /> TypeScript
+          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-[10px] text-white lg:px-1 lg:py-0.5">
+            <Icons.typeScript className="mx-auto size-14 lg:size-10 2xl:size-14" /> TypeScript
           </div>
 
-          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-xs text-white ">
-            <Icons.react className="mx-auto size-14" /> React
+          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-[10px] text-white lg:px-1 lg:py-0.5">
+            <Icons.react className="mx-auto size-14 lg:size-10 2xl:size-14" /> React
           </div>
 
-          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-xs text-white ">
-            <Icons.nextjs className="mx-auto size-14" /> NextJS
+          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-[10px] text-white lg:px-1 lg:py-0.5">
+            <Icons.nextjs className="mx-auto size-14 lg:size-10 2xl:size-14" /> NextJS
           </div>
-          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-xs text-white ">
-            <Icons.tailwind className="mx-auto size-14" /> Tailwind
+          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-[10px] text-white lg:px-1 lg:py-0.5">
+            <Icons.tailwind className="mx-auto size-14 lg:size-10 2xl:size-14" /> Tailwind
           </div>
         </Marquee>
         <Marquee>
-          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-xs text-white ">
-            <Icons.docker className="mx-auto size-14" /> Docker
+          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-[10px] text-white lg:px-1 lg:py-0.5">
+            <Icons.docker className="mx-auto size-14 lg:size-10 2xl:size-14" /> Docker
           </div>
-          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-xs text-white ">
-            <Icons.mongodb className="mx-auto size-14" /> MongoDB
+          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-[10px] text-white lg:px-1 lg:py-0.5">
+            <Icons.mongodb className="mx-auto size-14 lg:size-10 2xl:size-14" /> MongoDB
           </div>
-          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-xs text-white ">
-            <Icons.linux className="mx-auto size-14  fill-white" /> Linux
+          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-[10px] text-white lg:px-1 lg:py-0.5">
+            <Icons.linux className="mx-auto size-14 lg:size-10 2xl:size-14 fill-white" /> Linux
           </div>
-          <div className="flex flex-col rounded-lg border border-iconBg  px-2 py-1 text-center text-xs text-white">
-            <Icons.express className="mx-auto size-14" /> ExpressJS
+          <div className="flex flex-col rounded-lg border border-iconBg  px-2 py-1 text-center text-[10px] text-white lg:px-1 lg:py-0.5">
+            <Icons.express className="mx-auto size-14 lg:size-10 2xl:size-14" /> ExpressJS
           </div>
 
-          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-xs text-white ">
-            <Icons.nodejs className="mx-auto size-14" /> NodeJS
+          <div className="flex flex-col rounded-lg border border-iconBg px-2  py-1 text-center text-[10px] text-white lg:px-1 lg:py-0.5">
+            <Icons.nodejs className="mx-auto size-14 lg:size-10 2xl:size-14" /> NodeJS
           </div>
         </Marquee>
       </div>

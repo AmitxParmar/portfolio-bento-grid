@@ -9,6 +9,10 @@ export const siteConfig = {
       title: "Home",
       href: "/",
     },
+    {
+      title: "Bento Grid",
+      href: "/bento-grid",
+    },
   ],
   links: {
     twitter: "https://twitter.com/AmitxParmar",

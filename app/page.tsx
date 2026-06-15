@@ -1,3 +1,5 @@
+"use client";
+
 import AboutMe from "@/components/Cards/AboutMe";
 import AchievementGrid from "@/components/Cards/AchievementGrid";
 import ContactMe from "@/components/Cards/ContactMe";
@@ -24,19 +26,21 @@ const OrbitingIcons = dynamic(
 
 export default function IndexPage() {
   return (
-    <div className="flex flex-col gap-2 bg-bg px-2 py-3 text-darkText lg:grid lg:min-h-screen lg:grid-cols-12 lg:px-6">
+    <div className="flex flex-col gap-2 bg-bg px-2 py-3 text-darkText lg:grid lg:h-screen lg:grid-cols-12 lg:px-4 lg:gap-1.5 lg:overflow-hidden 2xl:px-6 2xl:gap-3">
       <div className="flex flex-col gap-2 lg:col-span-7 lg:grid lg:grid-cols-7">
         {/* First Grid */}
         <div className="order-2 col-span-3 flex grid-rows-6 flex-col gap-2 lg:order-1 lg:grid">
           <div className="row-span-2">
             <TechStack />
           </div>
-          <div className="row-span-2 grid grid-cols-2 gap-2">
+                    <div className="row-span-2 grid grid-cols-2 gap-2">
             {/* Projects gallery */}
             <ProjectStructures.Frontend />
 
             <ProjectStructures.Backend />
           </div>
+
+        
 
           <div className="relative row-span-2 flex h-full flex-col items-center justify-center overflow-hidden rounded-lg  border border-iconBg bg-cardBg">
             <svg
@@ -67,7 +71,9 @@ export default function IndexPage() {
           <AchievementGrid />
 
           {/* About me */}
-          <AboutMe />
+          <div className="col-span-4 row-span-2">
+            <AboutMe />
+          </div>
 
           {/* Projects Showcase */}
           <ProjectsGallery />

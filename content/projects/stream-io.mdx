@@ -1,0 +1,201 @@
+---
+title: Streamio
+description: React-based video platform powered by YouTube Data API
+featured: false
+status: Completed
+year: 2022
+role:
+  - Frontend Developer
+tech:
+  - React
+  - MUI
+  - Axios
+  - YouTube API
+github: https://github.com/AmitxParmar/youtube-clone
+demo: https://startling-croissant-d44195.netlify.app/
+cover: /projects/streamio/index.png
+---
+
+<ProjectHero
+  title="Streamio"
+  subtitle="React-based video streaming platform powered by the YouTube Data API, featuring a custom video player and detailed search discovery."
+  status="Completed"
+  timeline="1 Month"
+  github="https://github.com/AmitxParmar/youtube-clone"
+  demo="https://startling-croissant-d44195.netlify.app/"
+/>
+
+<InfoGrid>
+  <InfoCard title="Framework" value="React" icon={Layout} />
+  <InfoCard title="UI Kit" value="Material UI" icon={Layout} />
+  <InfoCard title="API" value="YouTube v3" icon={Server} />
+  <InfoCard title="HTTP" value="Axios" icon={Activity} />
+  <InfoCard title="Hosting" value="Netlify" icon={Server} />
+  <InfoCard title="Type" value="Frontend" icon={Layout} />
+</InfoGrid>
+
+## Overview
+
+Streamio is a high-fidelity video discovery platform built to demonstrate complex third-party API integration and modern responsive UI design. It provides a seamless viewing experience with optimized data fetching to respect API quotas.
+
+Key focus areas:
+- High-performance API integration
+- Custom themed component library
+- Fluid, responsive video layouts
+- Intuitive search and discovery
+
+<ProjectArchitecture 
+  title="Frontend Architecture"
+  description="A modular React application designed for high-fidelity media discovery, leveraging the YouTube Data API with optimized request pooling."
+  nodes={[
+    { id: '1', type: 'custom', position: { x: 250, y: 0 }, data: { label: 'React Application', type: 'Frontend' } },
+    { id: '2', type: 'custom', position: { x: 250, y: 150 }, data: { label: 'YouTube Data API', type: 'External Service' } },
+    { id: '3', type: 'custom', position: { x: 50, y: 150 }, data: { label: 'MUI Theme', type: 'UI System' } },
+    { id: '4', type: 'custom', position: { x: 450, y: 150 }, data: { label: 'Axios Instance', type: 'Network' } }
+  ]}
+  edges={[
+    { id: 'e1-2', source: '1', target: '2', animated: true },
+    { id: 'e1-3', source: '1', target: '3' },
+    { id: 'e1-4', source: '1', target: '4' }
+  ]}
+>
+```tree
+Frontend Application (React)
+├── State Management (Hooks/Context)
+├── UI Foundation (Material UI Custom Theme)
+└── Data Layer (Axios + YouTube Data API v3)
+
+External Services
+└── YouTube Data API (Video Metadata, Search, Statistics)
+```
+</ProjectArchitecture>
+
+---
+
+## Impact & Results
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+  <ProjectStat label="Reusable Components" value="20+" description="Modular UI architecture for rapid feature development." />
+  <ProjectStat label="API Efficiency" value="Optimal" description="Strategically managed requests to stay within 10k daily quota." />
+  <ProjectStat label="Device Coverage" value="100%" description="Pixel-perfect responsiveness across all screen dimensions." />
+</div>
+
+
+---
+
+## Features
+
+<FeatureGrid>
+  <FeatureCard 
+    title="Custom Video Player" 
+    description="Integrated playback experience with related video suggestions and channel metadata."
+    icon={Layout}
+  />
+  <FeatureCard 
+    title="Intelligent Search" 
+    description="Global search functionality with category filtering for rapid content discovery."
+    icon={Activity}
+  />
+  <FeatureCard 
+    title="Responsive Grid" 
+    description="Fluid video discovery layout that adapts seamlessly from mobile to desktop environments."
+    icon={Layout}
+  />
+  <FeatureCard 
+    title="Quota Optimization" 
+    description="Strategically managed API requests to maximize the efficiency of daily quota limits."
+    icon={Server}
+  />
+</FeatureGrid>
+
+---
+
+## Technical Challenges
+
+<ChallengeCard
+  title="Optimizing API Quota Usage"
+  problem="The YouTube Data API has strict daily quota limits (10,000 units). Redundant or inefficient requests can quickly exhaust these limits."
+  solution="Implemented a centralized data fetching layer with efficient state management to ensure each piece of metadata is fetched only when necessary and reused across components."
+  result="Maximized platform availability, ensuring a full day of browsing without hitting API rate limits."
+/>
+
+<ChallengeCard
+  title="Consistent Cross-Device Experience"
+  problem="Building a complex, media-heavy interface that feels native and responsive across all screen sizes."
+  solution="Leveraged Material UI's (MUI) powerful grid and breakpoint system, customizing the global theme to create a unique brand identity while maintaining accessibility standards."
+  result="A polished, consistent UI with 100% responsiveness and high accessibility scores."
+/>
+
+---
+
+## Project Structure
+
+<ProjectTree>
+  <Folder name="src" id="src">
+    <Folder name="components" id="components">
+      <Folder name="VideoCard" id="video-card" />
+      <Folder name="SearchBar" id="search-bar" />
+      <Folder name="VideoPlayer" id="video-player" />
+    </Folder>
+    <Folder name="utils" id="utils">
+      <File name="fetchFromAPI.js" id="api-util" />
+    </Folder>
+    <Folder name="pages" id="pages">
+      <File name="Feed.jsx" id="feed-page" />
+      <File name="VideoDetail.jsx" id="video-page" />
+    </Folder>
+  </Folder>
+</ProjectTree>
+
+---
+
+## API Reference
+
+<ApiDialog>
+  <ApiEndpoint 
+    method="GET" 
+    path="/search" 
+    description="Fetch videos, channels, or playlists based on query parameters." 
+  />
+  <ApiEndpoint 
+    method="GET" 
+    path="/videos" 
+    description="Retrieve detailed metadata and statistics for a specific video ID." 
+  />
+  <ApiEndpoint 
+    method="GET" 
+    path="/channels" 
+    description="Fetch channel information including subscriber counts and featured content." 
+  />
+</ApiDialog>
+
+---
+
+## Performance Optimizations
+
+<MetricsTable>
+  <MetricRow label="UI Components" value="20+ Reusable" />
+  <MetricRow label="Responsive Breakpoints" value="5 (Mobile to 4K)" />
+  <MetricRow label="API Latency" value="Minimal (Optimized)" />
+  <MetricRow label="Bundle Size" value="Tree-shaken" />
+</MetricsTable>
+
+---
+
+## Lessons Learned
+
+*   **Third-party Integration:** Mastering the intricacies of the YouTube Data API v3.
+*   **Quota Management:** Designing applications to thrive under strict rate limits.
+*   **Theming & Styling:** Customizing design systems (MUI) for unique brand aesthetics.
+*   **Async Patterns:** Handling complex loading states and error boundaries in React.
+
+---
+
+## Screenshots
+
+<ImageGallery 
+  images={[
+    { src: "/projects/streamio/index.png", alt: "Video Discovery Feed", title: "Global Discovery Feed" },
+    { src: "/projects/streamio/index.png", alt: "Custom Video Player", title: "Immersive Playback View" }
+  ]}
+/>

@@ -34,3 +34,5 @@ yarn-error.log*
 
 .contentlayer
 .env
+# Added by code-review-graph
+.code-review-graph/

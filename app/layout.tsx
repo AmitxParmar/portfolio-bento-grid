@@ -1,11 +1,14 @@
 import "@/styles/globals.css";
+import "@xyflow/react/dist/style.css";
 import { Metadata } from "next";
 
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Manrope } from "next/font/google";
+import { Manrope, Geist } from "next/font/google";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const font = Manrope({
   subsets: ["latin"],
@@ -18,25 +21,25 @@ export const metadata: Metadata = {
     template: `%s - ${siteConfig.name}`,
   },
   description: siteConfig.description,
+  icons: {
+    icon: "/favicon.ico",
+  },
+};
+
+export const viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "white" },
     { media: "(prefers-color-scheme: dark)", color: "black" },
   ],
-  icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
-  },
 };
 
 interface RootLayoutProps {
   children: React.ReactNode;
 }
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
   return (
-    <>
-      <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
         <body
           className={cn(
             "min-h-screen bg-background font-sans antialiased",
@@ -44,13 +47,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
           )}
         >
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <div className="relative flex overflow-auto max-w-screen overflow-x-hidden lg:max-h-screen min-h-screen flex-col lg:overflow-hidden">
-              <div className="flex-1">{children}</div>
+            <div className="relative flex max-w-screen overflow-x-hidden h-screen flex-col">
+              <div className="flex-1 h-0 overflow-y-auto">{children}</div>
             </div>
             <TailwindIndicator />
           </ThemeProvider>
         </body>
       </html>
-    </>
   );
 }

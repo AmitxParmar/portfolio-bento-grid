@@ -1,7 +1,7 @@
 import { File, Folder, Tree } from "@/components/magicui/file-tree";
 const Backend = () => {
   return (
-    <div className="relative mx-auto flex h-[200px] w-fit flex-col items-center justify-center overflow-hidden rounded-lg">
+    <div className="relative mx-auto flex h-[200px] w-fit flex-col items-center justify-center overflow-hidden rounded-lg lg:h-[130px] 2xl:h-[200px]">
       <Tree
         className="overflow-hidden rounded-md bg-background p-2"
         initialExpandedItems={["1"]}
