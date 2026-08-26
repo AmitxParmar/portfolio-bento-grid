@@ -1,9 +1,9 @@
 import { allProjects } from "content-collections";
 import { notFound } from "next/navigation";
-import { MDXContent } from "@content-collections/mdx/react";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-import * as MdxComponents from "@/components/mdx-components";
+import { Button } from "@/components/ui/button";
+import { ProjectMDX } from "@/components/ProjectMDX";
 
 interface ProjectPageProps {
   params: Promise<{
@@ -26,9 +26,9 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
   }
 
   return (
-    <article className="min-h-screen bg-bg text-darkText pb-32 overflow-x-hidden">
+    <article className="min-h-screen bg-black text-darkText pb-32 overflow-x-hidden">
       {/* Sticky Progress/Back Bar */}
-      <div className="sticky top-0 z-50 w-full bg-bg/80 backdrop-blur-md border-b border-iconBg">
+      <div className="sticky top-0 z-50 w-full bg-black/80 backdrop-blur-md border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 lg:px-20 h-16 flex items-center justify-between">
           <Link 
             href="/" 
@@ -45,23 +45,18 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 lg:px-20 pt-16">
-        <div className="prose prose-invert prose-primary max-w-none prose-pre:bg-cardBg prose-pre:border prose-pre:border-iconBg prose-img:rounded-3xl prose-headings:scroll-mt-24">
-          <MDXContent 
-            code={project.mdx} 
-            components={{
-              ...MdxComponents,
-            }}
-          />
+        <div className="prose prose-invert prose-primary max-w-none prose-pre:bg-black prose-pre:border prose-pre:border-white/5 prose-img:rounded-3xl prose-headings:scroll-mt-24">
+          <ProjectMDX code={project.mdx} />
         </div>
 
         {/* Footer Navigation */}
-        <div className="mt-32 pt-12 border-t border-iconBg flex flex-col md:flex-row items-center justify-between gap-8">
+        <div className="mt-32 pt-12 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="space-y-2 text-center md:text-left">
             <h4 className="text-lg font-bold text-darkText">Liked this project?</h4>
             <p className="text-sm text-lightText">Check out more of my work or get in touch.</p>
           </div>
           <div className="flex flex-wrap gap-4">
-            <Button asChild variant="outline" className="rounded-full border-iconBg px-6">
+            <Button asChild variant="outline" className="rounded-full border-white/5 px-6">
               <Link href="/">Browse All Projects</Link>
             </Button>
             <Button asChild className="bg-primary hover:bg-primary/90 rounded-full px-6">

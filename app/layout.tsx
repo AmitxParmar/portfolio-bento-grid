@@ -1,5 +1,4 @@
 import "@/styles/globals.css";
-import "@xyflow/react/dist/style.css";
 import { Metadata } from "next";
 
 import { siteConfig } from "@/config/site";

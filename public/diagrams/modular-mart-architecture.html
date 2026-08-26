@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modular Mart Architecture Diagram</title>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --fg: #1a1a1a;
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --accent: #f59e0b;
+            --border: #e2e8f0;
+            --card-bg: #f8fafc;
+            --node-svc: #dbeafe;
+            --node-db: #fef3c7;
+            --node-bus: #fce7f3;
+            --node-obs: #dcfce7;
+            --line: #cbd5e1;
+        }
+
+        html.dark {
+            --bg: #0f172a;
+            --fg: #f8fafc;
+            --primary: #3b82f6;
+            --secondary: #94a3b8;
+            --accent: #fbbf24;
+            --border: #1e293b;
+            --card-bg: #1e293b;
+            --node-svc: #1e3a8a;
+            --node-db: #78350f;
+            --node-bus: #701a75;
+            --node-obs: #064e3b;
+            --line: #334155;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            transition: background 0.3s, color 0.3s;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        header {
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            z-index: 10;
+            background: var(--bg);
+        }
+
+        h1 { margin: 0; font-size: 1.25rem; font-weight: 700; }
+        .controls { display: flex; gap: 1rem; }
+        
+        button {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--fg);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        #diagram-container {
+            flex: 1;
+            position: relative;
+            cursor: grab;
+            overflow: auto;
+            background-image: radial-gradient(var(--border) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .canvas {
+            position: absolute;
+            width: 1600px;
+            height: 1000px;
+            padding: 50px;
+        }
+
+        svg.connections {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .node {
+            position: absolute;
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            width: 180px;
+            z-index: 1;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            text-align: center;
+        }
+
+        .node-header { font-weight: 700; margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .node-type { font-size: 0.7rem; text-transform: uppercase; color: var(--secondary); letter-spacing: 0.05em; }
+
+        .node.service { border-color: var(--primary); background: var(--node-svc); }
+        .node.database { border-color: var(--accent); background: var(--node-db); }
+        .node.bus { border-color: #d946ef; background: var(--node-bus); }
+        .node.obs { border-color: #22c55e; background: var(--node-obs); }
+        .node.gateway { border-color: #ef4444; }
+
+        .group-label {
+            position: absolute;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--secondary);
+            background: var(--bg);
+            padding: 0 0.5rem;
+            top: -0.6rem;
+            left: 1rem;
+        }
+
+        .group {
+            position: absolute;
+            border: 1px dashed var(--secondary);
+            border-radius: 16px;
+            z-index: -1;
+        }
+
+        #theme-toggle { font-size: 1rem; }
+
+        /* Positions */
+        #gateway { top: 100px; left: 700px; }
+        #clerk { top: 100px; left: 950px; }
+        
+        #svc-user { top: 300px; left: 200px; }
+        #db-user { top: 450px; left: 200px; }
+        
+        #svc-catalog { top: 300px; left: 450px; }
+        #db-catalog { top: 450px; left: 450px; }
+        
+        #svc-order { top: 300px; left: 700px; }
+        #db-order { top: 450px; left: 700px; }
+        
+        #svc-payment { top: 300px; left: 950px; }
+        #db-payment { top: 450px; left: 950px; }
+        
+        #svc-notif { top: 300px; left: 1200px; }
+        #db-notif { top: 450px; left: 1200px; }
+
+        #rabbitmq { top: 650px; left: 700px; width: 300px; }
+
+        #otel { top: 800px; left: 700px; }
+        
+        #loki { top: 900px; left: 450px; }
+        #prom { top: 900px; left: 700px; }
+        #tempo { top: 900px; left: 950px; }
+        #grafana { top: 900px; left: 1200px; }
+
+        #client { top: 0px; left: 700px; }
+
+    </style>
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.classList.toggle('dark', theme === 'dark');
+        })();
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Modular Mart Architecture</h1>
+        <div class="controls">
+            <button id="theme-toggle">â—</button>
+            <button onclick="window.print()">Export PDF</button>
+        </div>
+    </header>
+
+    <div id="diagram-container">
+        <div class="canvas">
+            <svg class="connections" viewBox="0 0 1600 1000">
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orientation="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="var(--line)" />
+                    </marker>
+                </defs>
+                <!-- Client to Gateway -->
+                <line x1="790" y1="50" x2="790" y2="100" stroke="var(--line)" stroke-width="2" marker-end="url(#arrowhead)" />
+                
+                <!-- Gateway to Services -->
+                <path d="M 700 125 L 290 125 L 290 300" fill="none" stroke="var(--line)" stroke-width="2" marker-end="url(#arrowhead)" />
+                <path d="M 700 125 L 540 125 L 540 300" fill="none" stroke="var(--line)" stroke-width="2" marker-end="url(#arrowhead)" />
+                <line x1="790" y1="150" x2="790" y2="300" stroke="var(--line)" stroke-width="2" marker-end="url(#arrowhead)" />
+                <path d="M 880 125 L 1040 125 L 1040 300" fill="none" stroke="var(--line)" stroke-width="2" marker-end="url(#arrowhead)" />
+                <path d="M 880 125 L 1290 125 L 1290 300" fill="none" stroke="var(--line)" stroke-width="2" marker-end="url(#arrowhead)" />
+
+                <!-- Services to DBs -->
+                <line x1="290" y1="350" x2="290" y2="450" stroke="var(--line)" stroke-width="2" />
+                <line x1="540" y1="350" x2="540" y2="450" stroke="var(--line)" stroke-width="2" />
+                <line x1="790" y1="350" x2="790" y2="450" stroke="var(--line)" stroke-width="2" />
+                <line x1="1040" y1="350" x2="1040" y2="450" stroke="var(--line)" stroke-width="2" />
+                <line x1="1290" y1="350" x2="1290" y2="450" stroke="var(--line)" stroke-width="2" />
+
+                <!-- Services to RabbitMQ (Choreography) -->
+                <path d="M 290 350 L 290 600 L 700 675" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arrowhead)" />
+                <path d="M 540 350 L 540 600 L 700 675" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arrowhead)" />
+                <line x1="790" y1="350" x2="790" y2="650" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arrowhead)" />
+                <path d="M 1040 350 L 1040 600 L 1000 675" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arrowhead)" />
+                <path d="M 1290 350 L 1290 600 L 1000 675" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arrowhead)" />
+
+                <!-- Services to OTEL -->
+                <path d="M 200 325 L 50 325 L 50 825 L 700 825" fill="none" stroke="#22c55e" stroke-width="1" opacity="0.5" />
+                <line x1="790" y1="650" x2="790" y2="800" stroke="#22c55e" stroke-width="1" opacity="0.5" />
+            </svg>
+
+            <div class="node" id="client">
+                <div class="node-type">Client</div>
+                <div class="node-header">Next.js Web</div>
+            </div>
+
+            <div class="node gateway" id="gateway">
+                <div class="node-type">Gateway</div>
+                <div class="node-header">Kong API Gateway</div>
+            </div>
+
+            <div class="node" id="clerk">
+                <div class="node-type">Auth</div>
+                <div class="node-header">Clerk / JWT</div>
+            </div>
+
+            <div class="node service" id="svc-user">
+                <div class="node-type">Service</div>
+                <div class="node-header">User Service</div>
+            </div>
+            <div class="node database" id="db-user">
+                <div class="node-type">Database</div>
+                <div class="node-header">PostgreSQL</div>
+            </div>
+
+            <div class="node service" id="svc-catalog">
+                <div class="node-type">Service</div>
+                <div class="node-header">Catalog Service</div>
+            </div>
+            <div class="node database" id="db-catalog">
+                <div class="node-type">Database</div>
+                <div class="node-header">PostgreSQL + Redis</div>
+            </div>
+
+            <div class="node service" id="svc-order">
+                <div class="node-type">Service</div>
+                <div class="node-header">Order Service</div>
+            </div>
+            <div class="node database" id="db-order">
+                <div class="node-type">Database</div>
+                <div class="node-header">PostgreSQL (Outbox)</div>
+            </div>
+
+            <div class="node service" id="svc-payment">
+                <div class="node-type">Service</div>
+                <div class="node-header">Payment Service</div>
+            </div>
+            <div class="node database" id="db-payment">
+                <div class="node-type">Database</div>
+                <div class="node-header">PostgreSQL</div>
+            </div>
+
+            <div class="node service" id="svc-notif">
+                <div class="node-type">Service</div>
+                <div class="node-header">Notification Svc</div>
+            </div>
+            <div class="node database" id="db-notif">
+                <div class="node-type">Database</div>
+                <div class="node-header">PostgreSQL</div>
+            </div>
+
+            <div class="node bus" id="rabbitmq">
+                <div class="node-type">Event Bus</div>
+                <div class="node-header">RabbitMQ</div>
+            </div>
+
+            <div class="node obs" id="otel">
+                <div class="node-type">Telemetry</div>
+                <div class="node-header">OTEL Collector</div>
+            </div>
+
+            <div class="node obs" id="loki">
+                <div class="node-type">Logs</div>
+                <div class="node-header">Loki</div>
+            </div>
+            <div class="node obs" id="prom">
+                <div class="node-type">Metrics</div>
+                <div class="node-header">Prometheus</div>
+            </div>
+            <div class="node obs" id="tempo">
+                <div class="node-type">Traces</div>
+                <div class="node-header">Tempo</div>
+            </div>
+            <div class="node obs" id="grafana">
+                <div class="node-type">Visualization</div>
+                <div class="node-header">Grafana</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const btn = document.getElementById('theme-toggle');
+        btn.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            btn.textContent = isDark ? 'â—Ž' : 'â—';
+        });
+
+        // Simple drag scroll
+        const container = document.getElementById('diagram-container');
+        let isDown = false;
+        let startX, startY, scrollLeft, scrollTop;
+
+        container.addEventListener('mousedown', (e) => {
+            isDown = true;
+            container.style.cursor = 'grabbing';
+            startX = e.pageX - container.offsetLeft;
+            startY = e.pageY - container.offsetTop;
+            scrollLeft = container.scrollLeft;
+            scrollTop = container.scrollTop;
+        });
+        container.addEventListener('mouseleave', () => { isDown = false; container.style.cursor = 'grab'; });
+        container.addEventListener('mouseup', () => { isDown = false; container.style.cursor = 'grab'; });
+        container.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - container.offsetLeft;
+            const y = e.pageY - container.offsetTop;
+            const walkX = (x - startX) * 1.5;
+            const walkY = (y - startY) * 1.5;
+            container.scrollLeft = scrollLeft - walkX;
+            container.scrollTop = scrollTop - walkY;
+        });
+    </script>
+</body>
+</html>

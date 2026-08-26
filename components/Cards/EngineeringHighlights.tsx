@@ -1,51 +1,47 @@
-import { Zap, CheckCircle2, BookOpen } from "lucide-react";
+import { Zap, CheckCircle2, Cpu } from "lucide-react";
 
 const EngineeringHighlights = () => {
   const highlights = [
-    "Architected real-time chat with Socket.io & Redis",
-    "Designed RBAC with secure JWT sessions",
-    "Implemented Local-First sync with IndexedDB",
-    "Optimized LCP by 40% using asset prioritization",
-    "Dockerized multi-service MERN applications",
-  ];
-
-  const learning = [
-    "System Design",
-    "Distributed Systems",
-    "Kubernetes",
-    "Event-Driven Architecture",
+    "Microservices Architecture",
+    "RabbitMQ Event Bus",
+    "Redis Caching & Pub/Sub",
+    "Transactional Outbox Pattern",
+    "CQRS Design Pattern",
+    "OpenTelemetry Observability",
+    "Circuit Breaker Resilience",
+    "Event Sourcing",
+    "Local-First Sync (IndexedDB)",
+    "Kong API Gateway",
+    "Docker Containerization",
+    "AWS Infrastructure",
   ];
 
   return (
-    <div className="col-span-3 h-full flex flex-col rounded-lg border border-iconBg bg-cardBg p-5">
-      <div className="mb-4 flex items-center gap-2">
-        <Zap className="text-primary" size={18} />
-        <h3 className="text-lg font-semibold text-white">Engineering Highlights</h3>
+    <div className="flex flex-1 flex-col rounded-[2rem] border-premium card-gradient-orange p-6 lg:p-4 2xl:p-8 hover-glow-purple transition-all duration-500 group/highlights">
+      <div className="mb-6 flex flex-col items-center justify-center text-center">
+        <h4 className="text-[10px] mb-1 flex items-center gap-2 text-primary font-black uppercase tracking-[0.2em] opacity-80 group-highlights:opacity-100 transition-opacity">
+          <Zap className="fill-primary/20" size={12} /> Technical Depth
+        </h4>
+        <h3 className="text-xl font-black text-white tracking-tighter lg:text-base 2xl:text-2xl leading-none">
+          Engineering Highlights
+        </h3>
       </div>
       
-      <div className="flex-1 space-y-3">
+      <div className="grid grid-cols-2 gap-x-4 gap-y-3 lg:gap-x-3 lg:gap-y-2 2xl:gap-x-6 2xl:gap-y-4">
         {highlights.map((highlight, index) => (
-          <div key={index} className="flex items-start gap-2">
-            <CheckCircle2 className="mt-0.5 shrink-0 text-green-500/60" size={12} />
-            <p className="text-xs text-gray-400 leading-tight">
+          <div key={index} className="flex items-center gap-2 group/item">
+            <div className="flex size-4 shrink-0 items-center justify-center rounded-full bg-primary/10 border border-primary/20 transition-colors group-hover/item:bg-primary/20">
+              <CheckCircle2 className="text-primary" size={8} />
+            </div>
+            <p className="text-[10px] font-black uppercase tracking-wider text-white/70 group-hover/item:text-white transition-colors leading-tight truncate" title={highlight}>
               {highlight}
             </p>
           </div>
         ))}
       </div>
 
-      <div className="mt-4 pt-4 border-t border-iconBg/50">
-        <div className="mb-3 flex items-center gap-2">
-          <BookOpen className="text-primary" size={16} />
-          <h4 className="text-sm font-medium text-white">Currently Learning</h4>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {learning.map((item, index) => (
-            <span key={index} className="text-[10px] bg-iconBg px-2 py-0.5 rounded-full text-lightText">
-              {item}
-            </span>
-          ))}
-        </div>
+      <div className="mt-auto pt-6 opacity-10 group-hover/highlights:opacity-20 transition-opacity flex justify-end">
+        <Cpu size={40} className="text-primary rotate-12" />
       </div>
     </div>
   );

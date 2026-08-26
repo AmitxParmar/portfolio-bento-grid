@@ -1,0 +1,377 @@
+---
+title: Modular Mart
+description: Cloud-native, microservices-based e-commerce platform with event-driven choreography.
+featured: true
+status: Completed
+year: 2026
+role:
+  - Backend Architect
+  - Full Stack Developer
+tech:
+  - NestJS
+  - Next.js
+  - RabbitMQ
+  - PostgreSQL
+  - Kong
+  - Turborepo
+github: ""
+demo: ""
+cover: /projects/modular-mart/index.png
+---
+
+<ProjectHero
+  title="Modular Mart"
+  subtitle="A cloud-native, microservices-based multi-vendor e-commerce platform designed with a focus on domain isolation, event-driven choreography, and deep observability."
+  status="Completed"
+  timeline="4 Months"
+  github="#"
+  demo="#"
+/>
+
+<div className="flex flex-wrap gap-2 mb-16">
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Choreographed Saga</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Transactional Outbox</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Database-per-Service</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Event-Driven Architecture</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Idempotent Consumers</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Dead Letter Queues</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Distributed Tracing</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Circuit Breakers</Badge>
+</div>
+
+<InfoGrid>
+  <InfoCard title="Architecture" value="Microservices" icon={Layout} />
+  <InfoCard title="API Gateway" value="Kong" icon={Server} />
+  <InfoCard title="Event Bus" value="RabbitMQ" icon={Activity} />
+  <InfoCard title="Databases" value="Isolated PostgreSQL" icon={Database} />
+  <InfoCard title="Observability" value="LGTM Stack" icon={Activity} />
+  <InfoCard title="Auth" value="Clerk" icon={Shield} />
+</InfoGrid>
+
+## Overview
+
+Modular Mart is a highly scalable, multi-vendor e-commerce platform. It evolved from a single-vendor monolithic structure into a fully distributed microservices architecture to support growing traffic and vendor requirements.
+
+Key focus areas:
+- **Domain Isolation**: Dedicated services for Users, Catalog, Orders, Payments, and Notifications.
+- **Event-Driven Choreography**: Asynchronous saga patterns for complex workflows like checkout.
+- **Deep Observability**: Comprehensive tracing, logging, and metrics using the LGTM stack.
+
+<ProjectArchitecture 
+  title="High-Level System Architecture"
+  description="A professional, top-down blueprint of the cloud-native infrastructure, showing domain isolation, gateway entry, and the persistence layer."
+  showLegend={true}
+  chart={`graph TB
+    subgraph "Client Layer"
+        Web[("Web Storefront")]
+        Docs[("API Documentation")]
+    end
+
+    subgraph "Gateway Layer"
+        Kong["Kong API Gateway<br/>Rate Limiting · Auth"]
+        Clerk["Clerk Auth<br/>JWT Validation"]
+    end
+
+    subgraph "Identity Domain"
+        UserSvc["User Service"]
+        UserDB[("User DB<br/>PostgreSQL")]
+    end
+
+    subgraph "Commerce Domain"
+        CatalogSvc["Catalog Service"]
+        CatalogDB[("Catalog DB<br/>PostgreSQL")]
+    end
+
+    subgraph "Ordering Domain"
+        OrderSvc["Order Service"]
+        OrderDB[("Order DB<br/>PostgreSQL")]
+    end
+
+    subgraph "Payments Domain"
+        PaymentSvc["Payment Service"]
+        PaymentDB[("Payment DB<br/>PostgreSQL")]
+    end
+
+    subgraph "Comm Domain"
+        NotificationSvc["Notification Service"]
+        NotificationDB[("Notification DB<br/>PostgreSQL")]
+    end
+
+    subgraph "Messaging Layer"
+        RabbitMQ["RabbitMQ<br/>Event Bus"]
+    end
+
+    Web -->|"HTTPS"| Kong
+    Docs -->|"HTTPS"| Kong
+    Kong -->|"VALIDATE"| Clerk
+    Kong --> UserSvc
+    Kong --> CatalogSvc
+    Kong --> OrderSvc
+    Kong --> PaymentSvc
+
+    UserSvc --> UserDB
+    CatalogSvc --> CatalogDB
+    OrderSvc --> OrderDB
+    PaymentSvc --> PaymentDB
+    NotificationSvc --> NotificationDB
+
+    OrderSvc -.->|"ORDER_CREATED"| RabbitMQ
+    RabbitMQ -.->|"RESERVE_STOCK"| CatalogSvc
+    RabbitMQ -.->|"START_PAYMENT"| PaymentSvc
+    RabbitMQ -.->|"SEND_ALERT"| NotificationSvc
+
+    style Kong fill:#c084fc,color:#000
+    style Clerk fill:#c084fc,color:#000
+    style RabbitMQ fill:#f97316,color:#000
+  `}/>
+
+<ProjectArchitecture 
+  title="Checkout Saga Orchestration"
+  description="Visualizing the distributed transaction flow. This choreography ensures inventory is reserved before payment is processed, with built-in failure compensation."
+  showLegend={true}
+  chart={`graph TD
+    OrderSvc["Order Service<br/>Saga Initiator"]
+
+    subgraph "Step 1: Reserve Inventory"
+        CatalogSvc["Catalog Service"]
+    end
+
+    subgraph "Step 2: Process Payment"
+        PaymentSvc["Payment Service"]
+    end
+
+    OrderSvc -.->|"STOCK_RESERVE_REQUESTED"| CatalogSvc
+    CatalogSvc -.->|"STOCK_RESERVED"| OrderSvc
+    OrderSvc -.->|"PROCESS_PAYMENT"| PaymentSvc
+
+    PaymentSvc -.->|"PAYMENT_SUCCEEDED"| Finalized(("Order Finalized"))
+
+    PaymentSvc -.->|"PAYMENT_FAILED → RELEASE_STOCK"| CatalogSvc
+    CatalogSvc -.-> Released(("Stock Released"))
+
+    style OrderSvc fill:#c084fc,color:#000
+    style Finalized fill:#22c55e,color:#000
+    style Released fill:#ef4444,color:#fff
+  `}/>
+
+<ProjectArchitecture 
+  title="Observability Architecture"
+  description="How telemetry data is aggregated from services and pushed to the LGTM stack for professional visualization and debugging."
+  chart={`graph TB
+    Svc["Microservices<br/>Instruments + Exports"]
+
+    subgraph "Collection"
+        OTel["OpenTelemetry Collector<br/>OTLP Gateway"]
+    end
+
+    subgraph "Storage"
+        Loki[("Loki<br/>Logs")]
+        Prometheus[("Prometheus<br/>Metrics")]
+        Jaeger[("Jaeger<br/>Traces")]
+    end
+
+    subgraph "Visualization"
+        Grafana["Grafana Dashboard<br/>Unified View"]
+    end
+
+    Svc -->|"PUSH TELEMETRY"| OTel
+    OTel -->|"LOGS"| Loki
+    OTel -->|"METRICS"| Prometheus
+    OTel -->|"TRACES"| Jaeger
+
+    Loki --> Grafana
+    Prometheus --> Grafana
+    Jaeger --> Grafana
+
+    style OTel fill:#c084fc,color:#000
+    style Grafana fill:#f97316,color:#000
+  `}/>
+
+<ProjectArchitecture 
+  title="Domain & Bounded Contexts"
+  description="Illustrating business boundaries and service ownership based on Domain-Driven Design principles."
+  chart={`graph TB
+    subgraph "Identity Domain"
+        UserService["User Service"]
+    end
+
+    subgraph "Commerce Domain"
+        CatalogService["Catalog Service"]
+    end
+
+    subgraph "Ordering Domain"
+        OrderService["Order Service"]
+    end
+
+    subgraph "Payments Domain"
+        PaymentService["Payment Service"]
+    end
+
+    subgraph "Communication Domain"
+        NotificationService["Notification Service"]
+    end
+
+    style UserService fill:#c084fc,color:#000
+    style CatalogService fill:#c084fc,color:#000
+    style OrderService fill:#c084fc,color:#000
+    style PaymentService fill:#c084fc,color:#000
+    style NotificationService fill:#c084fc,color:#000
+  `}/>
+
+---
+
+## Key Architectural Decisions
+
+### Why RabbitMQ?
+We chose RabbitMQ to implement **asynchronous, event-driven communication**. This decouples services, allowing the system to remain responsive even if some downstream services (like Notifications) are temporarily unavailable. It also enables the Choreographed Saga pattern for reliable distributed transactions.
+
+### Why Database-per-Service?
+Each microservice owns its own PostgreSQL database. This ensures **strong service ownership and autonomy**, prevents accidental coupling through shared tables, and allows each service to scale its persistence layer independently based on its specific load profile.
+
+### Why Choreographed Saga?
+To manage distributed transactions (like Checkout) without the complexity of a central orchestrator or the overhead of distributed locks. Services listen for events and react accordingly, including executing **compensating transactions** to maintain eventual consistency if a step fails.
+
+### Why Kong Gateway?
+Kong acts as our **centralized entry point**, handling cross-cutting concerns like JWT validation (via Clerk), rate limiting, and request routing. This keeps our service logic clean and focused solely on business domains.
+
+---
+
+## Trade-offs
+
+### Pros
+- **Independent Deployment**: Each service can be updated and scaled without affecting the rest of the system.
+- **Scalability**: High-traffic domains like Catalog can be scaled independently of low-traffic ones like Payments.
+- **Fault Isolation**: A failure in the Notification service does not prevent a user from placing an order.
+
+### Cons
+- **Eventual Consistency**: The system must handle temporary inconsistencies during cross-service workflows.
+- **Operational Complexity**: Managing multiple services, databases, and a message broker requires robust DevOps and automation.
+- **Observability Overhead**: Distributed tracing is mandatory to understand requests that span multiple service boundaries.
+
+---
+
+## Impact & Results
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+  <ProjectStat label="Reliability" value="99.9%" description="Fault-tolerant design with transactional outbox and compensating transactions." />
+  <ProjectStat label="Traceability" value="100%" description="End-to-end distributed tracing across HTTP and AMQP." />
+  <ProjectStat label="Consistency" value="Exactly-Once" description="Idempotent consumers guarantee safe event processing." />
+</div>
+
+---
+
+## Features
+
+<FeatureGrid>
+  <FeatureCard 
+    title="Choreographed Saga" 
+    description="Checkout handled via an asynchronous saga combined with the Transactional Outbox Pattern for atomic operations."
+    icon={Activity}
+  />
+  <FeatureCard 
+    title="Microservice Chassis" 
+    description="Standardized behavior across services including logging (nestjs-pino), tracing, and health checks."
+    icon={Layout}
+  />
+  <FeatureCard 
+    title="Exactly-Once Processing" 
+    description="Idempotent event consumers using a processed_messages table to guarantee reliable side effects."
+    icon={Shield}
+  />
+  <FeatureCard 
+    title="Full-Stack Observability" 
+    description="Deep system visibility using the LGTM stack (Loki, Grafana, Prometheus, Jaeger)."
+    icon={Database}
+  />
+</FeatureGrid>
+
+---
+
+## Technical Challenges
+
+<ChallengeCard
+  title="Distributed Transaction Management"
+  problem="Ensuring data consistency across multiple services (Orders, Catalog, Payments) during checkout without distributed locks."
+  solution="Implemented an asynchronous Choreographed Saga pattern with a Transactional Outbox. Events are published reliably, and compensating transactions handle failure rollbacks (e.g., releasing reserved stock if payment fails)."
+  result="Atomic, eventually consistent transactions with zero data loss or ghost orders."
+/>
+
+<ChallengeCard
+  title="Event Processing Reliability"
+  problem="RabbitMQ guarantees at-least-once delivery, which can lead to duplicate event processing and inconsistent state."
+  solution="Designed idempotent consumers utilizing a dedicated processed_messages table to track and deduplicate incoming events."
+  result="Guaranteed exactly-once side effects, ensuring reliable inventory updates and payment status transitions."
+/>
+
+---
+
+## Project Structure
+
+<ProjectTree>
+  <Folder name="apps" id="apps">
+    <Folder name="kong-gateway" id="kong-gateway" />
+    <Folder name="order-service" id="order-service" />
+    <Folder name="catalog-service" id="catalog-service" />
+    <Folder name="payment-service" id="payment-service" />
+    <Folder name="web" id="web" />
+  </Folder>
+  <Folder name="packages" id="packages">
+    <Folder name="common" id="common-chassis" />
+    <Folder name="contracts" id="shared-contracts" />
+    <Folder name="database" id="shared-database" />
+    <Folder name="ui" id="shared-ui" />
+  </Folder>
+</ProjectTree>
+
+---
+
+## Architectural Patterns
+
+<ApiDialog>
+  <ApiEndpoint 
+    method="EVENT" 
+    path="STOCK_RESERVE_REQUESTED" 
+    description="Published by Order Service via Outbox to reserve inventory in Catalog Service." 
+  />
+  <ApiEndpoint 
+    method="EVENT" 
+    path="STOCK_RESERVED" 
+    description="Published by Catalog Service upon successful pessimistic lock of inventory." 
+  />
+  <ApiEndpoint 
+    method="EVENT" 
+    path="PAYMENT_SUCCEEDED" 
+    description="Published by Payment Service upon Stripe Webhook confirmation to finalize order." 
+  />
+</ApiDialog>
+
+---
+
+## Resiliency & Reliability
+
+<MetricsTable>
+  <MetricRow label="Dead Letter Queues" value="Active (Auto-routing)" />
+  <MetricRow label="Retry Strategy" value="Exponential Backoff" />
+  <MetricRow label="Inventory Lock" value="Pessimistic Locking" />
+  <MetricRow label="Compensating Logic" value="Automated Rollbacks" />
+</MetricsTable>
+
+---
+
+## Lessons Learned
+
+*   **Distributed Systems:** Managing eventual consistency and saga coordination across service boundaries.
+*   **Infrastructure as Code:** Orchestrating complex environments with Docker and Turborepo.
+*   **Observability:** The critical importance of centralized logging and distributed tracing for debugging microservices.
+*   **Idempotency:** Designing resilient event handlers that safely process duplicate messages.
+
+---
+
+## Screenshots
+
+<ImageGallery 
+  images={[
+    { src: "/projects/modular-mart/index.png", alt: "Modular Mart Storefront", title: "Modern Storefront Interface" },
+    { src: "/projects/modular-mart/index.png", alt: "Grafana Observability Dashboard", title: "System Observability Dashboard" }
+  ]}
+/>

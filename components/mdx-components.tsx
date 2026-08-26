@@ -8,15 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
 import { Tree as FileTree, Folder, File } from "@/components/magicui/file-tree";
-import { 
-  ReactFlow, 
-  ReactFlowProvider,
-  Background, 
-  Controls, 
-  Panel,
-  useNodesState,
-  useEdgesState,
-} from "@xyflow/react";
+
 import { motion } from "motion/react";
 
 // Register Lucide icons globally to support references in compiled MDX code without manual imports
@@ -35,9 +27,16 @@ g.Share2 = Share2;
 g.Info = Info;
 g.ChevronRight = ChevronRight;
 g.FileText = FileText;
+g.Badge = Badge;
+g.Button = Button;
+g.motion = motion;
 
-// Architecture Wrapper — renders flow diagram + inline structured breakdown
-export const ProjectArchitecture = ({ nodes, edges, title, description, children }: any) => (
+import { ArchitectureViewer } from "./Architecture";
+
+// ... (rest of imports)
+
+// Architecture Wrapper — renders Mermaid diagram + inline structured breakdown
+export const ProjectArchitecture = ({ chart, title, description, showLegend, children }: any) => (
   <div className="my-16 space-y-8">
     <ArchitectureHeader
       title={title || "Technical Architecture"}
@@ -46,7 +45,7 @@ export const ProjectArchitecture = ({ nodes, edges, title, description, children
 
     <div className="relative group">
       <div className="absolute -inset-1 bg-linear-to-r from-primary/20 to-primary/5 rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition duration-1000" />
-      <ArchitectureFlow nodes={nodes} edges={edges} />
+      <ArchitectureViewer chart={chart} showLegend={showLegend} />
     </div>
 
     {children && (
@@ -114,7 +113,7 @@ export const InfoGrid = ({ children }: { children: React.ReactNode }) => (
 
 export const InfoCard = ({ title, value, icon: Icon }: any) => (
   <motion.div 
-    whileHover={{ y: -5, borderColor: 'var(--color-primary)' }}
+    whileHover={{ y: -5, borderColor: '#c084fc' }}
     className="p-5 rounded-2xl border border-iconBg bg-cardBg/30 flex flex-col gap-2 backdrop-blur-md transition-all duration-300 shadow-lg shadow-black/20"
   >
     <div className="p-2.5 rounded-xl bg-primary/10 text-primary w-fit">
@@ -164,73 +163,6 @@ export const ArchitectureImage = ({ src, alt }: { src: string, alt?: string }) =
   </motion.div>
 );
 
-const CustomNode = ({ data }: any) => {
-  const getIcon = () => {
-    if (data.icon) return data.icon;
-    const type = (data.type || '').toLowerCase();
-    if (type.includes('client') || type.includes('frontend')) return <Layout size={16} />;
-    if (type.includes('server') || type.includes('gateway') || type.includes('backend')) return <Server size={16} />;
-    if (type.includes('database') || type.includes('redis') || type.includes('mongo')) return <Database size={16} />;
-    if (type.includes('service') || type.includes('microservice')) return <Cpu size={16} />;
-    if (type.includes('auth') || type.includes('shield')) return <Shield size={16} />;
-    if (type.includes('message') || type.includes('socket')) return <MessageSquare size={16} />;
-    return <Box size={16} />;
-  };
-
-  return (
-    <div className="px-5 py-4 shadow-2xl rounded-2xl bg-cardBg border border-iconBg min-w-[180px] hover:border-primary/40 transition-colors group">
-      <div className="flex items-center gap-4">
-        <div className="p-2.5 rounded-xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
-          {getIcon()}
-        </div>
-        <div className="flex flex-col gap-0.5">
-          <span className="text-[9px] font-black uppercase tracking-widest text-lightText/50">{data.type || 'Component'}</span>
-          <span className="text-sm font-bold text-darkText leading-none">{data.label}</span>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const nodeTypes = {
-  custom: CustomNode,
-};
-
-const FlowWrapper = ({ nodes: initialNodes, edges: initialEdges }: any) => {
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
-  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
-
-  return (
-    <div className="h-[500px] w-full min-h-[500px] rounded-3xl border border-iconBg bg-cardBg/30 overflow-hidden relative shadow-inner">
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        nodeTypes={nodeTypes}
-        fitView
-        colorMode="dark"
-      >
-        <Background color="#282828" gap={20} />
-        <Controls showInteractive={false} className="bg-iconBg border-iconBg fill-darkText" />
-        <Panel position="top-right" className="bg-iconBg/50 backdrop-blur-md px-3 py-1.5 rounded-full border border-iconBg">
-          <span className="text-[10px] font-bold text-lightText uppercase tracking-widest flex items-center gap-2">
-            <Network size={12} className="text-primary" /> Interactive Map
-          </span>
-        </Panel>
-      </ReactFlow>
-    </div>
-  );
-};
-
-export const ArchitectureFlow = (props: any) => (
-  <div className="mb-6">
-    <ReactFlowProvider>
-      <FlowWrapper {...props} />
-    </ReactFlowProvider>
-  </div>
-);
-
 // Custom paragraph: just tighten margins
 export const p = ({ children, ...props }: any) =>
   <p className="leading-relaxed text-lightText my-3" {...props}>{children}</p>;
@@ -268,12 +200,37 @@ const TreeLine = ({ line }: { line: string }) => {
   );
 };
 
+// Helper to recursively get text content of React nodes
+const getRawText = (node: any): string => {
+  if (!node) return "";
+  if (typeof node === "string") return node;
+  if (typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(getRawText).join("");
+  if (node.props && node.props.children) return getRawText(node.props.children);
+  return "";
+};
+
 // Custom code block handler — renders tree syntax with icons
 export const pre = ({ children, ...props }: any) => {
   const raw: string = typeof children?.props?.children === 'string'
     ? children.props.children
     : '';
   const lang: string = children?.props?.className || '';
+
+  const rawText = getRawText(children);
+  const isMermaid = lang.includes('mermaid') || 
+                    props?.['data-language'] === 'mermaid' ||
+                    children?.props?.['data-language'] === 'mermaid' ||
+                    children?.props?.className?.includes('mermaid') ||
+                    children?.props?.children?.props?.className?.includes('mermaid');
+
+  if (isMermaid) {
+    return (
+      <div className="my-8">
+        <ArchitectureViewer chart={rawText.trim()} />
+      </div>
+    );
+  }
 
   if (lang.includes('tree') || (raw && (raw.includes('├──') || raw.includes('└──')))) {
     const lines = raw.trim().split('\n');
@@ -595,4 +552,23 @@ export const Timeline = ({ items }: { items: { date: string, title: string, desc
 );
 
 // Re-export lucide icons so MDX files can reference them directly
-export { Server, Layout, Database, MessageSquare, Shield, Activity, Share2, Info, ChevronRight, CheckCircle2, Calendar, Github, ExternalLink, FileText };
+export { 
+  Badge, 
+  Button, 
+  Image, 
+  motion, 
+  Server, 
+  Layout, 
+  Database, 
+  MessageSquare, 
+  Shield, 
+  Activity, 
+  Share2, 
+  Info, 
+  ChevronRight, 
+  CheckCircle2, 
+  Calendar, 
+  Github, 
+  ExternalLink, 
+  FileText 
+};

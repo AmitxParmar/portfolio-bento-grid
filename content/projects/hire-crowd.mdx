@@ -1,6 +1,6 @@
 ﻿---
 title: HireCrowd
-description: Unified MERN-based hiring ecosystem with integrated ATS
+description: MERN-based job portal with recruiter ATS, resume generation, and application tracking.
 featured: true
 status: Completed
 year: 2024
@@ -12,206 +12,257 @@ tech:
   - Express
   - MongoDB
   - TailwindCSS
-  - React Query
+  - TanStack Query
 github: https://github.com/AmitxParmar/job-portal-mern
 demo: https://job-portal-mern-sigma.vercel.app/
 cover: /projects/job-portal/index.png
 ---
 
-<ProjectHero
-  title="HireCrowd"
-  subtitle="Unified MERN-based hiring ecosystem with integrated Applicant Tracking System (ATS), transforming how recruiters manage candidate pipelines."
-  status="Completed"
-  timeline="3 Months"
-  github="https://github.com/AmitxParmar/job-portal-mern"
-  demo="https://job-portal-mern-sigma.vercel.app/"
-/>
-
-<InfoGrid>
-  <InfoCard title="Architecture" value="Monolith" icon={Layout} />
-  <InfoCard title="Frontend" value="React" icon={Layout} />
-  <InfoCard title="Backend" value="Express" icon={Server} />
-  <InfoCard title="Database" value="MongoDB" icon={Database} />
-  <InfoCard title="State" value="React Query" icon={Activity} />
-  <InfoCard title="Auth" value="JWT + RBAC" icon={Shield} />
-</InfoGrid>
+# HireCrowd
 
 ## Overview
 
-HireCrowd is a comprehensive hiring platform designed to bridge the gap between job seekers and recruiters. It features a robust ATS (Applicant Tracking System) that allows recruiters to manage the entire hiring lifecycle from a single dashboard.
+HireCrowd is a full-stack hiring platform that connects job seekers with recruiters through a unified application workflow.
 
-Key focus areas:
-- Seamless candidate experience
-- Efficient recruiter workflow
-- Real-time application tracking
-- Scalable state management
+Job seekers can discover jobs, bookmark opportunities, generate resumes from their profiles, and track application progress. Recruiters can create job postings, review candidates, and manage hiring pipelines from a centralized dashboard.
 
-<ProjectArchitecture 
-  title="HireCrowd System Blueprint"
-  description="A high-performance MERN architecture utilizing an API Gateway pattern for scalable service management and real-time candidate processing."
-  nodes={[
-    { id: '1', type: 'custom', position: { x: 250, y: 0 }, data: { label: 'Frontend (React)', type: 'Client' } },
-    { id: '2', type: 'custom', position: { x: 250, y: 120 }, data: { label: 'API Gateway', type: 'Server' } },
-    { id: '3', type: 'custom', position: { x: 50, y: 240 }, data: { label: 'Auth Service', type: 'Service' } },
-    { id: '4', type: 'custom', position: { x: 450, y: 240 }, data: { label: 'Job Service', type: 'Service' } },
-    { id: '5', type: 'custom', position: { x: 250, y: 360 }, data: { label: 'MongoDB Atlas', type: 'Database' } }
-  ]}
-  edges={[
-    { id: 'e1-2', source: '1', target: '2', animated: true, markerEnd: { type: 'arrowclosed' } },
-    { id: 'e2-3', source: '2', target: '3', markerEnd: { type: 'arrowclosed' } },
-    { id: 'e2-4', source: '2', target: '4', markerEnd: { type: 'arrowclosed' } },
-    { id: 'e3-5', source: '3', target: '5', strokeDasharray: '5,5' },
-    { id: 'e4-5', source: '4', target: '5', strokeDasharray: '5,5' }
-  ]}
->
-```tree
-API Gateway (Express)
-├── Auth Service (JWT)
-├── Job Service (CRUD)
-├── Application Service (ATS)
-└── User Service (Profiles)
+The goal was to create a complete hiring experience while maintaining a simple and scalable MERN architecture.
 
-Data Layer
-└── MongoDB Atlas (Distributed Document Store)
+## Highlights
 
-Frontend (React)
-├── React Query (Server State)
-├── TailwindCSS (Styling)
-└── RBAC Guard (Client-side Security)
+- Job discovery and search
+- Resume generation from user profile
+- One-click job applications
+- Recruiter job management dashboard
+- Applicant Tracking System (ATS)
+- Bookmark jobs
+- Role-based access control
+- JWT authentication
+- API rate limiting
+- TanStack Query caching
+
+## Tech Stack
+
+| Category | Technology |
+|----------|------------|
+| Frontend | React |
+| Styling | TailwindCSS |
+| Backend | Node.js, Express |
+| Database | MongoDB |
+| State Management | TanStack Query |
+| Authentication | JWT |
+| Security | RBAC, Rate Limiting |
+
+## Architecture
+
+```mermaid
+flowchart LR
+
+User --> React
+
+React --> Express
+
+Express --> Auth
+Express --> Jobs
+Express --> Applications
+Express --> Resume
+
+Auth --> MongoDB
+Jobs --> MongoDB
+Applications --> MongoDB
+Resume --> MongoDB
 ```
-</ProjectArchitecture>
 
----
+## Job Application Flow
 
-## Impact & Results
+```mermaid
+sequenceDiagram
 
-<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-  <ProjectStat label="Active Users" value="2k+" description="Grew from 0 to 2000+ monthly active users in 3 months." />
-  <ProjectStat label="Load Time" value="0.8s" description="Optimized with server-side rendering and asset compression." />
-  <ProjectStat label="Hiring Efficiency" value="+40%" description="Reduced recruiter response time by automating pipeline management." />
-</div>
+JobSeeker->>Frontend: Apply for Job
+Frontend->>Backend: Submit Application
+Backend->>MongoDB: Save Application
+Backend->>MongoDB: Attach Generated Resume
+MongoDB-->>Backend: Success
+Backend-->>Frontend: Application Submitted
+Recruiter->>Frontend: View Applicants
+Frontend->>Backend: Fetch Applicants
+Backend->>MongoDB: Query Applications
+MongoDB-->>Backend: Applicant Data
+Backend-->>Frontend: Applicant List
+```
 
+## Key Features
 
----
+### Job Seekers
 
-## Features
+- Browse available jobs
+- Search and filter opportunities
+- Bookmark jobs
+- Generate resume from profile data
+- Apply directly using generated resume
+- Track application status
 
-<FeatureGrid>
-  <FeatureCard 
-    title="Integrated ATS" 
-    description="Drag-and-drop kanban board for managing candidate pipelines from 'Applied' to 'Hired'."
-    icon={Layout}
-  />
-  <FeatureCard 
-    title="Infinite Discovery" 
-    description="Optimized job feed with infinite scroll, powered by React Query and Intersection Observer."
-    icon={Activity}
-  />
-  <FeatureCard 
-    title="Role-Based Access" 
-    description="Strict separation of Recruiters and Job Seekers with granular permissions."
-    icon={Shield}
-  />
-  <FeatureCard 
-    title="Resume Generator" 
-    description="Built-in tool for job seekers to generate professional resumes directly on the platform."
-    icon={FileText}
-  />
-</FeatureGrid>
+### Recruiters
 
----
+- Create job postings
+- Manage active jobs
+- Review applicants
+- Update candidate status
+- Track hiring pipeline
 
-## Technical Challenges
+## UI / UX Focus
 
-<ChallengeCard
-  title="Efficient Data Pagination"
-  problem="Loading thousands of job postings caused severe UI lag and high server response times as the dataset grew."
-  solution="Implemented cursor-based pagination on the backend and utilized React Query's useInfiniteQuery alongside the Intersection Observer API on the frontend."
-  result="Sub-50ms interaction latency with zero layout shift during discovery."
-/>
+### Simplified Job Application
 
-<ChallengeCard
-  title="Secure Multi-Tenant Access"
-  problem="Recruiters and applicants share the same backend, requiring foolproof separation of data and privileges."
-  solution="Designed a custom RBAC middleware that validates JWT claims against resource ownership and role permissions on every request."
-  result="Zero reported privilege escalation vulnerabilities during testing."
-/>
+Users can create a profile once and generate a resume automatically.
 
----
+Instead of repeatedly uploading documents, applications can be submitted directly from the platform.
+
+### Faster Job Discovery
+
+- Infinite scrolling
+- Cached API responses
+- Reduced loading states
+- Optimized filtering experience
+
+### Recruiter Workflow
+
+The ATS dashboard helps recruiters move candidates through hiring stages without leaving the platform.
+
+Typical flow:
+
+```txt
+Applied
+↓
+Under Review
+↓
+Interview
+↓
+Selected / Rejected
+```
+
+## Engineering Decisions
+
+### TanStack Query
+
+Used for:
+
+- API response caching
+- Background refetching
+- Loading state management
+- Reduced duplicate network requests
+
+Result:
+
+- Faster page navigation
+- Better perceived performance
+- Lower backend load
+
+### Rate Limiting
+
+Implemented Express rate limiting to protect authentication and application endpoints from abuse.
+
+Benefits:
+
+- Reduced spam submissions
+- Improved API stability
+- Better security posture
+
+### JWT + RBAC
+
+Implemented role-based authorization for:
+
+- Recruiters
+- Job Seekers
+
+Protected routes ensure users only access permitted resources.
+
+## Challenges
+
+### Efficient Job Feed
+
+**Problem**
+
+Large job lists caused unnecessary API requests and re-renders.
+
+**Solution**
+
+Implemented TanStack Query caching with optimized pagination and query invalidation.
+
+**Outcome**
+
+Reduced redundant requests and improved browsing performance.
+
+### Resume-Based Applications
+
+**Problem**
+
+Users had to upload resumes repeatedly for every application.
+
+**Solution**
+
+Built a profile-driven resume generator and attached generated resumes automatically during job applications.
+
+**Outcome**
+
+Reduced friction in the application process.
+
+## Engineering Impact
+
+### Frontend
+
+- Reduced duplicate API requests using TanStack Query caching
+- Faster page transitions through cached server state
+- Improved perceived performance with optimistic UI patterns
+- Better component reuse through modular architecture
+- Reduced unnecessary re-renders through query-driven state management
+
+### Backend
+
+- Secure JWT authentication
+- Role-based access control
+- Rate limiting for abuse prevention
+- Centralized validation and middleware
+- Scalable REST API architecture
 
 ## Project Structure
 
-<ProjectTree>
-  <Folder name="client" id="client">
-    <Folder name="src" id="client-src">
-      <Folder name="components" id="client-components" />
-      <Folder name="hooks" id="client-hooks" />
-      <Folder name="pages" id="client-pages" />
-      <Folder name="store" id="client-store" />
-    </Folder>
-  </Folder>
-  <Folder name="server" id="server">
-    <Folder name="controllers" id="server-controllers" />
-    <Folder name="middleware" id="server-middleware" />
-    <Folder name="models" id="server-models" />
-    <Folder name="routes" id="server-routes" />
-  </Folder>
-</ProjectTree>
+```txt
+client/
+├── public/
+└── src/
+    ├── assets/
+    ├── components/
+    ├── constants/
+    ├── hooks/
+    ├── lib/
+    ├── pages/
+    ├── ProtectedRoutes/
+    └── services/
 
----
-
-## API Reference
-
-<ApiDialog>
-  <ApiEndpoint 
-    method="GET" 
-    path="/api/jobs" 
-    description="Fetch all available job postings with cursor-based pagination." 
-  />
-  <ApiEndpoint 
-    method="POST" 
-    path="/api/jobs" 
-    description="Create a new job posting. Requires Recruiter role." 
-  />
-  <ApiEndpoint 
-    method="GET" 
-    path="/api/applications/:jobId" 
-    description="Retrieve all applications for a specific job. Recruiter only." 
-  />
-  <ApiEndpoint 
-    method="PUT" 
-    path="/api/applications/:id/status" 
-    description="Update candidate status in the ATS pipeline." 
-  />
-</ApiDialog>
-
----
-
-## Performance Optimizations
-
-<MetricsTable>
-  <MetricRow label="Interaction Latency" value="< 50ms" />
-  <MetricRow label="Lighthouse Score" value="95+" />
-  <MetricRow label="DB Query Time" value="< 20ms" />
-  <MetricRow label="Bundle Size" value="Reduced by 40%" />
-</MetricsTable>
-
----
+backend/
+├── config/
+├── controllers/
+├── db/
+├── middleware/
+├── models/
+├── routes/
+├── utils/
+└── index.js
+```
 
 ## Lessons Learned
 
-*   **Server State Management:** Mastering React Query for complex data synchronization.
-*   **Security Patterns:** Implementing robust JWT-based RBAC in Node.js.
-*   **Performance:** Optimizing React rendering for large, dynamic lists.
-*   **UX Design:** Building intuitive drag-and-drop workflows for enterprise-like tools.
+- Building complete user journeys is more important than adding features.
+- Server-state management significantly improves frontend performance.
+- RBAC should be planned early in the architecture.
+- Small UX improvements can dramatically reduce user friction.
+- Modular folder structures make long-term maintenance easier.
 
----
+## Repository
 
-## Screenshots
+GitHub: https://github.com/AmitxParmar/job-portal-mern
 
-<ImageGallery 
-  images={[
-    { src: "/projects/job-portal/index.png", alt: "Job Discovery Feed", title: "Job Discovery Feed" },
-    { src: "/projects/job-portal/index.png", alt: "Recruiter Dashboard", title: "Recruiter Dashboard" }
-  ]}
-/>
+## Demo
+
+Live: https://job-portal-mern-sigma.vercel.app/

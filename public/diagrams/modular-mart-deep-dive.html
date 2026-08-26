@@ -1,0 +1,368 @@
+<!-- Copyright 2026 Gemini CLI · Effective HTML Skill Artifact -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modular Mart — Core Architecture Mapping</title>
+<style>
+  :root {
+    --ivory:   #FAF9F5;
+    --slate:   #141413;
+    --clay:    #D97757;
+    --oat:     #E3DACC;
+    --olive:   #788C5D;
+    --rust:    #B04A3F;
+    --gray-150:#F0EEE6;
+    --gray-300:#D1CFC5;
+    --gray-500:#87867F;
+    --gray-700:#3D3D3A;
+
+    --serif: ui-serif, Georgia, "Times New Roman", serif;
+    --sans:  system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono:  ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    
+    --node-bg: #fff;
+    --node-border: var(--gray-300);
+    --shadow: 0 4px 12px rgba(20, 20, 19, 0.05), 0 1px 3px rgba(20, 20, 19, 0.1);
+  }
+
+  html.dark {
+    --ivory:   #0F0F0E;
+    --slate:   #F5F5F0;
+    --gray-150:#1A1A18;
+    --gray-300:#2D2D2A;
+    --gray-500:#73726B;
+    --gray-700:#D1CFC5;
+    --oat:     #242422;
+    --node-bg: #1A1A18;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--ivory);
+    color: var(--slate);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ──────────────────────────────── */
+  header {
+    padding: 24px 32px;
+    background: var(--ivory);
+    border-bottom: 1.5px solid var(--gray-300);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    z-index: 100;
+  }
+
+  .brand { flex: 1; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--clay);
+    margin-bottom: 8px;
+    display: block;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 28px;
+    letter-spacing: -0.01em;
+  }
+
+  .meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gray-500);
+    display: flex;
+    gap: 24px;
+  }
+  .meta b { color: var(--gray-700); font-weight: 500; }
+
+  /* ── Canvas ──────────────────────────────── */
+  main {
+    flex: 1;
+    position: relative;
+    overflow: auto;
+    cursor: grab;
+    background-image: 
+      radial-gradient(var(--gray-300) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  main:active { cursor: grabbing; }
+
+  .blueprint {
+    position: absolute;
+    min-width: 1400px;
+    min-height: 900px;
+    padding: 80px;
+  }
+
+  svg.flow { display: block; overflow: visible; }
+
+  /* ── Nodes ───────────────────────────────── */
+  .node { cursor: pointer; transition: transform 150ms ease; }
+  .node:hover { transform: translateY(-2px); }
+
+  .node rect { 
+    fill: var(--node-bg); 
+    stroke: var(--gray-300); 
+    stroke-width: 1.5; 
+    rx: 8; 
+  }
+
+  .node.gateway rect { stroke: var(--rust); fill: rgba(176, 74, 63, 0.05); }
+  .node.service rect { stroke: var(--olive); fill: rgba(120, 140, 93, 0.05); }
+  .node.database rect { stroke: var(--clay); fill: rgba(217, 119, 87, 0.05); }
+  .node.bus rect { stroke: var(--gray-500); stroke-dasharray: 4 2; }
+
+  .flow text {
+    font-family: var(--mono);
+    font-size: 11px;
+    fill: var(--slate);
+    pointer-events: none;
+  }
+  .flow .lbl-type { font-size: 9px; fill: var(--gray-500); text-transform: uppercase; letter-spacing: 0.04em; }
+  .flow .lbl-main { font-weight: 600; font-size: 12px; }
+
+  /* ── Edges ───────────────────────────────── */
+  .edge { stroke: var(--gray-300); stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+  .edge.async { stroke: var(--clay); stroke-dasharray: 5 3; marker-end: url(#arrow-clay); }
+  .edge.sync { stroke: var(--gray-500); marker-end: url(#arrow-gray); }
+
+  /* ── Floating Legend ─────────────────────── */
+  .legend {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: var(--node-bg);
+    border: 1.5px solid var(--gray-300);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    width: 280px;
+    z-index: 100;
+  }
+  .legend h3 {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    margin-bottom: 12px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    margin-bottom: 8px;
+    color: var(--gray-700);
+  }
+  .swatch { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--gray-300); }
+
+  /* ── Theme Toggle ────────────────────────── */
+  .theme-btn {
+    position: fixed;
+    top: 24px;
+    right: 32px;
+    background: var(--gray-150);
+    border: 1px solid var(--gray-300);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+    cursor: pointer;
+    z-index: 200;
+  }
+
+</style>
+<script>
+  (function() {
+    const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  })();
+</script>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="eyebrow">System Mapping // Modular Mart</span>
+    <h1>Core Architecture Blueprint</h1>
+  </div>
+  <div class="meta">
+    <div>VERSION <b>1.4.0</b></div>
+    <div>ENGINEERING <b>PICKLE RICK</b></div>
+    <div>PROTO <b>AMQP/GRPC</b></div>
+  </div>
+</header>
+
+<main id="drag-container">
+  <div class="blueprint">
+    <svg class="flow" width="1200" height="800" viewBox="0 0 1200 800">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--gray-300)" />
+        </marker>
+        <marker id="arrow-clay" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--clay)" />
+        </marker>
+        <marker id="arrow-gray" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--gray-500)" />
+        </marker>
+      </defs>
+
+      <!-- Connection Paths (Routed Orthogonally) -->
+      <!-- Gateway to Services -->
+      <path class="edge sync" d="M 600 80 L 600 120 L 200 120 L 200 180" />
+      <path class="edge sync" d="M 600 80 L 600 120 L 450 120 L 450 180" />
+      <path class="edge sync" d="M 600 80 L 600 180" />
+      <path class="edge sync" d="M 600 80 L 600 120 L 750 120 L 750 180" />
+      <path class="edge sync" d="M 600 80 L 600 120 L 1000 120 L 1000 180" />
+
+      <!-- Services to DBs -->
+      <line class="edge" x1="200" y1="240" x2="200" y2="280" />
+      <line class="edge" x1="450" y1="240" x2="450" y2="280" />
+      <line class="edge" x1="600" y1="240" x2="600" y2="280" />
+      <line class="edge" x1="750" y1="240" x2="750" y2="280" />
+      <line class="edge" x1="1000" y1="240" x2="1000" y2="280" />
+
+      <!-- Services to Bus (Async) -->
+      <path class="edge async" d="M 200 240 L 200 450 L 500 480" />
+      <path class="edge async" d="M 450 240 L 450 450 L 500 480" />
+      <path class="edge async" d="M 600 240 L 600 450 L 600 480" />
+      <path class="edge async" d="M 750 240 L 750 450 L 700 480" />
+      <path class="edge async" d="M 1000 240 L 1000 450 L 700 480" />
+
+      <!-- Entry Point -->
+      <g class="node gateway">
+        <rect x="510" y="20" width="180" height="60" />
+        <text x="600" y="42" text-anchor="middle" class="lbl-type">API Gateway</text>
+        <text x="600" y="60" text-anchor="middle" class="lbl-main">Kong Gateway</text>
+      </g>
+
+      <!-- Domain Services -->
+      <g class="node service">
+        <rect x="120" y="180" width="160" height="60" />
+        <text x="200" y="202" text-anchor="middle" class="lbl-type">Identity</text>
+        <text x="200" y="220" text-anchor="middle" class="lbl-main">User Service</text>
+      </g>
+      <g class="node service">
+        <rect x="370" y="180" width="160" height="60" />
+        <text x="450" y="202" text-anchor="middle" class="lbl-type">Catalog</text>
+        <text x="450" y="220" text-anchor="middle" class="lbl-main">Catalog Svc</text>
+      </g>
+      <g class="node service">
+        <rect x="520" y="180" width="160" height="60" />
+        <text x="600" y="202" text-anchor="middle" class="lbl-type">Ordering</text>
+        <text x="600" y="220" text-anchor="middle" class="lbl-main">Order Svc</text>
+      </g>
+      <g class="node service">
+        <rect x="670" y="180" width="160" height="60" />
+        <text x="750" y="202" text-anchor="middle" class="lbl-type">Payments</text>
+        <text x="750" y="220" text-anchor="middle" class="lbl-main">Payment Svc</text>
+      </g>
+      <g class="node service">
+        <rect x="920" y="180" width="160" height="60" />
+        <text x="1000" y="202" text-anchor="middle" class="lbl-type">Comm</text>
+        <text x="1000" y="220" text-anchor="middle" class="lbl-main">Notification Svc</text>
+      </g>
+
+      <!-- Persistence -->
+      <g class="node database">
+        <rect x="120" y="280" width="160" height="40" />
+        <text x="200" y="305" text-anchor="middle" class="lbl-main">PostgreSQL</text>
+      </g>
+      <g class="node database">
+        <rect x="370" y="280" width="160" height="40" />
+        <text x="450" y="305" text-anchor="middle" class="lbl-main">Postgres + Redis</text>
+      </g>
+      <g class="node database">
+        <rect x="520" y="280" width="160" height="40" />
+        <text x="600" y="305" text-anchor="middle" class="lbl-main">Postgres (Outbox)</text>
+      </g>
+      <g class="node database">
+        <rect x="670" y="280" width="160" height="40" />
+        <text x="750" y="305" text-anchor="middle" class="lbl-main">PostgreSQL</text>
+      </g>
+      <g class="node database">
+        <rect x="920" y="280" width="160" height="40" />
+        <text x="1000" y="305" text-anchor="middle" class="lbl-main">PostgreSQL</text>
+      </g>
+
+      <!-- Message Broker -->
+      <g class="node bus">
+        <rect x="300" y="480" width="600" height="80" />
+        <text x="600" y="510" text-anchor="middle" class="lbl-type">Event Bus</text>
+        <text x="600" y="535" text-anchor="middle" class="lbl-main">RabbitMQ // AMQP 0-9-1</text>
+      </g>
+
+      <!-- Telemetry -->
+      <g class="node service" style="opacity: 0.6;">
+        <rect x="520" y="650" width="160" height="50" />
+        <text x="600" y="680" text-anchor="middle" class="lbl-main">OTEL Collector</text>
+      </g>
+      <line class="edge" x1="600" y1="560" x2="600" y2="650" stroke-dasharray="2 2" />
+
+    </svg>
+  </div>
+</main>
+
+<div class="legend">
+  <h3>Legend // Component Types</h3>
+  <div class="legend-item"><div class="swatch" style="border-color: var(--rust); background: rgba(176, 74, 63, 0.05);"></div> Entry Point (Gateway)</div>
+  <div class="legend-item"><div class="swatch" stroke-width="1.5" style="border-color: var(--olive); background: rgba(120, 140, 93, 0.05);"></div> Domain Service</div>
+  <div class="legend-item"><div class="swatch" style="border-color: var(--clay); background: rgba(217, 119, 87, 0.05);"></div> Persistence (DB)</div>
+  <div class="legend-item"><div class="swatch" style="border-color: var(--gray-500); border-style: dashed;"></div> Event Infrastructure</div>
+  <br/>
+  <h3>Protocol Flow</h3>
+  <div class="legend-item"><div style="width: 12px; height: 1.5px; background: var(--gray-500);"></div> Synchronous (REST/gRPC)</div>
+  <div class="legend-item"><div style="width: 12px; height: 1.5px; border-bottom: 1.5px dashed var(--clay);"></div> Asynchronous (Pub/Sub)</div>
+</div>
+
+<button class="theme-btn" id="theme-btn">SWITCH_MODE</button>
+
+<script>
+  const btn = document.getElementById('theme-btn');
+  btn.addEventListener('click', () => {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  });
+
+  // Smooth Drag logic
+  const dragContainer = document.getElementById('drag-container');
+  let isDown = false;
+  let startX, startY, scrollLeft, scrollTop;
+
+  dragContainer.addEventListener('mousedown', (e) => {
+    isDown = true;
+    startX = e.pageX - dragContainer.offsetLeft;
+    startY = e.pageY - dragContainer.offsetTop;
+    scrollLeft = dragContainer.scrollLeft;
+    scrollTop = dragContainer.scrollTop;
+  });
+  dragContainer.addEventListener('mouseleave', () => isDown = false);
+  dragContainer.addEventListener('mouseup', () => isDown = false);
+  dragContainer.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - dragContainer.offsetLeft;
+    const y = e.pageY - dragContainer.offsetTop;
+    const walkX = (x - startX) * 1.5;
+    const walkY = (y - startY) * 1.5;
+    dragContainer.scrollLeft = scrollLeft - walkX;
+    dragContainer.scrollTop = scrollTop - walkY;
+  });
+</script>
+
+</body>
+</html>

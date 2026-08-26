@@ -48,23 +48,33 @@ Key focus areas:
 <ProjectArchitecture 
   title="Hotel Booking Architecture"
   description="A secure MERN-based booking system with a focus on atomic transaction handling and protected session management."
-  nodes={[
-    { id: '1', type: 'custom', position: { x: 250, y: 0 }, data: { label: 'React SPA', type: 'Client' } },
-    { id: '2', type: 'custom', position: { x: 250, y: 120 }, data: { label: 'Express.js API', type: 'Server' } },
-    { id: '3', type: 'custom', position: { x: 50, y: 240 }, data: { label: 'Auth Middleware', type: 'Security' } },
-    { id: '4', type: 'custom', position: { x: 450, y: 240 }, data: { label: 'Booking Logic', type: 'Service' } },
-    { id: '5', type: 'custom', position: { x: 250, y: 360 }, data: { label: 'MongoDB', type: 'Database' } },
-    { id: '6', type: 'custom', position: { x: 450, y: 120 }, data: { label: 'Cloudinary', type: 'Storage' } }
-  ]}
-  edges={[
-    { id: 'e1-2', source: '1', target: '2', animated: true, markerEnd: { type: 'arrowclosed' } },
-    { id: 'e2-3', source: '2', target: '3', markerEnd: { type: 'arrowclosed' } },
-    { id: 'e2-4', source: '2', target: '4', markerEnd: { type: 'arrowclosed' } },
-    { id: 'e2-6', source: '2', target: '6', strokeDasharray: '5,5' },
-    { id: 'e3-5', source: '3', target: '5' },
-    { id: 'e4-5', source: '4', target: '5' }
-  ]}
->
+  chart={`graph TD
+    subgraph "Client"
+        React["React SPA<br/>Context API"]
+    end
+
+    subgraph "Server"
+        Express["Express.js API"]
+        Auth["Auth Middleware<br/>JWT / HttpOnly"]
+        Booking["Booking Logic<br/>Availability Engine"]
+        Cloudinary["Cloudinary<br/>Media Storage"]
+    end
+
+    subgraph "Data"
+        MongoDB[("MongoDB<br/>Document Store")]
+    end
+
+    React -->|"HTTPS"| Express
+    Express --> Auth
+    Express --> Booking
+    Express -.->|"Media"| Cloudinary
+    Auth --> MongoDB
+    Booking --> MongoDB
+
+    style Express fill:#c084fc,color:#000
+    style Cloudinary fill:#f97316,color:#000
+    style MongoDB fill:#22c55e,color:#000
+  `}>
 ```tree
 Client (React SPA)
 ├── State Management (Context API)

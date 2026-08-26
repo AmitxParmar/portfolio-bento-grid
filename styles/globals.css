@@ -18,42 +18,42 @@
 }
 
 @theme {
-  --color-iconCard: #191919;
-  --color-bg: #050505;
-  --color-darkText: #e6e6e6;
-  --color-cardBg: #101010;
-  --color-lightText: #999999;
-  --color-iconBg: #282828;
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
+  --color-iconCard: #0a0a0a;
+  --color-bg: #000000;
+  --color-darkText: #ffffff;
+  --color-cardBg: #000000;
+  --color-lightText: #a1a1aa;
+  --color-iconBg: #09090b;
+  --color-border: #18181b;
+  --color-input: #18181b;
+  --color-ring: #a855f7;
+  --color-background: #000000;
+  --color-foreground: #ffffff;
 
-  --color-primary: #916ce7;
-  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary: #c084fc;
+  --color-primary-foreground: #ffffff;
 
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-secondary: #27272a;
+  --color-secondary-foreground: #fafafa;
 
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-destructive: #7f1d1d;
+  --color-destructive-foreground: #fef2f2;
 
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-muted: #18181b;
+  --color-muted-foreground: #a1a1aa;
 
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-accent: #a855f7;
+  --color-accent-foreground: #ffffff;
 
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover: #09090b;
+  --color-popover-foreground: #ffffff;
 
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card: #000000;
+  --color-card-foreground: #ffffff;
 
-  --radius-lg: 20px;
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
+  --radius-lg: 28px;
+  --radius-md: 18px;
+  --radius-sm: 10px;
 
   --font-sans:
     var(--font-manrope), ui-sans-serif, system-ui, sans-serif,
@@ -63,7 +63,7 @@
   --animate-accordion-up: accordion-up 0.2s ease-out;
   --animate-marquee: marquee var(--duration) infinite linear;
   --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
-  --animate-orbit: orbit calc(var(--duration) * 1s) linear infinite;
+  --animate-orbit: orbit var(--duration) linear infinite;
   --animate-ripple: ripple var(--duration, 2s) ease calc(var(--i, 0) * 0.2s)
     infinite;
 
@@ -102,11 +102,11 @@
   @keyframes orbit {
     0% {
       transform: rotate(calc(var(--angle) * 1deg))
-        translateY(calc(var(--radius) * 1px)) rotate(calc(var(--angle) * -1deg));
+        translateY(var(--radius)) rotate(calc(var(--angle) * -1deg));
     }
     100% {
       transform: rotate(calc(var(--angle) * 1deg + 360deg))
-        translateY(calc(var(--radius) * 1px))
+        translateY(var(--radius))
         rotate(calc((var(--angle) * -1deg) - 360deg));
     }
   }
@@ -121,30 +121,58 @@
   }
 }
 
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
+@layer utilities {
+  .border-premium {
+    @apply border border-white/5 bg-clip-padding;
+    background-image: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 40%, rgba(255,255,255,0.02) 100%);
+  }
 
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
+  .hover-glow-purple {
+    @apply transition-all duration-300 ease-out;
+  }
+  .hover-glow-purple:hover {
+    @apply border-primary/40 shadow-[0_0_20px_-5px_rgba(168,85,247,0.3)];
+  }
+
+  .card-gradient-blue {
+    background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.05), transparent 50%),
+                #000000;
+  }
+  .card-gradient-purple {
+    background: radial-gradient(circle at top left, rgba(168, 85, 247, 0.06), transparent 50%),
+                #000000;
+  }
+  .card-gradient-orange {
+    background: radial-gradient(circle at top left, rgba(249, 115, 22, 0.05), transparent 50%),
+                #000000;
+  }
+  .card-gradient-green {
+    background: radial-gradient(circle at top left, rgba(34, 197, 94, 0.05), transparent 50%),
+                #000000;
+  }
+  .card-gradient-pink {
+    background: radial-gradient(circle at top left, rgba(236, 72, 153, 0.05), transparent 50%),
+                #000000;
+  }
+  .card-gradient-gray {
+    background: radial-gradient(circle at top left, rgba(161, 161, 170, 0.04), transparent 50%),
+                #000000;
+  }
+}
+
 @layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
-  }
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
-  html {
-    @apply font-sans;
+
+  /* Typography Enhancements */
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight font-black text-foreground;
   }
 }
 
@@ -216,22 +244,6 @@
   }
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
-  }
-
-  /* Typography Enhancements */
-  h1, h2, h3, h4, h5, h6 {
-    @apply tracking-tight font-black text-darkText;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-delay: -1ms !important;
@@ -246,26 +258,26 @@
 
 /* Custom Prose Overrides */
 .prose {
-  --tw-prose-body: #999999;
-  --tw-prose-headings: #e6e6e6;
-  --tw-prose-lead: #999999;
-  --tw-prose-links: #916ce7;
-  --tw-prose-bold: #e6e6e6;
-  --tw-prose-counters: #916ce7;
-  --tw-prose-bullets: #282828;
-  --tw-prose-hr: #282828;
-  --tw-prose-quotes: #e6e6e6;
-  --tw-prose-quote-borders: #916ce7;
-  --tw-prose-captions: #999999;
-  --tw-prose-code: #e6e6e6;
-  --tw-prose-pre-code: #e6e6e6;
-  --tw-prose-pre-bg: #101010;
-  --tw-prose-th-borders: #282828;
-  --tw-prose-td-borders: #191919;
+  --tw-prose-body: #a1a1aa;
+  --tw-prose-headings: #ffffff;
+  --tw-prose-lead: #a1a1aa;
+  --tw-prose-links: #a855f7;
+  --tw-prose-bold: #ffffff;
+  --tw-prose-counters: #a855f7;
+  --tw-prose-bullets: #27272a;
+  --tw-prose-hr: #27272a;
+  --tw-prose-quotes: #ffffff;
+  --tw-prose-quote-borders: #a855f7;
+  --tw-prose-captions: #a1a1aa;
+  --tw-prose-code: #ffffff;
+  --tw-prose-pre-code: #ffffff;
+  --tw-prose-pre-bg: #000000;
+  --tw-prose-th-borders: #18181b;
+  --tw-prose-td-borders: #09090b;
 }
 
 .prose h2 {
-  @apply text-3xl font-black mt-24 mb-10 pb-4 border-b border-iconBg flex items-center gap-4 text-darkText relative;
+  @apply text-3xl font-black mt-24 mb-10 pb-4 border-b border-white/5 flex items-center gap-4 text-foreground relative tracking-tight;
 }
 
 .prose h2::before {
@@ -273,22 +285,12 @@
   @apply w-1.5 h-8 bg-linear-to-b from-primary to-primary/50 rounded-full block;
 }
 
-.prose h2::after {
-  content: "";
-  @apply absolute bottom-0 left-0 w-24 h-1 bg-primary rounded-full;
-}
-
 .prose h3 {
-  @apply text-xl font-bold mt-12 mb-6 text-darkText flex items-center gap-2;
-}
-
-.prose h3::before {
-  content: "→";
-  @apply text-primary font-black;
+  @apply text-xl font-bold mt-12 mb-6 text-foreground flex items-center gap-2 tracking-tight;
 }
 
 .prose hr {
-  @apply my-20 border-iconBg;
+  @apply my-20 border-white/5;
 }
 
 .prose p {
@@ -296,24 +298,12 @@
 }
 
 .prose strong {
-  @apply text-darkText font-bold;
-}
-
-.prose ul {
-  @apply space-y-3 mb-12;
-}
-
-.prose li {
-  @apply text-lightText;
+  @apply text-foreground font-bold;
 }
 
 .prose code {
-  @apply bg-iconBg/50 px-1.5 py-0.5 rounded-md text-primary font-mono text-sm before:content-none after:content-none;
+  @apply bg-white/5 px-1.5 py-0.5 rounded-md text-primary font-mono text-sm before:content-none after:content-none border border-white/5;
 }
-
-/*
-  ---break---
-*/
 
 @theme inline {
   --font-heading: var(--font-sans);
@@ -385,79 +375,88 @@
     }
   }}
 
-/*
-  ---break---
-*/
-
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --background: #ffffff;
+  --foreground: #242424;
+  --card: #ffffff;
+  --card-foreground: #242424;
+  --popover: #ffffff;
+  --popover-foreground: #242424;
+  --primary: #333333;
+  --primary-foreground: #fafafa;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #333333;
+  --muted: #f5f5f5;
+  --muted-foreground: #8c8c8c;
+  --accent: #f5f5f5;
+  --accent-foreground: #333333;
+  --destructive: #ef4444;
+  --border: #eaeaea;
+  --input: #eaeaea;
+  --ring: #b3b3b3;
+  --chart-1: #d9d9d9;
+  --chart-2: #8c8c8c;
+  --chart-3: #6b6b6b;
+  --chart-4: #595959;
+  --chart-5: #424242;
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: #fafafa;
+  --sidebar-foreground: #242424;
+  --sidebar-primary: #333333;
+  --sidebar-primary-foreground: #fafafa;
+  --sidebar-accent: #f5f5f5;
+  --sidebar-accent-foreground: #333333;
+  --sidebar-border: #eaeaea;
+  --sidebar-ring: #b3b3b3;
 }
 
-/*
-  ---break---
-*/
-
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #242424;
+  --foreground: #fafafa;
+  --card: #333333;
+  --card-foreground: #fafafa;
+  --popover: #333333;
+  --popover-foreground: #fafafa;
+  --primary: #eaeaea;
+  --primary-foreground: #333333;
+  --secondary: #424242;
+  --secondary-foreground: #fafafa;
+  --muted: #424242;
+  --muted-foreground: #b3b3b3;
+  --accent: #424242;
+  --accent-foreground: #fafafa;
+  --destructive: #dc2626;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: #8c8c8c;
+  --chart-1: #d9d9d9;
+  --chart-2: #8c8c8c;
+  --chart-3: #6b6b6b;
+  --chart-4: #595959;
+  --chart-5: #424242;
+  --sidebar: #333333;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #3b82f6;
+  --sidebar-primary-foreground: #fafafa;
+  --sidebar-accent: #424242;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #8c8c8c;
+}
+
+/* Fix Mermaid rendering and label clipping in Tailwind typography container */
+.prose svg p,
+.prose svg span,
+.prose svg div,
+.prose svg a,
+.prose .mermaid p,
+.prose .mermaid span,
+.prose .mermaid div,
+.prose [class*="mermaid"] p,
+.prose [class*="mermaid"] span,
+.prose [class*="mermaid"] div {
+  font-size: inherit !important;
+  line-height: inherit !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }

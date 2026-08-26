@@ -47,18 +47,24 @@ Key focus areas:
 <ProjectArchitecture 
   title="Frontend Architecture"
   description="A modular React application designed for high-fidelity media discovery, leveraging the YouTube Data API with optimized request pooling."
-  nodes={[
-    { id: '1', type: 'custom', position: { x: 250, y: 0 }, data: { label: 'React Application', type: 'Frontend' } },
-    { id: '2', type: 'custom', position: { x: 250, y: 150 }, data: { label: 'YouTube Data API', type: 'External Service' } },
-    { id: '3', type: 'custom', position: { x: 50, y: 150 }, data: { label: 'MUI Theme', type: 'UI System' } },
-    { id: '4', type: 'custom', position: { x: 450, y: 150 }, data: { label: 'Axios Instance', type: 'Network' } }
-  ]}
-  edges={[
-    { id: 'e1-2', source: '1', target: '2', animated: true },
-    { id: 'e1-3', source: '1', target: '3' },
-    { id: 'e1-4', source: '1', target: '4' }
-  ]}
->
+  chart={`graph LR
+    subgraph "Frontend"
+        React["React Application<br/>Hooks · Context"]
+        MUI["MUI Theme<br/>Custom Design System"]
+        Axios["Axios Instance<br/>Request Pooling"]
+    end
+
+    subgraph "External"
+        YouTube["YouTube Data API v3<br/>Video Metadata · Search"]
+    end
+
+    React --> MUI
+    React --> Axios
+    React -->|"API Requests"| YouTube
+
+    style React fill:#c084fc,color:#000
+    style YouTube fill:#ef4444,color:#fff
+  `}>
 ```tree
 Frontend Application (React)
 ├── State Management (Hooks/Context)

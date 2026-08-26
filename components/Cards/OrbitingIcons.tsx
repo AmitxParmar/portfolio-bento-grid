@@ -1,12 +1,12 @@
 "use client";
 import { Icons } from "../icons";
-import { OrbitingCircles } from "../magicui/orbiting-circles";
+import { OrbitingCircles } from "../ui/orbiting-circles";
 
 export default function OrbitingIcons() {
   return (
-    <div className="relative flex size-full min-h-[220px] min-w-[220px] flex-col items-center justify-center overflow-hidden lg:min-h-[200px] lg:min-w-[200px] 2xl:min-h-[300px] 2xl:min-w-[300px]">
+    <div className="relative flex size-full min-h-[220px] h-96 min-w-[220px] flex-col items-center justify-center overflow-hidden lg:min-h-[200px] lg:min-w-[200px] 2xl:min-h-[300px] 2xl:min-w-[300px]">
       <div className="absolute inset-0 flex size-full items-center justify-center scale-75 2xl:scale-100">
-        <OrbitingCircles iconSize={30} radius={80} className="2xl:radius-[160px] 2xl:iconSize-[40px]">
+        <OrbitingCircles iconSize={30} radius={80} className="2xl:[--radius:160] 2xl:[--icon-size:40px]">
           <Icons.typeScript />
           <Icons.notion />
           <Icons.javaScript />

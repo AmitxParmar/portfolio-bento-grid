@@ -21,7 +21,7 @@ const CategorizedSkills = () => {
   ];
 
   return (
-    <div className="col-span-3 row-span-3 rounded-lg border border-iconBg bg-cardBg p-6">
+    <div className="col-span-3 row-span-3 rounded-lg border border-white/5 card-gradient-gray p-6">
       <h3 className="mb-6 text-xl font-semibold text-white">Engineering Skills</h3>
       <div className="space-y-6">
         {categories.map((cat, index) => (
@@ -34,7 +34,7 @@ const CategorizedSkills = () => {
               {cat.skills.map((skill) => (
                 <span
                   key={skill}
-                  className="rounded-md border border-iconBg bg-iconBg/50 px-2 py-1 text-[10px] text-lightText hover:text-white transition-colors"
+                  className="rounded-md border border-white/5 bg-white/5 px-2 py-1 text-[10px] text-lightText hover:text-white transition-colors"
                 >
                   {skill}
                 </span>

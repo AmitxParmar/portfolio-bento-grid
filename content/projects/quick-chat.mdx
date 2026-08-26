@@ -49,20 +49,30 @@ Key focus areas:
 <ProjectArchitecture 
   title="Real-time Infrastructure"
   description="A distributed WebSocket architecture utilizing Redis Pub/Sub for horizontal scaling and Dexie.js for local-first persistence."
-  nodes={[
-    { id: '1', type: 'custom', position: { x: 250, y: 0 }, data: { label: 'Next.js Clients', type: 'Client' } },
-    { id: '2', type: 'custom', position: { x: 250, y: 120 }, data: { label: 'Socket.io Cluster', type: 'Gateway' } },
-    { id: '3', type: 'custom', position: { x: 50, y: 120 }, data: { label: 'IndexedDB', type: 'Local DB' } },
-    { id: '4', type: 'custom', position: { x: 250, y: 240 }, data: { label: 'Redis Pub/Sub', type: 'Broker' } },
-    { id: '5', type: 'custom', position: { x: 250, y: 360 }, data: { label: 'MongoDB Atlas', type: 'Database' } }
-  ]}
-  edges={[
-    { id: 'e1-2', source: '1', target: '2', animated: true, label: 'WebSockets' },
-    { id: 'e1-3', source: '1', target: '3', strokeDasharray: '5,5', label: 'Offline Sync' },
-    { id: 'e2-4', source: '2', target: '4', animated: true, label: 'Broadcast' },
-    { id: 'e4-5', source: '4', target: '5', label: 'Persist' }
-  ]}
->
+  chart={`graph TD
+    subgraph "Client"
+        NextJS["Next.js Clients<br/>Socket.io Client"]
+        IndexedDB["IndexedDB<br/>Dexie.js Local Store"]
+    end
+
+    subgraph "Service Layer"
+        SocketCluster["Socket.io Cluster<br/>WebSocket Servers"]
+        Redis["Redis Pub/Sub<br/>Cross-server Broadcast"]
+    end
+
+    subgraph "Persistence"
+        MongoDB[("MongoDB Atlas<br/>Chat History")]
+    end
+
+    NextJS -->|"WebSockets"| SocketCluster
+    NextJS -.->|"Offline Sync"| IndexedDB
+    SocketCluster -->|"Broadcast"| Redis
+    Redis -->|"Persist"| MongoDB
+
+    style SocketCluster fill:#c084fc,color:#000
+    style Redis fill:#ef4444,color:#fff
+    style MongoDB fill:#22c55e,color:#000
+  `}>
 ```tree
 Browser Clients
 ├── Local DB (Dexie.js/IndexedDB)
@@ -140,25 +150,6 @@ Persistence Layer
   solution="Designed a local-first architecture using Dexie.js. Messages are persisted locally first and synced via an idempotent retry queue."
   result="100% message delivery reliability even in intermittent connectivity environments."
 />
-
----
-
-## Project Structure
-
-<ProjectTree>
-  <Folder name="app" id="app">
-    <Folder name="(chat)" id="chat-route" />
-    <Folder name="api" id="api-route" />
-  </Folder>
-  <Folder name="lib" id="lib">
-    <Folder name="db" id="db-config" />
-    <Folder name="socket" id="socket-config" />
-  </Folder>
-  <Folder name="components" id="components">
-    <Folder name="chat" id="chat-components" />
-    <Folder name="ui" id="ui-components" />
-  </Folder>
-</ProjectTree>
 
 ---
 

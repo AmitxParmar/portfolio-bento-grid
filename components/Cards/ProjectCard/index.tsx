@@ -8,11 +8,13 @@ const ProjectCard = ({
   project: {
     title,
     description,
+    tech,
     tags,
     cover,
     github,
     demo,
     year,
+    role,
   },
   priority = false,
 }: {
@@ -21,54 +23,60 @@ const ProjectCard = ({
 }) => {
   return (
     <div
-      className="group h-auto min-h-fit cursor-pointer overflow-hidden rounded-xl border bg-cardBg pb-2 transition-all duration-300 hover:scale-[1.02] hover:border-gray-600"
+      className="group h-auto min-h-fit cursor-pointer overflow-hidden rounded-[1.5rem] border-premium bg-black/40 pb-3 transition-all duration-500 hover:scale-[1.03] hover-glow-purple"
     >
-      <div className="relative h-24 overflow-hidden sm:h-28">
+      <div className="relative h-28 overflow-hidden sm:h-32">
         <div className="absolute inset-0 flex items-center justify-center">
           <Image
             src={cover ?? "/next.svg"}
             alt={`${title} project cover image`}
             fill
-            className="object-cover"
+            className="object-cover opacity-60 transition-all duration-700 group-hover:opacity-100 group-hover:scale-110"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 25vw, 20vw"
             priority={priority}
           />
         </div>
-        <div className="absolute inset-0 bg-black/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+        <div className="absolute inset-0 bg-linear-to-t from-black via-black/20 to-transparent opacity-60 group-hover:opacity-20 transition-opacity duration-500" />
       </div>
 
-      <div className="p-2 text-left">
-        <h3 className="mb-0.5 text-sm font-bold capitalize text-white sm:text-base line-clamp-1">
-          {title}
-        </h3>
-        {year && (
-          <div className="mb-1 flex items-center gap-2 text-[10px] text-blue-300/80">
-            <span>{year}</span>
-          </div>
-        )}
-        <p className="mb-1.5 line-clamp-1 text-[10px] text-gray-400 sm:text-xs leading-relaxed">
-          {description}
-        </p>
-
-        <div className="mb-2 flex flex-wrap gap-1 sm:gap-1.5">
-          {tags?.slice(0, 3).map((skill) => (
-            <Badge
-              key={skill}
-              className="rounded bg-iconBg px-1 py-0 text-[9px] capitalize text-blue-300 sm:px-1.5 sm:py-0.5 sm:text-[10px]"
-            >
-              {skill}
-            </Badge>
-          ))}
-          {tags && tags.length > 3 && (
-            <span className="text-[9px] text-gray-500 font-medium">+{tags.length - 3}</span>
+      <div className="p-4 text-left relative z-10">
+        <div className="mb-1.5 flex items-center justify-between">
+          <h3 className="text-base font-black capitalize text-white line-clamp-1 tracking-tightest">
+            {title}
+          </h3>
+          {year && (
+            <span className="text-[9px] text-primary font-black uppercase tracking-widest bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">
+              {year}
+            </span>
           )}
         </div>
 
-        <div className="flex items-center justify-between border-t border-white/5 pt-1.5">
-          <div className="flex items-center text-[10px] text-blue-400 transition-colors group-hover:text-blue-300 sm:text-xs font-semibold">
+        {role && role.length > 0 && (
+          <p className="mb-2 text-[9px] font-black uppercase tracking-[0.15em] text-primary/70">
+            {role[0]}
+          </p>
+        )}
+        
+        <p className="mb-4 line-clamp-2 text-[11px] text-white/50 leading-relaxed font-medium tracking-wide">
+          {description}
+        </p>
+
+        <div className="mb-4 flex flex-wrap gap-1.5">
+          {(tech ?? tags)?.slice(0, 4).map((item) => (
+            <span
+              key={item}
+              className="rounded bg-white/5 border border-white/5 px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter text-white/70"
+            >
+              {item}
+            </span>
+          ))}
+        </div>
+
+        <div className="flex items-center justify-between border-t border-white/5 pt-3">
+          <div className="flex items-center text-[10px] text-primary transition-all group-hover:gap-1.5 sm:text-xs font-black uppercase tracking-tighter">
             <span>Details</span>
             <svg
-              className="ml-0.5 size-2.5 transition-transform group-hover:translate-x-0.5 sm:size-3"
+              className="ml-1 size-3 transition-transform group-hover:translate-x-0.5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -76,20 +84,20 @@ const ProjectCard = ({
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth="2.5"
+                strokeWidth="3"
                 d="M17 8l4 4m0 0l-4 4m4-4H3"
               />
             </svg>
           </div>
-          <div className="flex space-x-1 sm:space-x-1.5">
+          <div className="flex space-x-2">
             {github && (
-              <div className="text-gray-400 transition-colors hover:text-white">
-                <Github className="size-3 sm:size-3.5" />
+              <div className="text-lightText/40 transition-colors hover:text-white">
+                <Github className="size-3.5 sm:size-4" />
               </div>
             )}
             {demo && (
-              <div className="text-gray-400 transition-colors hover:text-white">
-                <Globe className="size-3 sm:size-3.5" />
+              <div className="text-lightText/40 transition-colors hover:text-white">
+                <Globe className="size-3.5 sm:size-4" />
               </div>
             )}
           </div>

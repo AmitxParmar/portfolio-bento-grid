@@ -22,15 +22,15 @@ const skillGroups = [
 
 const CoreSkills = () => {
   return (
-    <div className="flex h-full flex-col rounded-lg border border-white/5 bg-cardBg/50 p-6 backdrop-blur-xs">
+    <div className="flex h-full flex-col rounded-lg border border-white/5 card-gradient-gray p-6 backdrop-blur-xs">
       <div className="mb-6">
-        <h3 className="text-2xl font-bold text-white">Engineering Skills</h3>
+        <h3 className="text-2xl font-bold text-white tracking-tight">Engineering Skills</h3>
       </div>
       
       <div className="space-y-6">
         {skillGroups.map((group, i) => (
           <div key={i} className="space-y-3">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-400">
+            <div className="flex items-center gap-2 text-sm font-bold text-gray-500 uppercase tracking-widest">
               {group.icon}
               <span>{group.title}</span>
             </div>
