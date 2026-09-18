@@ -1,21 +1,30 @@
 export type SiteConfig = typeof siteConfig
 
 export const siteConfig = {
-  name: "AmitxParmar",
+  name: "Amit Parmar",
   description:
-    "Beautifully designed components built with Radix UI and Tailwind CSS.",
+    "Full-stack software engineer building distributed systems, resilient microservices, and modern web architectures.",
   mainNav: [
     {
       title: "Home",
       href: "/",
     },
     {
-      title: "Bento Grid",
-      href: "/bento-grid",
+      title: "Projects",
+      href: "/#projects",
+    },
+    {
+      title: "Architecture",
+      href: "/#architecture",
+    },
+    {
+      title: "Blog",
+      href: "/blog",
     },
   ],
   links: {
-    twitter: "https://twitter.com/AmitxParmar",
     github: "https://github.com/AmitxParmar",
+    linkedin: "https://linkedin.com/in/AmitxParmar",
+    twitter: "https://twitter.com/AmitxParmar",
   },
-}
+};

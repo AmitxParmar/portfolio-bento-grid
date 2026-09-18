@@ -11,6 +11,7 @@ const FeaturedProject = () => {
   return (
     <Link 
       href={`/projects/${project.slug}`}
+      scroll={false}
       className="group relative flex flex-1 flex-col overflow-hidden rounded-xl border border-white/5 card-gradient-blue transition-all hover:border-primary/50"
     >
       <div className="relative h-2/3 w-full overflow-hidden">

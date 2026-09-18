@@ -5,13 +5,16 @@ import ContactMe from "@/components/Cards/ContactMe";
 import ProjectsGallery from "@/components/Cards/ProjectsGallery";
 import TechStack from "@/components/Cards/TechStack";
 import EngineeringHighlights from "@/components/Cards/EngineeringHighlights";
-import CurrentFocus from "@/components/Cards/CurrentFocus";
+import LatestWritings from "@/components/Cards/LatestWritings";
 import SystemArchitecturePreview from "@/components/Cards/SystemArchitecturePreview";
 import TechnicalExpertise from "@/components/Cards/TechnicalExpertise";
 
 export default function IndexPage() {
   return (
-    <div className="flex flex-col gap-3 bg-bg px-3 py-4 text-foreground lg:grid lg:h-screen lg:overflow-hidden lg:grid-cols-12 2xl:px-6 2xl:gap-4">
+    <div 
+      id="overview"
+      className="flex flex-col gap-3 bg-bg px-3 sm:px-4 pt-20 sm:pt-22 pb-8 text-foreground lg:grid lg:min-h-[calc(100vh-5.5rem)] lg:grid-cols-12 2xl:px-8 2xl:gap-4 max-w-[1700px] mx-auto"
+    >
       <div className="flex flex-col gap-3 lg:col-span-7 lg:grid lg:grid-cols-7 lg:gap-3 2xl:gap-4 min-h-0">
         {/* Left Column (3/12) */}
         <div className="order-2 col-span-3 min-w-0 flex flex-col gap-3 lg:order-1 lg:grid lg:grid-rows-12 lg:gap-3 2xl:gap-4 min-h-0">
@@ -22,7 +25,7 @@ export default function IndexPage() {
             <EngineeringHighlights />
           </div>
           <div className="lg:row-span-4 min-w-0 min-h-0 flex">
-            <CurrentFocus />
+            <LatestWritings />
           </div>
         </div>
 

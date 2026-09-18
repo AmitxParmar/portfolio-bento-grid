@@ -57,73 +57,13 @@ Key focus areas:
 - **Event-Driven Choreography**: Asynchronous saga patterns for complex workflows like checkout.
 - **Deep Observability**: Comprehensive tracing, logging, and metrics using the LGTM stack.
 
-<ProjectArchitecture 
-  title="High-Level System Architecture"
-  description="A professional, top-down blueprint of the cloud-native infrastructure, showing domain isolation, gateway entry, and the persistence layer."
-  showLegend={true}
-  chart={`graph TB
-    subgraph "Client Layer"
-        Web[("Web Storefront")]
-        Docs[("API Documentation")]
-    end
+<InteractiveCanvas
+  src="/embeds/diagrams/modular-mart-topology.html"
+  title="System Architecture & Infrastructure Topology"
+  badge="Interactive Topology"
+  description="Explore the distributed microservices architecture: Kong Gateway, 5 isolated domain services with dedicated PostgreSQL databases, RabbitMQ event bus, and the LGTM observability stack."
+/>
 
-    subgraph "Gateway Layer"
-        Kong["Kong API Gateway<br/>Rate Limiting · Auth"]
-        Clerk["Clerk Auth<br/>JWT Validation"]
-    end
-
-    subgraph "Identity Domain"
-        UserSvc["User Service"]
-        UserDB[("User DB<br/>PostgreSQL")]
-    end
-
-    subgraph "Commerce Domain"
-        CatalogSvc["Catalog Service"]
-        CatalogDB[("Catalog DB<br/>PostgreSQL")]
-    end
-
-    subgraph "Ordering Domain"
-        OrderSvc["Order Service"]
-        OrderDB[("Order DB<br/>PostgreSQL")]
-    end
-
-    subgraph "Payments Domain"
-        PaymentSvc["Payment Service"]
-        PaymentDB[("Payment DB<br/>PostgreSQL")]
-    end
-
-    subgraph "Comm Domain"
-        NotificationSvc["Notification Service"]
-        NotificationDB[("Notification DB<br/>PostgreSQL")]
-    end
-
-    subgraph "Messaging Layer"
-        RabbitMQ["RabbitMQ<br/>Event Bus"]
-    end
-
-    Web -->|"HTTPS"| Kong
-    Docs -->|"HTTPS"| Kong
-    Kong -->|"VALIDATE"| Clerk
-    Kong --> UserSvc
-    Kong --> CatalogSvc
-    Kong --> OrderSvc
-    Kong --> PaymentSvc
-
-    UserSvc --> UserDB
-    CatalogSvc --> CatalogDB
-    OrderSvc --> OrderDB
-    PaymentSvc --> PaymentDB
-    NotificationSvc --> NotificationDB
-
-    OrderSvc -.->|"ORDER_CREATED"| RabbitMQ
-    RabbitMQ -.->|"RESERVE_STOCK"| CatalogSvc
-    RabbitMQ -.->|"START_PAYMENT"| PaymentSvc
-    RabbitMQ -.->|"SEND_ALERT"| NotificationSvc
-
-    style Kong fill:#c084fc,color:#000
-    style Clerk fill:#c084fc,color:#000
-    style RabbitMQ fill:#f97316,color:#000
-  `}/>
 
 <ProjectArchitecture 
   title="Checkout Saga Orchestration"

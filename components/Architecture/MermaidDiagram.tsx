@@ -26,49 +26,60 @@ export const MermaidDiagram = ({ chart, className }: MermaidDiagramProps) => {
           startOnLoad: false,
           theme: "dark",
           themeVariables: {
-            primaryColor: "#c084fc",
-            primaryTextColor: "#ffffff",
-            primaryBorderColor: "#c084fc",
-            lineColor: "#52525b",
-            secondaryColor: "#18181b",
-            tertiaryColor: "#09090b",
-            fontFamily: "inherit",
-            fontSize: "14px",
-            noteBkgColor: "#18181b",
-            noteTextColor: "#a1a1aa",
-            noteBorderColor: "#27272a",
-            actorBkg: "#18181b",
-            actorTextColor: "#ffffff",
-            actorBorder: "#c084fc",
-            signalColor: "#ffffff",
-            signalTextColor: "#ffffff",
+            // Minimalism & Swiss: high contrast on dark cardBg (#18181b), grid clarity
+            primaryColor: "#1f1f23",
+            primaryTextColor: "#fafafa",
+            primaryBorderColor: "#3f3f46",
+            secondaryColor: "#27272a",
+            tertiaryColor: "#18181b",
+            lineColor: "#a1a1aa",
+            textColor: "#fafafa",
+            mainBkg: "#1f1f23",
+            nodeBorder: "#3f3f46",
+            clusterBkg: "#18181b",
+            clusterBorder: "#27272a",
+            titleColor: "#fafafa",
+            fontFamily: "ui-sans-system, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
+            fontSize: "13px",
+            noteBkgColor: "#27272a",
+            noteTextColor: "#d4d4d8",
+            noteBorderColor: "#3f3f46",
+            actorBkg: "#27272a",
+            actorTextColor: "#fafafa",
+            actorBorder: "#3f3f46",
+            actorLineColor: "#71717a",
+            signalColor: "#e4e4e7",
+            signalTextColor: "#e4e4e7",
+            labelBoxBkgColor: "#18181b",
+            labelBoxBorderColor: "#3f3f46",
+            labelTextColor: "#d4d4d8",
+            edgeLabelBackground: "#18181b",
           },
           flowchart: {
-            curve: "basis",
-            padding: 20,
+            curve: "linear",
+            padding: 10,
             htmlLabels: true,
             useMaxWidth: true,
+            nodeSpacing: 14,
+            rankSpacing: 22,
+            diagramPadding: 8,
+            wrappingWidth: 800,
           },
           sequence: {
             useMaxWidth: true,
-          },
-          gantt: {
-            useMaxWidth: true,
-          },
-          journey: {
-            useMaxWidth: true,
-          },
-          class: {
-            useMaxWidth: true,
-          },
-          state: {
-            useMaxWidth: true,
+            mirrorActors: false,
+            showSequenceNumbers: false,
+            actorMargin: 24,
+            boxMargin: 8,
+            messageMargin: 16,
+            wrap: true,
+            width: 800,
           },
           er: {
             useMaxWidth: true,
-          },
-          pie: {
-            useMaxWidth: true,
+            layoutDirection: "TB",
+            minEntityWidth: 100,
+            minEntityHeight: 75,
           },
         });
 
@@ -104,10 +115,27 @@ export const MermaidDiagram = ({ chart, className }: MermaidDiagramProps) => {
     );
   }
 
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const svgEl = containerRef.current.querySelector("svg");
+    if (svgEl) {
+      svgEl.removeAttribute("width");
+      svgEl.removeAttribute("height");
+      svgEl.setAttribute("width", "100%");
+      svgEl.setAttribute("height", "auto");
+      svgEl.style.maxWidth = "100%";
+      svgEl.style.minWidth = "0";
+      svgEl.style.overflow = "hidden";
+      svgEl.style.display = "block";
+      svgEl.style.margin = "0 auto";
+    }
+  }, [svg]);
+
   return (
     <div
       ref={containerRef}
-      className={className}
+      className={`${className || ""}`}
+      style={{ width: "100%", maxWidth: "100%", minWidth: 0, overflow: "hidden" }}
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   );

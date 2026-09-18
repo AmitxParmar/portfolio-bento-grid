@@ -95,27 +95,27 @@ const AboutMe = () => {
       </div>
 
       <div className="mt-auto grid grid-cols-2 gap-3 2xl:gap-4 relative z-10">
-        <InteractiveHoverButton className="group h-11 lg:h-10 2xl:h-14 rounded-xl border border-white/5 bg-white/3 hover:bg-primary transition-all duration-300">
-          <a
-            href="https://github.com/amitxparmar"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2.5"
-          >
+        <InteractiveHoverButton
+          href="https://github.com/amitxparmar"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group h-11 lg:h-10 2xl:h-14 rounded-xl border border-white/5 bg-white/3 hover:bg-primary transition-all duration-300"
+        >
+          <div className="flex items-center justify-center gap-2.5">
             <Github className="text-primary group-hover:text-white size-5 transition-colors duration-300" />
             <span className="text-[11px] font-black uppercase tracking-widest group-hover:text-white transition-colors duration-300">GitHub</span>
-          </a>
+          </div>
         </InteractiveHoverButton>
-        <InteractiveHoverButton className="group h-11 lg:h-10 2xl:h-14 rounded-xl border border-white/5 bg-white/3 hover:bg-primary transition-all duration-300">
-          <a
-            href="https://linkedin.com/in/amitxparmar"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2.5"
-          >
+        <InteractiveHoverButton
+          href="https://linkedin.com/in/amitxparmar"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group h-11 lg:h-10 2xl:h-14 rounded-xl border border-white/5 bg-white/3 hover:bg-primary transition-all duration-300"
+        >
+          <div className="flex items-center justify-center gap-2.5">
             <Linkedin className="text-primary group-hover:text-white size-5 transition-colors duration-300" />
             <span className="text-[11px] font-black uppercase tracking-widest group-hover:text-white transition-colors duration-300">LinkedIn</span>
-          </a>
+          </div>
         </InteractiveHoverButton>
       </div>
     </motion.div>

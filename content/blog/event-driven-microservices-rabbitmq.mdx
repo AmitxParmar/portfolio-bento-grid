@@ -1,0 +1,110 @@
+---
+title: "Building Resilient Event-Driven Microservices with RabbitMQ & Node.js"
+description: "How to architect distributed systems that handle network partitions, prevent data loss with the Transactional Outbox Pattern, and achieve high throughput."
+date: "2026-03-15"
+tags: ["Architecture", "Microservices", "RabbitMQ", "Node.js", "Distributed Systems"]
+featured: true
+published: true
+author:
+  name: "Amit Parmar"
+  role: "Full-stack Engineer"
+  avatar: "/profile-pic.jpg"
+---
+
+Modern cloud architectures demand decoupled, resilient services that can scale independently without cascading failures. In distributed systems, synchronous HTTP or RPC calls introduce tight coupling, latency amplification, and single points of failure.
+
+In this article, we explore how to build robust, asynchronous event-driven microservices using **RabbitMQ**, the **Transactional Outbox Pattern**, and **Idempotent Consumers**.
+
+## Why Synchronous Communication Breaks at Scale
+
+When Service A calls Service B over HTTP, and Service B calls Service C, any transient failure or slow database query down the chain causes timeouts and backpressure to bubble up to the client:
+
+```
+[Client] ──> [Order Service] ──HTTP──> [Payment Service] ──HTTP──> [Inventory Service] (Timeout!)
+```
+
+If the Inventory Service is deploying or restarting, the entire checkout pipeline fails.
+
+### The Asynchronous Solution
+
+By decoupling through a persistent message broker (RabbitMQ), services publish domain events and return immediate acknowledgments to clients:
+
+```
+[Client] ──> [Order Service] ──> (DB Commit) + (Publish: OrderCreated)
+                                         │
+                                     [RabbitMQ]
+                                   ┌─────┴─────┐
+                                   ▼           ▼
+                           [Payment Service] [Inventory Service]
+```
+
+## The Dual-Write Problem & Transactional Outbox Pattern
+
+A classic pitfall when introducing message brokers is the **Dual-Write Problem**:
+
+```ts
+// Anti-pattern: Dual write without atomicity
+async function createOrder(orderData) {
+  // 1. Write to database
+  const order = await db.orders.create(orderData);
+
+  // 2. Publish to broker
+  // If the server crashes HERE, the database has the order,
+  // but no downstream service ever processes payment!
+  await rabbitMQ.publish('orders', 'order.created', order);
+
+  return order;
+}
+```
+
+If database save succeeds but broker publish fails (or vice versa), the system is left in an inconsistent state.
+
+### The Solution: Transactional Outbox
+
+To guarantee atomicity, we persist the event payload inside the same database transaction in an `outbox` table:
+
+```sql
+BEGIN TRANSACTION;
+
+INSERT INTO orders (id, user_id, amount, status)
+VALUES ('ord_101', 'usr_55', 149.99, 'PENDING');
+
+INSERT INTO outbox_events (id, aggregate_type, aggregate_id, event_type, payload, status)
+VALUES ('evt_201', 'Order', 'ord_101', 'OrderCreated', '{"amount": 149.99}', 'PENDING');
+
+COMMIT;
+```
+
+A background relay worker reads unprocessed outbox events, dispatches them to RabbitMQ, and marks them as processed upon broker acknowledgment.
+
+## Ensuring Consumer Idempotency
+
+In distributed networks, messages can be delivered more than once (at-least-once delivery guarantee). Consumers must be designed to be strictly idempotent:
+
+```ts
+interface EventMessage<T> {
+  eventId: string;
+  timestamp: string;
+  payload: T;
+}
+
+export async function handleOrderCreated(msg: EventMessage<OrderPayload>) {
+  const isProcessed = await redis.get(`event:processed:${msg.eventId}`);
+  if (isProcessed) {
+    console.log(`Duplicate event ${msg.eventId} detected. Skipping.`);
+    return;
+  }
+
+  // Execute business logic
+  await processPayment(msg.payload);
+
+  // Cache processed state with TTL (7 days)
+  await redis.set(`event:processed:${msg.eventId}`, 'true', 'EX', 604800);
+}
+```
+
+## Key Takeaways
+
+1. **Decouple writes from processing**: Use asynchronous domain events to isolate transient downstream downtime.
+2. **Never dual-write without an outbox**: Guarantee database changes and outgoing events commit atomically.
+3. **Always design idempotent consumers**: Assume network retries will deliver duplicate events.

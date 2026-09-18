@@ -1,0 +1,418 @@
+---
+title: Agentic Research Workspace
+description: Enterprise agentic RAG knowledge base — upload PDFs, repos, audio → get citation-backed answers via hybrid retrieval + LangGraph ReAct agent.
+featured: true
+status: Completed
+year: 2026
+role:
+  - AI Engineer
+  - Full Stack Developer
+tech:
+  - FastAPI
+  - LangGraph
+  - Next.js 16
+  - PostgreSQL
+  - pgvector
+  - Cohere
+  - LiteLLM
+  - arq
+  - Redis
+  - Turborepo
+github: https://github.com/AmitxParmar/agentic-knowledge-base
+live: https://agentic-knowledge-base-web.vercel.app/research
+cover: /projects/enterprise-knowledgebase/chat-view.png
+---
+
+<ProjectHero
+  title="Agentic Research Workspace"
+  subtitle="Enterprise agentic RAG knowledge base — upload your documents, ask questions, get citation-backed answers. Single Research Agent over hybrid retrieval with a swappable Model Gateway."
+  status="Completed"
+  timeline="3 Months"
+  github="https://github.com/AmitxParmar/enterprise-agentic-knowledgebase"
+/>
+
+<div className="flex flex-wrap gap-2 mb-16">
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">ReAct Agent</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Hybrid RRF</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Citation-at-Retrieval</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">pgvector + FTS</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Model Gateway</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">AG-UI SSE</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">arq Workers</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Logfire Traced</Badge>
+</div>
+
+<InfoGrid>
+  <InfoCard title="Agent" value="LangGraph ReAct" icon={Cpu} />
+  <InfoCard title="Retrieval" value="Hybrid RRF" icon={Database} />
+  <InfoCard title="Vector" value="pgvector 1024d" icon={Server} />
+  <InfoCard title="Gateway" value="LiteLLM" icon={Share2} />
+  <InfoCard title="Queue" value="arq + Redis" icon={Activity} />
+  <InfoCard title="Stream" value="AG-UI SSE" icon={MessageSquare} />
+</InfoGrid>
+
+## Overview
+
+Single-tenant MVP that proves the core loop: **ask a question about your own documents, get a grounded answer** — every claim traceable to a retrieved chunk, progress streamed in a fixed stage vocabulary.
+
+Key focus areas:
+- **Citation-backed RAG**: HyDE → dense pgvector (1024d) + PostgreSQL FTS → RRF → Cohere rerank-v3 → cite chunks at retrieval time
+- **Agentic orchestration**: LangGraph Research Agent (ReAct, ≤5 iters, 60k token / 60s caps) over a `retrieve_evidence` tool
+- **Async ingestion**: upload returns immediately; arq worker does extract → Chonkie chunk → Cohere embed → Postgres in background
+- **Model Gateway**: every LLM call via LiteLLM `complete / complete_with_tools` (Groq → OpenRouter fallback, swappable without touching agent code)
+
+<InteractiveCanvas
+  src="/embeds/diagrams/agentic-workspace-architecture.html"
+  title="Multi-Agent RAG Orchestration & Knowledge Graph"
+  badge="Interactive Topology"
+  description="Explore the end-to-end knowledge architecture: async ingestion pipeline, hybrid retrieval (pgvector + PostgreSQL FTS + Cohere Rerank), LangGraph ReAct agent loop, and LiteLLM gateway. (Solid = Shipped MVP, Gold/Dashed = Planned V1 Specs)."
+/>
+
+
+---
+
+## Impact & Results
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+  <ProjectStat label="Ingestion" value="< 60s" description="10-page PDF upload → searchable (extract → chunk → embed → pgvector)." />
+  <ProjectStat label="Citations" value="100%" description="Every claim rendered as [n] grounded to a chunk with source_ref." />
+  <ProjectStat label="Run Budget" value="≤ 5 iters" description="60s wall / 30s per-call / 60k token caps — no runaway loops." />
+</div>
+
+---
+
+## Features
+
+<FeatureGrid>
+  <FeatureCard 
+    title="Citation-at-Retrieval" 
+    description="Citations attached when chunks are retrieved, not hallucinated after. Answer [n] markers resolve against persisted citations."
+    icon={Shield}
+  />
+  <FeatureCard 
+    title="Hybrid Retrieval" 
+    description="HyDE query expansion → dense ANN + PostgreSQL FTS tsvector merged by RRF → Cohere rerank-v3 for relevance."
+    icon={Database}
+  />
+  <FeatureCard 
+    title="AG-UI Streaming" 
+    description="POST /api/research/chat opens SSE: RUN_STARTED → CUSTOM stages → CUSTOM citations → TEXT_MESSAGE_CONTENT → RUN_FINISHED."
+    icon={MessageSquare}
+  />
+  <FeatureCard 
+    title="Async Ingestion" 
+    description="POST /api/ingestion/upload returns document_id + job_id immediately. arq worker advances queued → extracting → chunking → embedding → done."
+    icon={Activity}
+  />
+  <FeatureCard 
+    title="Model Gateway" 
+    description="ADR-003: LiteLLM thin interface. Groq primary, OpenRouter fallback. Swap models via env, zero agent changes."
+    icon={Share2}
+  />
+  <FeatureCard 
+    title="Multi-source Extract" 
+    description="Docling for PDFs, faster-whisper for audio, gitingest+tree-sitter for repos. Chonkie semantic/code chunkers preserve structure."
+    icon={FileText}
+  />
+</FeatureGrid>
+
+---
+
+## Low-Level: Ingestion
+
+<ProjectArchitecture 
+  title="Ingestion Pipeline — upload to searchable"
+  description="Off the request path. Same container runs arq worker (max_jobs=4). Vectors are authoritative in Postgres — no sidecar index to sync."
+  chart={`sequenceDiagram
+    participant UI as Web / CLI
+    participant API as FastAPI
+    participant FS as Storage (B2)
+    participant Q as arq Worker
+    participant P as Pipeline (Extract/Embed)
+    participant PG as PostgreSQL
+
+    UI->>API: POST /api/ingestion/upload
+    API->>FS: write raw file
+    API->>PG: documents + jobs (queued)
+    API->>Q: enqueue ingestion job (Redis)
+    API-->>UI: document_id + job_id
+    UI->>API: GET /api/ingestion/jobs/{id} (poll status)
+    Q->>P: extract & chunk (Docling + Chonkie)
+    P->>P: embed vectors (Cohere embed-v3)
+    P->>PG: INSERT chunks (text + vector + tsv)
+    Q->>PG: update job status = done
+
+    Note over Q,PG: chunks.embedding (pgvector 1024) is the authoritative index
+  `}>
+```tree
+Request path (sync)
+├── POST /api/ingestion/upload → write B2 + insert documents/ingestion_jobs (queued) → enqueue arq → return {document_id, job_id}
+
+Worker path (async, off HTTP)
+├── arq Worker picks job (same Render container, max_jobs=4)
+├── Extract by source_type (Docling / whisper / tree-sitter)
+├── Chonkie SemanticChunker / CodeChunker → tsvector per chunk
+├── Cohere embed-english-v3.0 batch (hash fallback only in dev)
+└── INSERT chunks (text + vector(1024) + tsv GIN) → stage=done
+```
+</ProjectArchitecture>
+
+## Low-Level: Research (ask → cited answer)
+
+<ProjectArchitecture 
+  title="Research Loop — AG-UI SSE + ReAct"
+  description="Product path is SSE (TanStack AI useChat). Legacy WS retained for wscat. Fixed stage vocabulary per docs/ux.md."
+  chart={`sequenceDiagram
+    participant UI as Web (TanStack useChat)
+    participant API as POST /api/research/chat (SSE)
+    participant AG as Research Agent
+    participant MG as Model Gateway
+    participant RET as Retrieval pipeline
+    participant PG as PostgreSQL
+
+    UI->>API: POST {"question": "...", "threadId": "..."}
+    API-->>UI: RUN_STARTED / TEXT_MESSAGE_START
+    API->>PG: research_runs (running)
+    AG->>MG: ReAct · may call retrieve_evidence
+    AG->>RET: retrieve(query, workspace_id)
+    RET->>MG: HyDE expand
+    RET->>PG: PostgreSQL FTS (allowlist)
+    RET->>PG: pgvector dense ANN
+    RET->>RET: RRF merge + Cohere rerank
+    RET-->>AG: chunks + source_ref (citations attached)
+    loop progress
+        API-->>UI: CUSTOM stage (Searching → Reviewing → Generating → Finalizing)
+    end
+    AG->>MG: draft answer (synthesis route)
+    AG->>PG: persist citations + answer
+    API-->>UI: CUSTOM citations
+    API-->>UI: TEXT_MESSAGE_CONTENT (answer with [n])
+    API-->>UI: TEXT_MESSAGE_END / RUN_FINISHED
+  `}>
+```tree
+Client (TanStack AI useChat)
+├── POST /api/research/chat {question, threadId} — opens SSE (AG-UI)
+└── Renders stages + [n] markers → CUSTOM citations → final answer markdown
+
+Server — LangGraph StateGraph
+├── entry → planner (cheap model, 1-3 queries, fallback [question]) → researcher ⇄ loop (≤5)
+│   └── synthesize → END (per specs/research-pipeline.md)
+├── Researcher ReAct: thought → retrieve_evidence → observation (bounded by 60k tokens / 60s / 30s per-call)
+└── Budget caps: MAX_ITERATIONS=5, AGENT_TOKEN_BUDGET=60k, AGENT_RUN_TIMEOUT=60s
+
+Retrieval
+├── HyDE via Model Gateway → hybrid dense+FTS (same Postgres table, RRF) → Cohere rerank-v3
+└── Workspace pre-filter — no cross-workspace leakage
+```
+</ProjectArchitecture>
+
+## Data Model
+
+<ProjectArchitecture 
+  title="Data Model — Postgres is the source of truth"
+  description="pgvector lives beside chunk text in one table. No second vector DB to host, sync, or rebuild (ADR-002 addendum)."
+  chart={`erDiagram
+    users ||--o{ workspaces : owns
+    workspaces ||--o{ documents : contains
+    documents ||--|| ingestion_jobs : tracks
+    documents ||--o{ chunks : splits_into
+    workspaces ||--o{ research_runs : has
+    research_runs ||--o{ citations : cites
+    citations }o--|| chunks : points_to
+
+    documents {
+        uuid id
+        string source_type
+        string storage_path
+        string processing_status
+    }
+    chunks {
+        uuid id
+        text text
+        vector embedding
+        tsvector tsv
+        string source_ref
+    }
+    research_runs {
+        uuid id
+        text question
+        text answer
+        string status
+        int iterations
+    }
+  `}>
+```tree
+Postgres (Neon) — authoritative
+├── users / workspaces (workspace_id allowlist on every retrieval)
+├── documents + ingestion_jobs (queued → extracting → chunking → embedding → done/failed)
+├── chunks (text + embedding vector(1024) + tsv generated + GIN index + source_ref + document_id)
+└── research_runs + citations (answer + [n] → chunk_id FK, persisted before streaming)
+```
+</ProjectArchitecture>
+
+---
+
+## Key Architectural Decisions
+
+### Why pgvector in Postgres (not Pinecone/Turbovec)?
+Single table holds `chunks.text + embedding + tsv`. No sync job, no rebuild. FTS `ts_rank_cd` + dense cosine merged by RRF in SQL. See ADR-002 addendum — Turbovec removed.
+
+### Why LangGraph?
+Stateful `StateGraph` gives `retrieve_evidence` tool loop with checkpoint-ready shape (`PostgresSaver` planned, ADR-001). Adding Planner/Critic later is additive (nodes, not new agents).
+
+### Why LiteLLM Gateway?
+ADR-003 thin interface `complete / complete_with_tools`. Groq primary (speed/free tier), OpenRouter fallback. Swap via env, no agent diff.
+
+### Why arq + Redis?
+Ingestion is N4 async by spec — upload must return in ms. `arq` with `rediss://` (Upstash TLS) keeps HTTP fast, worker in same Render container (`max_jobs=4`, free tier sleeps on idle).
+
+---
+
+## Trade-offs
+
+### Pros
+- **Single source of truth**: one Postgres for metadata, vectors, FTS — ops simple
+- **Grounded by construction**: citation-at-retrieval prevents post-hoc fabrication
+- **Bounded cost**: iteration/token/time caps + fixed stage vocab → predictable UX & spend
+
+### Cons
+- **Single-node agent**: no Planner decomposition yet — multi-hop needs `specs/research-pipeline.md` planner node (cheap model, fallback `[question]`)
+- **No Critic loop**: deferred per PRD non-goals until golden dataset shows need
+- **Free-tier cold start**: one Render service sleeps on idle; no keep-warm cron
+
+---
+
+## Technical Challenges
+
+<ChallengeCard
+  title="Preventing Hallucinated Citations"
+  problem="LLM can fabricate source refs if citations are generated after the answer."
+  solution="Attach citations at retrieval time — every chunk returned by retrieve() already carries chunk_id + source_ref. Agent drafts against that evidence, synthesize persists citations before streaming."
+  result="100% of [n] markers resolve to a real chunk_id FK; no invented refs."
+/>
+
+<ChallengeCard
+  title="Hybrid Retrieval Without a Sidecar Index"
+  problem="Separate vector DB means sync lag, rebuild on schema change, and cross-store allowlisting."
+  solution="Store Cohere 1024d vectors in chunks.embedding (pgvector) + generated tsv + GIN in same Neon table. HyDE → dense ANN + tsv FTS → RRF → Cohere rerank-v3 in SQL."
+  result="One query, one allowlist (workspace_id), no sync/rebuild path."
+/>
+
+<ChallengeCard
+  title="Keeping Uploads Responsive"
+  problem="Extracting PDFs/repos/audio + embedding can take 30–60s — blocking HTTP would timeout."
+  solution="FastAPI writes B2 + inserts Document/IngestionJob (queued), enqueues arq job, returns immediately. Poll GET /api/ingestion/jobs/{id} for staged progress. Worker advances stages with Logfire spans."
+  result="Upload returns in <200ms; 10-page PDF searchable in <60s end-to-end."
+/>
+
+---
+
+## Project Structure
+
+<ProjectTree>
+  <Folder name="apps" id="apps">
+    <Folder name="api" id="api">
+      <Folder name="app" id="app" />
+      <Folder name="src" id="src">
+        <Folder name="shared" id="shared" />
+        <Folder name="ingestion" id="ingestion" />
+        <Folder name="retrieval" id="retrieval" />
+        <Folder name="research" id="research" />
+        <Folder name="auth" id="auth" />
+      </Folder>
+      <Folder name="alembic" id="alembic" />
+      <File name="Dockerfile" id="dockerfile" />
+    </Folder>
+    <Folder name="web" id="web">
+      <Folder name="app" id="web-app" />
+    </Folder>
+    <Folder name="docs" id="docs" />
+  </Folder>
+  <Folder name="packages" id="packages">
+    <Folder name="ui" id="ui" />
+  </Folder>
+</ProjectTree>
+
+---
+
+## API Reference
+
+<ApiDialog>
+  <ApiEndpoint 
+    method="POST" 
+    path="/api/ingestion/upload" 
+    description="Upload PDF/repo/audio, enqueue arq job, return document_id + job_id." 
+  />
+  <ApiEndpoint 
+    method="GET" 
+    path="/api/ingestion/jobs/{id}" 
+    description="Poll ingestion stage: queued → extracting → chunking → embedding → done." 
+  />
+  <ApiEndpoint 
+    method="GET" 
+    path="/api/ingestion/documents" 
+    description="List documents in workspace." 
+  />
+  <ApiEndpoint 
+    method="DELETE" 
+    path="/api/ingestion/documents/{id}" 
+    description="Delete document + chunks, invalidate retrieval/semantic caches." 
+  />
+  <ApiEndpoint 
+    method="POST" 
+    path="/api/research/chat" 
+    description="Primary: AG-UI SSE stream — stages → answer with [n] → citations (TanStack AI useChat)." 
+  />
+  <ApiEndpoint 
+    method="WS" 
+    path="/api/research/ws" 
+    description="Legacy: question → progress → answer → done (wscat testing)." 
+  />
+  <ApiEndpoint 
+    method="GET" 
+    path="/api/research/runs/{id}" 
+    description="Fetch completed run + citations." 
+  />
+  <ApiEndpoint 
+    method="GET" 
+    path="/api/conversations" 
+    description="List threads." 
+  />
+  <ApiEndpoint 
+    method="POST" 
+    path="/api/research/voice" 
+    description="Voice STT → agent → TTS (edge-tts + faster-whisper)." 
+  />
+</ApiDialog>
+
+---
+
+## Reliability & Observability
+
+<MetricsTable>
+  <MetricRow label="Tracing" value="Logfire spans per run" />
+  <MetricRow label="Rate Limit" value="5 uploads / 20 chats per min" />
+  <MetricRow label="Timeouts" value="30s per-call / 60s wall" />
+  <MetricRow label="Backfill" value="scripts/backfill_embeddings.py (NULL vectors only, Cohere-guarded)" />
+  <MetricRow label="Deployment" value="Single Render container: alembic → arq + uvicorn" />
+</MetricsTable>
+
+---
+
+## Lessons Learned
+
+*   **Groundedness is a data contract, not a prompt trick** — citations must ride with retrieval, not be asked for after.
+*   **One authoritative store beats two synced ones** — pgvector + tsv in Postgres removed an entire sync/rebuild class.
+*   **Bound the agent before improving it** — caps + fixed stage vocab made the MVP shippable; Critic/Planner wait on golden eval data (docs/specs/evaluation.md).
+*   **Gateway abstraction pays off** — Groq → OpenRouter swap is env-only; agent code never branches on provider.
+
+---
+
+## Screenshots
+
+<ImageGallery 
+  images={[
+    { src: "/projects/enterprise-knowledgebase/chat-view.png", alt: "Chat with citations", title: "AG-UI Streaming + Citations" },
+    { src: "/projects/enterprise-knowledgebase/agentic-rag-chat-main.png", alt: "Main research interface", title: "Research Workspace" }
+  ]}
+/>

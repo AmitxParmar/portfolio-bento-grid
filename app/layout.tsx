@@ -32,26 +32,34 @@ export const viewport = {
   ],
 };
 
+import Navbar from "@/components/Navigation/Navbar";
+
 interface RootLayoutProps {
   children: React.ReactNode;
+  modal: React.ReactNode;
 }
 
-export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
+export default function RootLayout({
+  children,
+  modal,
+}: Readonly<RootLayoutProps>) {
   return (
-    <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
-        <body
-          className={cn(
-            "min-h-screen bg-background font-sans antialiased",
-            font.variable
-          )}
-        >
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <div className="relative flex max-w-screen overflow-x-hidden h-screen flex-col">
-              <div className="flex-1 h-0 overflow-y-auto">{children}</div>
-            </div>
-            <TailwindIndicator />
-          </ThemeProvider>
-        </body>
-      </html>
+    <html lang="en" suppressHydrationWarning className={cn("font-sans scroll-smooth", geist.variable)}>
+      <body
+        className={cn(
+          "min-h-screen bg-background font-sans antialiased selection:bg-primary/20 selection:text-primary",
+          font.variable
+        )}
+      >
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <div className="relative flex min-h-screen flex-col">
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            {modal}
+          </div>
+          <TailwindIndicator />
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { allProjects, type Project } from "content-collections";
+import Link from "next/link";
+import { type Project } from "content-collections";
 import { Briefcase, Layers, ArrowRight } from "lucide-react";
 import { InteractiveHoverButton } from "../magicui/interactive-hover-button";
 import { Marquee } from "../ui/marquee";
@@ -12,19 +13,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import ProjectCard from "./ProjectCard";
-import ProjectDetailsDialog from "./ProjectDetailsDialog/ProjectDetailsDialog";
+import { getAllProjects, getFeaturedProjects } from "@/lib/projects";
 import { useState } from "react";
 import { motion } from "motion/react";
 
 const ProjectsGallery = () => {
   const [galleryOpen, setGalleryOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [detailsOpen, setDetailsOpen] = useState(false);
-
-  const handleProjectSelect = (project: Project) => {
-    setSelectedProject(project);
-    setDetailsOpen(true);
-  };
+  const allProjects = getAllProjects();
+  const featuredCaseStudies = getFeaturedProjects();
 
   // Group projects by year
   const groupedProjects = allProjects.reduce((acc, project) => {
@@ -45,6 +41,7 @@ const ProjectsGallery = () => {
 
   return (
     <motion.div 
+      id="projects"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
@@ -67,7 +64,12 @@ const ProjectsGallery = () => {
         <div className="relative pt-2 lg:pt-1">
           <Marquee className="[--duration:40s]">
             {allProjects?.map((project) => (
-              <div key={project.title} className="px-2 cursor-pointer" onClick={() => handleProjectSelect(project)}>
+              <Link
+                key={project.title}
+                href={`/projects/${project.slug}`}
+                scroll={false}
+                className="px-2 cursor-pointer block"
+              >
                 <Image
                   loading="lazy"
                   alt={`${project.title} project image`}
@@ -77,26 +79,27 @@ const ProjectsGallery = () => {
                   className="rounded-xl object-cover aspect-video h-auto max-h-[70px] lg:max-h-[50px] 2xl:max-h-[100px] border border-white/10 shadow-2xl transition-all duration-500 hover:scale-105 hover:border-primary/50"
                   style={{ width: "auto" }}
                 />
-              </div>
+              </Link>
             ))}
           </Marquee>
         </div>
 
         {/* Recent Projects List */}
-        <div className="mt-4 lg:mt-2 flex-1 flex flex-col justify-center gap-2.5 lg:gap-1.5 overflow-hidden">
-          <h5 className="text-[9px] font-black text-primary/60 uppercase tracking-widest border-b border-white/5 pb-1 mb-1 lg:mb-0.5 flex justify-between items-center">
-            <span>Featured Highlights</span>
-            <span>{allProjects?.length || 0} Total</span>
+        <div className="mt-3 lg:mt-2 flex-1 flex flex-col justify-center gap-2 overflow-hidden">
+          <h5 className="text-[10px] font-black text-primary/80 uppercase tracking-widest border-b border-white/5 pb-1 mb-1 flex justify-between items-center">
+            <span>Featured Case Studies</span>
+            <span className="text-white/40">{featuredCaseStudies.length} Featured</span>
           </h5>
-          <div className="flex flex-col gap-2 lg:gap-1 overflow-y-auto pr-1">
-            {allProjects?.slice(2, 3).map((project) => (
-              <div
+          <div className="flex flex-col gap-2 overflow-y-auto pr-1">
+            {featuredCaseStudies.map((project) => (
+              <Link
                 key={project.title}
-                onClick={() => handleProjectSelect(project)}
-                className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-white/2 p-2.5 lg:p-1.5 hover:bg-white/6 hover:border-primary/20 transition-all cursor-pointer group/row"
+                href={`/projects/${project.slug}`}
+                scroll={false}
+                className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-white/2 p-2.5 lg:p-2 hover:bg-white/6 hover:border-primary/20 transition-all cursor-pointer group/row"
               >
-                <div className="flex items-center gap-3 lg:gap-2 min-w-0">
-                  <div className="relative size-10 lg:size-7 2xl:size-12 rounded-lg overflow-hidden border border-white/10 shrink-0">
+                <div className="flex items-center gap-3 lg:gap-2.5 min-w-0">
+                  <div className="relative size-10 lg:size-8 2xl:size-12 rounded-lg overflow-hidden border border-white/10 shrink-0">
                     <Image
                       src={project.cover ?? "/next.svg"}
                       alt={project.title}
@@ -105,21 +108,21 @@ const ProjectsGallery = () => {
                     />
                   </div>
                   <div className="flex flex-col min-w-0">
-                    <h4 className="text-[11px] lg:text-[9px] font-black text-white truncate leading-snug group-hover/row:text-primary transition-colors">
+                    <h4 className="text-xs font-black text-white truncate leading-snug group-hover/row:text-primary transition-colors">
                       {project.title}
                     </h4>
-                    <span className="text-[9px] lg:text-[7px] text-white/40 font-bold truncate">
-                      {project.role?.[0]}
+                    <span className="text-[10px] text-white/50 font-bold truncate">
+                      {project.slug === "modular-mart" ? "Microservices E-Commerce" : (project.role?.[0] || "Full-stack Engineer")}
                     </span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-[9px] lg:text-[7px] text-white/50 bg-white/5 px-2 py-0.5 rounded font-black">
+                  <span className="text-[10px] text-white/60 bg-white/5 px-2 py-0.5 rounded font-black">
                     {project.year}
                   </span>
-                  <ArrowRight className="size-3 lg:size-2.5 text-white/25 group-hover/row:text-primary group-hover/row:translate-x-0.5 transition-all" />
+                  <ArrowRight className="size-3.5 text-white/30 group-hover/row:text-primary group-hover/row:translate-x-0.5 transition-all" />
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -164,12 +167,18 @@ const ProjectsGallery = () => {
                         viewport={{ once: true }}
                         key={project.title}
                         className="cursor-pointer group/item"
-                        onClick={() => handleProjectSelect(project)}
                       >
-                        <ProjectCard
-                          project={project}
-                          priority={index < 3}
-                        />
+                        <Link
+                          href={`/projects/${project.slug}`}
+                          scroll={false}
+                          onClick={() => setGalleryOpen(false)}
+                          className="block"
+                        >
+                          <ProjectCard
+                            project={project}
+                            priority={index < 3}
+                          />
+                        </Link>
                       </motion.div>
                     )
                   )}
@@ -179,13 +188,6 @@ const ProjectsGallery = () => {
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Detailed Project Dialog */}
-      <ProjectDetailsDialog
-        project={selectedProject}
-        open={detailsOpen}
-        onOpenChange={setDetailsOpen}
-      />
     </motion.div>
   );
 };

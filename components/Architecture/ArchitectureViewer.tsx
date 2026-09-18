@@ -10,11 +10,11 @@ interface ArchitectureViewerProps {
 
 const ViewerContent = ({ chart, showLegend }: ArchitectureViewerProps) => {
   return (
-    <div className="w-full rounded-3xl border border-iconBg bg-cardBg/30 overflow-hidden relative shadow-inner group/mermaid">
-      <div className="p-6 md:p-8 overflow-x-auto">
+    <div className="w-full max-w-full min-w-0 rounded-3xl border border-iconBg bg-cardBg/30 overflow-hidden relative shadow-inner group/mermaid">
+      <div className="w-full max-w-full min-w-0 overflow-x-auto p-4 md:p-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-iconBg">
         <MermaidDiagram
           chart={chart}
-          className="flex justify-center [&_svg]:max-w-full [&_svg]:h-auto"
+          className="w-full max-w-full min-w-0 [&_svg]:!max-w-full [&_svg]:w-full [&_svg]:h-auto [&_svg]:block [&_svg]:mx-auto [&_svg]:min-w-0"
         />
       </div>
 

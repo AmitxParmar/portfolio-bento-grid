@@ -1,9 +1,9 @@
-import { allProjects } from "content-collections";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ProjectMDX } from "@/components/ProjectMDX";
+import { getAllProjects, getProjectBySlug } from "@/lib/projects";
+import { ProjectDetails } from "@/components/projects/ProjectDetails";
 
 interface ProjectPageProps {
   params: Promise<{
@@ -12,14 +12,14 @@ interface ProjectPageProps {
 }
 
 export async function generateStaticParams() {
-  return allProjects.map((project) => ({
+  return getAllProjects().map((project) => ({
     slug: project.slug,
   }));
 }
 
 export default async function ProjectPage({ params }: Readonly<ProjectPageProps>) {
   const { slug } = await params;
-  const project = allProjects.find((p) => p.slug === slug);
+  const project = getProjectBySlug(slug);
 
   if (!project) {
     notFound();
@@ -44,10 +44,11 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-20 pt-16">
-        <div className="prose prose-invert prose-primary max-w-none prose-pre:bg-black prose-pre:border prose-pre:border-white/5 prose-img:rounded-3xl prose-headings:scroll-mt-24">
-          <ProjectMDX code={project.mdx} />
-        </div>
+      <div className="max-w-7xl mx-auto px-6 lg:px-20 pt-16 w-full min-w-0 overflow-hidden">
+        <ProjectDetails
+          project={project}
+          className="prose-pre:bg-black prose-pre:border-white/5"
+        />
 
         {/* Footer Navigation */}
         <div className="mt-32 pt-12 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-8">

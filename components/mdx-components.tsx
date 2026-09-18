@@ -27,23 +27,27 @@ g.Share2 = Share2;
 g.Info = Info;
 g.ChevronRight = ChevronRight;
 g.FileText = FileText;
+g.Cpu = Cpu;
+g.Network = Network;
+g.Box = Box;
 g.Badge = Badge;
 g.Button = Button;
 g.motion = motion;
 
-import { ArchitectureViewer } from "./Architecture";
+import { ArchitectureViewer, InteractiveCanvas } from "./Architecture";
+g.InteractiveCanvas = InteractiveCanvas;
+export { InteractiveCanvas };
 
-// ... (rest of imports)
 
 // Architecture Wrapper — renders Mermaid diagram + inline structured breakdown
 export const ProjectArchitecture = ({ chart, title, description, showLegend, children }: any) => (
-  <div className="my-16 space-y-8">
+  <div className="my-16 space-y-8 w-full max-w-full min-w-0 overflow-hidden">
     <ArchitectureHeader
       title={title || "Technical Architecture"}
       description={description}
     />
 
-    <div className="relative group">
+    <div className="relative group w-full max-w-full min-w-0 overflow-hidden">
       <div className="absolute -inset-1 bg-linear-to-r from-primary/20 to-primary/5 rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition duration-1000" />
       <ArchitectureViewer chart={chart} showLegend={showLegend} />
     </div>
@@ -226,7 +230,7 @@ export const pre = ({ children, ...props }: any) => {
 
   if (isMermaid) {
     return (
-      <div className="my-8">
+      <div className="my-8 w-full max-w-full min-w-0 overflow-hidden">
         <ArchitectureViewer chart={rawText.trim()} />
       </div>
     );

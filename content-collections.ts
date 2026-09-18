@@ -61,6 +61,55 @@ const projects = defineCollection({
   },
 });
 
+const posts = defineCollection({
+  name: "posts",
+  directory: "content/blog",
+  include: "**/*.mdx",
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    date: z.string(),
+    tags: z.array(z.string()).optional().default([]),
+    cover: z.string().optional(),
+    published: z.boolean().optional().default(true),
+    featured: z.boolean().optional().default(false),
+    author: z
+      .object({
+        name: z.string().default("Amit Parmar"),
+        role: z.string().default("Full-stack Engineer"),
+        avatar: z.string().default("/profile-pic.jpg"),
+      })
+      .optional()
+      .default({
+        name: "Amit Parmar",
+        role: "Full-stack Engineer",
+        avatar: "/profile-pic.jpg",
+      }),
+    content: z.string(),
+  }),
+  transform: async (document, context) => {
+    const mdx = await compileMDX(context, document, {
+      rehypePlugins: [
+        [
+          rehypePrettyCode,
+          {
+            theme: "github-dark",
+          },
+        ],
+      ],
+    });
+    const words = document.content.split(/\s+/g).filter(Boolean).length;
+    const readingMinutes = Math.max(1, Math.ceil(words / 200));
+
+    return {
+      ...document,
+      slug: document._meta.path,
+      readingTime: `${readingMinutes} min read`,
+      mdx,
+    };
+  },
+});
+
 export default defineConfig({
-  content: [projects],
+  content: [projects, posts],
 });
