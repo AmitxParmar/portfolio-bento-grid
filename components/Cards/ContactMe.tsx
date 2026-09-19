@@ -1,9 +1,18 @@
 "use client";
 
-import { Crown, Mail, Phone, Sparkles, Github, Linkedin, Instagram, Send, Check } from "lucide-react";
-import { InteractiveHoverButton } from "../magicui/interactive-hover-button";
-import { motion } from "motion/react";
 import { useState } from "react";
+import { 
+  Mail, 
+  Send, 
+  Check, 
+  Copy, 
+  Github, 
+  Linkedin, 
+  Clock, 
+  MessageSquare,
+  ArrowUpRight 
+} from "lucide-react";
+import { motion } from "motion/react";
 
 const ContactMe = () => {
   const [copied, setCopied] = useState(false);
@@ -13,102 +22,106 @@ const ContactMe = () => {
     e.preventDefault();
     navigator.clipboard.writeText(emailAddress);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
-    window.location.href = `mailto:${emailAddress}?subject=Engineering%20Opportunity`;
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <motion.div 
-      id="contact"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.1 }}
-      className="col-span-5 flex flex-col min-h-[340px] lg:min-h-0 flex-1 rounded-[2.5rem] border-premium card-gradient-green p-6 lg:p-4 2xl:p-8 hover-glow-purple transition-all duration-500 group/contact overflow-hidden relative"
-    >
-      {/* Background Sparkle Decoration */}
-      <div className="absolute -left-4 -bottom-4 opacity-5 group-hover/contact:scale-110 group-hover/contact:-rotate-12 transition-transform duration-1000">
-        <Sparkles size={140} className="text-primary" />
-      </div>
-
-      <div className="flex flex-col items-center justify-center gap-5 lg:gap-2 2xl:gap-6 relative z-10 mt-auto">
-        <div className="relative group/crown">
-          {/* Pulsing Aura */}
-          <div className="absolute -inset-6 bg-primary/20 rounded-full blur-2xl opacity-0 group-hover/crown:opacity-100 transition-opacity duration-700 animate-pulse" />
-          <div className="relative rounded-full bg-white/3 p-4 lg:p-3 2xl:p-5 border-premium shadow-2xl transition-transform duration-500 group-hover/crown:scale-110 group-hover/crown:rotate-6">
-            <Crown size={36} className="fill-primary text-primary lg:size-6 2xl:size-12" />
-            
-            {/* Status indicator on crown */}
-            <div className="absolute top-0 right-0 flex items-center justify-center translate-x-1 -translate-y-1">
-              <span className="absolute inline-flex h-3 w-3 animate-ping rounded-full bg-primary/40 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-primary border border-bg" />
-            </div>
+    <div id="contact" className="bezel-outer w-full">
+      <div className="bezel-inner !p-3.5 gap-2.5">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
+          <div className="flex items-center gap-1.5">
+            <MessageSquare className="size-3.5 text-primary" />
+            <h3 className="text-xs font-bold text-white tracking-tight">
+              Direct Channel
+            </h3>
+          </div>
+          
+          <div className="flex items-center gap-1.5 text-[8px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+            <span className="size-1 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Open for roles</span>
           </div>
         </div>
 
-        <div className="space-y-1.5 text-center lg:space-y-1 2xl:space-y-3">
-          <h3 className="text-2xl font-black text-white tracking-tightest lg:text-base 2xl:text-3xl leading-none">
-            Let&apos;s Work Together
-          </h3>
-          <p className="text-[11px] font-black text-lightText/60 uppercase tracking-[0.2em] lg:text-[9px] 2xl:text-xs group-hover/contact:text-primary/70 transition-colors">
-            Available for new opportunities
+        {/* Center Content */}
+        <div className="py-0.5 text-center sm:text-left flex flex-col justify-center">
+          <p className="text-[11px] text-zinc-300 font-medium leading-snug">
+            Seeking senior challenges in distributed systems, backend resilience, or high-craft web.
           </p>
+          <div className="flex items-center gap-2 text-[9px] font-mono text-zinc-400 mt-1">
+            <Clock size={10} className="text-primary/80" />
+            <span>IST (UTC+5:30) • Rapid async turnaround</span>
+          </div>
         </div>
-      </div>
 
-      <div className="mt-8 grid w-full gap-3 sm:mt-auto lg:mt-auto lg:gap-2 2xl:mt-auto 2xl:gap-4 relative z-10">
-        
-        {/* Social Icons integrated */}
-        <div className="flex items-center justify-center gap-2 mb-1 lg:mb-0">
-          {[
-            { icon: Github, href: "https://github.com/AmitxParmar", label: "GitHub" },
-            { icon: Linkedin, href: "https://linkedin.com/in/AmitxParmar", label: "LinkedIn" },
-            { icon: Instagram, href: "https://instagram.com/AmitxParmar", label: "Instagram" },
-            { icon: Send, href: "https://t.me/AmitxParmar", label: "Telegram" },
-          ].map((social, i) => (
-            <a 
-              key={i} 
-              href={social.href} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              aria-label={social.label}
-              className="p-2.5 lg:p-2 rounded-full bg-white/5 border border-white/10 hover:bg-primary/20 hover:border-primary/50 transition-all text-white/70 hover:text-white"
+        {/* Actions & Socials */}
+        <div className="pt-1 flex flex-col gap-1.5 border-t border-white/[0.05]">
+          <div className="grid grid-cols-2 gap-1.5">
+            <button
+              type="button"
+              onClick={handleCopyEmail}
+              className="group flex items-center justify-between px-2.5 py-1.5 rounded-lg border border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/20 transition-all duration-150 active:scale-[0.97] cursor-pointer"
             >
-              <social.icon className="size-4 lg:size-3.5 2xl:size-5" />
-            </a>
-          ))}
-        </div>
+              <div className="flex items-center gap-1.5 truncate">
+                {copied ? (
+                  <Check className="size-3 text-emerald-400 shrink-0" />
+                ) : (
+                  <Copy className="size-3 text-zinc-400 group-hover:text-white transition-colors shrink-0" />
+                )}
+                <span className={`text-[11px] font-medium truncate ${copied ? "text-emerald-400 font-mono" : "text-zinc-300 group-hover:text-white"}`}>
+                  {copied ? "Copied!" : "Copy Email"}
+                </span>
+              </div>
+            </button>
 
-        <div className="grid grid-cols-2 gap-2 w-full">
-          <InteractiveHoverButton 
-            onClick={handleCopyEmail}
-            className="flex h-12 lg:h-10 w-full items-center justify-center rounded-xl border border-white/5 bg-white/3 hover:bg-primary transition-all duration-300 shadow-inner group/btn"
-          >
-            <div className="flex items-center justify-center gap-2">
-              {copied ? (
-                <>
-                  <Check className="text-emerald-400 size-4" />
-                  <span className="text-[11px] lg:text-[9px] font-black uppercase tracking-widest text-emerald-400">Copied!</span>
-                </>
-              ) : (
-                <>
-                  <Mail className="text-primary group-hover/btn:text-white transition-colors" size={14} />
-                  <span className="text-[11px] lg:text-[9px] font-black uppercase tracking-widest group-hover/btn:text-white transition-colors">Email</span>
-                </>
-              )}
+            <a
+              href={`mailto:${emailAddress}?subject=Engineering%20Opportunity`}
+              className="group flex items-center justify-between px-2.5 py-1.5 rounded-lg border border-primary/30 bg-primary/10 hover:bg-primary/20 hover:border-primary/50 transition-all duration-150 active:scale-[0.97]"
+            >
+              <div className="flex items-center gap-1.5">
+                <Mail className="size-3 text-primary shrink-0" />
+                <span className="text-[11px] font-medium text-white">Send Email</span>
+              </div>
+              <ArrowUpRight size={10} className="text-primary/70 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+            </a>
+          </div>
+
+          {/* Social Row */}
+          <div className="flex items-center justify-between text-[9px] font-mono text-zinc-400 px-0.5 pt-0.5">
+            <span className="truncate">{emailAddress}</span>
+            <div className="flex items-center gap-2 shrink-0">
+              <a
+                href="https://github.com/AmitxParmar"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors"
+                aria-label="GitHub"
+              >
+                <Github size={12} />
+              </a>
+              <a
+                href="https://linkedin.com/in/AmitxParmar"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors"
+                aria-label="LinkedIn"
+              >
+                <Linkedin size={12} />
+              </a>
+              <a
+                href="https://t.me/AmitxParmar"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors"
+                aria-label="Telegram"
+              >
+                <Send size={12} />
+              </a>
             </div>
-          </InteractiveHoverButton>
-          <InteractiveHoverButton 
-            href={`mailto:${emailAddress}?subject=Engineering%20Discussion`}
-            className="flex h-12 lg:h-10 w-full items-center justify-center rounded-xl border border-white/10 bg-primary hover:bg-primary/90 transition-all duration-300 shadow-[0_0_20px_-5px_rgba(168,85,247,0.4)] group/btn"
-          >
-            <div className="flex items-center justify-center gap-2">
-              <Phone className="text-white" size={14} />
-              <span className="text-[11px] lg:text-[9px] font-black uppercase tracking-widest text-white">Inquire</span>
-            </div>
-          </InteractiveHoverButton>
+          </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

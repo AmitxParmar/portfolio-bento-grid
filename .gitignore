@@ -33,6 +33,11 @@ yarn-error.log*
 # turbo
 .turbo
 
+# generated (regeneratable)
+graphify-out/
+next-env.d.ts
+tsconfig.tsbuildinfo
+
 .contentlayer
 .content-collections/
 .env

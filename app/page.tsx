@@ -13,42 +13,26 @@ export default function IndexPage() {
   return (
     <div 
       id="overview"
-      className="flex flex-col gap-3 bg-bg px-3 sm:px-4 pt-20 sm:pt-22 pb-8 text-foreground lg:grid lg:min-h-[calc(100vh-5.5rem)] lg:grid-cols-12 2xl:px-8 2xl:gap-4 max-w-[1700px] mx-auto"
+      className="w-full max-w-6xl mx-auto px-3 sm:px-6 pt-20 sm:pt-24 pb-12 text-foreground"
     >
-      <div className="flex flex-col gap-3 lg:col-span-7 lg:grid lg:grid-cols-7 lg:gap-3 2xl:gap-4 min-h-0">
-        {/* Left Column (3/12) */}
-        <div className="order-2 col-span-3 min-w-0 flex flex-col gap-3 lg:order-1 lg:grid lg:grid-rows-12 lg:gap-3 2xl:gap-4 min-h-0">
-          <div className="lg:row-span-4 min-w-0 min-h-0 flex">
-            <TechStack />
-          </div>
-          <div className="lg:row-span-4 min-w-0 min-h-0 flex">
-            <EngineeringHighlights />
-          </div>
-          <div className="lg:row-span-4 min-w-0 min-h-0 flex">
-            <LatestWritings />
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-3.5 items-start">
+        {/* Left Column (4/12): Toolchain, Production Standards, Technical Notes */}
+        <div className="flex flex-col gap-3 sm:gap-3.5 lg:col-span-4 order-2 lg:order-1 min-w-0">
+          <TechStack />
+          <EngineeringHighlights />
+          <LatestWritings />
         </div>
 
-        {/* Center Column (4/12) */}
-        <div className="order-1 col-span-4 min-w-0 flex flex-col gap-3 lg:order-2 lg:grid lg:grid-rows-12 lg:gap-3 2xl:gap-4 min-h-0">
-          <div className="lg:row-span-5 min-w-0 min-h-0 flex">
-            <AboutMe />
-          </div>
-          <div className="lg:row-span-7 min-w-0 min-h-0 flex">
-            <ProjectsGallery />
-          </div>
+        {/* Center Column (4/12): Personal Profile & Case Studies */}
+        <div className="flex flex-col gap-3 sm:gap-3.5 lg:col-span-4 order-1 lg:order-2 min-w-0">
+          <AboutMe />
+          <ProjectsGallery />
         </div>
-      </div>
 
-      {/* Right Column (5/12) */}
-      <div className="flex flex-col gap-3 lg:col-span-5 lg:grid lg:grid-rows-12 lg:gap-3 2xl:gap-4 min-h-0">
-        <div className="lg:row-span-5 min-w-0 min-h-0 flex">
+        {/* Right Column (4/12): System Architecture, Capabilities, Direct Reach */}
+        <div className="flex flex-col gap-3 sm:gap-3.5 lg:col-span-4 order-3 lg:order-3 min-w-0">
           <SystemArchitecturePreview />
-        </div>
-        <div className="lg:row-span-4 min-w-0 min-h-0 flex">
           <TechnicalExpertise />
-        </div>
-        <div className="lg:row-span-3 min-w-0 min-h-0 flex">
           <ContactMe />
         </div>
       </div>

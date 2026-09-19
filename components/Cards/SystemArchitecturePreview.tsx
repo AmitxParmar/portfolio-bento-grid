@@ -1,89 +1,207 @@
-import { Server, ShieldCheck, Database, Zap, ArrowRight, Share2, Activity, Network, RefreshCw } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { 
+  ShieldCheck, 
+  Database, 
+  Zap, 
+  Layers,
+  ArrowRight,
+  CheckCircle2,
+  Activity
+} from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+
+interface ServiceNode {
+  id: string;
+  name: string;
+  protocol: string;
+  latency: string;
+  resilience: string;
+  throughput: string;
+  icon: typeof ShieldCheck;
+  accent: string;
+  badge: string;
+  description: string;
+}
+
+const NODES: ServiceNode[] = [
+  {
+    id: "gateway",
+    name: "Kong Gateway",
+    protocol: "HTTP/2",
+    latency: "1.4ms",
+    throughput: "45k req/s",
+    resilience: "Edge Shield & Rate Limit",
+    icon: ShieldCheck,
+    accent: "text-emerald-400",
+    badge: "Edge",
+    description: "TLS termination, token bucket throttling & JWT auth",
+  },
+  {
+    id: "broker",
+    name: "RabbitMQ",
+    protocol: "AMQP 0-9",
+    latency: "0.8ms",
+    throughput: "120k msg/s",
+    resilience: "Transactional Outbox",
+    icon: Zap,
+    accent: "text-amber-400",
+    badge: "Event",
+    description: "Zero-loss CDC pipeline, dead-letter exchanges & idempotent ACK",
+  },
+  {
+    id: "services",
+    name: "Microservices",
+    protocol: "gRPC",
+    latency: "2.1ms",
+    throughput: "32k req/s",
+    resilience: "Circuit Breakers",
+    icon: Layers,
+    accent: "text-purple-400",
+    badge: "Mesh",
+    description: "Strict protobuf contracts, exponential backoff & fail-safe fallbacks",
+  },
+  {
+    id: "database",
+    name: "PostgreSQL",
+    protocol: "Wire",
+    latency: "1.2ms",
+    throughput: "18k qps",
+    resilience: "Read Replicas & Pool",
+    icon: Database,
+    accent: "text-indigo-400",
+    badge: "Data",
+    description: "Connection pooling, WAL replication & ACID transactions",
+  },
+];
 
 const SystemArchitecturePreview = () => {
+  const [activeNodeId, setActiveNodeId] = useState<string>("broker");
+  const activeNode = NODES.find((n) => n.id === activeNodeId) || NODES[1];
+
   return (
-    <div 
-      id="architecture"
-      className="flex flex-1 w-full flex-col rounded-[2rem] border-premium card-gradient-purple p-6 lg:p-4 2xl:p-8 hover-glow-purple transition-all duration-500 group/arch relative overflow-hidden"
-    >
-      {/* Header */}
-      <div className="mb-6 flex flex-col items-center justify-center text-center">
-        <h4 className="text-[11px] mb-1 flex items-center gap-2 text-primary font-black uppercase tracking-[0.2em] opacity-80 group-hover/arch:opacity-100 transition-opacity">
-          <Network className="text-primary animate-pulse" size={13} /> System Design
-        </h4>
-        <h3 className="text-xl font-black text-white tracking-tighter lg:text-base 2xl:text-2xl leading-none">
-          Microservices Topology
-        </h3>
-      </div>
-
-      {/* Schematic Diagram - Horizontal Layout */}
-      <div className="flex-1 flex flex-col justify-center relative z-10 w-full overflow-hidden">
-        
-        <div className="flex items-center justify-between w-full relative z-10 px-2 lg:px-0">
-          
-          {/* Node 1: Gateway */}
-          <div className="flex flex-col items-center gap-1.5 lg:gap-1 2xl:gap-2 w-[60px] lg:w-[48px] 2xl:w-[70px] text-center group/node relative shrink-0">
-            <div className="h-10 w-10 lg:h-8 lg:w-8 2xl:h-12 2xl:w-12 rounded-full border border-white/10 bg-white/[0.03] flex items-center justify-center hover:border-emerald-500/50 hover:bg-white/[0.05] transition-all relative shadow-lg">
-              <ShieldCheck className="text-emerald-400 size-4 lg:size-3.5 2xl:size-5" />
+    <div id="architecture" className="bezel-outer w-full">
+      <div className="bezel-inner !p-3.5 gap-2.5">
+        {/* Compact Header */}
+        <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
+          <div className="flex items-center gap-1.5">
+            <div className="relative flex size-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full size-1.5 bg-emerald-500" />
             </div>
-            <span className="text-[10px] lg:text-[9px] 2xl:text-[11px] font-black uppercase text-white/80 tracking-wider">Kong</span>
+            <h3 className="text-xs font-bold text-white tracking-tight">
+              System Architecture
+            </h3>
           </div>
+          <div className="flex items-center gap-1.5 text-[9px] font-mono text-zinc-400">
+            <span className="text-emerald-400 font-bold">p99: 1.4ms</span>
+            <span className="text-zinc-600">•</span>
+            <span className="text-zinc-500 uppercase">Interactive</span>
+          </div>
+        </div>
 
-          <div className="flex-1 border-t border-dashed border-white/20 mx-1 lg:mx-0.5 2xl:mx-2 min-w-[10px]" />
+        {/* 4-Node Pipeline Flow */}
+        <div className="relative flex items-center justify-between gap-1 py-0.5">
+          {NODES.map((node, index) => {
+            const Icon = node.icon;
+            const isSelected = node.id === activeNodeId;
 
-          {/* Node 2: Message Broker */}
-          <div className="flex flex-col items-center gap-1.5 lg:gap-1 2xl:gap-2 w-[60px] lg:w-[48px] 2xl:w-[70px] text-center group/node relative shrink-0">
-            <div className="h-10 w-10 lg:h-8 lg:w-8 2xl:h-12 2xl:w-12 rounded-full border border-white/10 bg-white/[0.03] flex items-center justify-center hover:border-amber-500/50 hover:bg-white/[0.05] transition-all relative shadow-lg">
-              <span className="absolute top-0 right-0 flex h-1.5 w-1.5 lg:h-1 lg:w-1 2xl:h-2 2xl:w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 lg:h-1 lg:w-1 2xl:h-2 2xl:w-2 bg-amber-500"></span>
+            return (
+              <div key={node.id} className="flex-1 flex items-center min-w-0">
+                <button
+                  type="button"
+                  onClick={() => setActiveNodeId(node.id)}
+                  className={`group relative flex-1 flex flex-col items-center text-center p-1.5 rounded-lg border transition-all duration-200 cursor-pointer ${
+                    isSelected
+                      ? "bg-white/[0.09] border-white/30 shadow-xs"
+                      : "bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.05] hover:border-white/15"
+                  }`}
+                >
+                  {isSelected && (
+                    <motion.div
+                      layoutId="active-node-indicator"
+                      className="absolute inset-0 rounded-lg border border-primary/40 bg-primary/[0.03] pointer-events-none"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
+                    />
+                  )}
+
+                  <span className="text-[7px] font-mono uppercase tracking-wider text-zinc-400 mb-0.5 relative z-10">
+                    {node.badge}
+                  </span>
+
+                  <div
+                    className={`size-6 rounded-md border flex items-center justify-center transition-transform relative z-10 ${
+                      isSelected
+                        ? "bg-white/[0.08] border-white/30 scale-105"
+                        : "bg-white/[0.02] border-white/5 group-hover:scale-105"
+                    }`}
+                  >
+                    <Icon className={`size-3 ${node.accent}`} />
+                  </div>
+
+                  <span className="text-[9px] font-medium text-white mt-1 truncate max-w-full relative z-10">
+                    {node.name.split(" ")[0]}
+                  </span>
+                </button>
+
+                {index < NODES.length - 1 && (
+                  <div className="px-0.5 shrink-0 flex items-center justify-center text-zinc-600">
+                    <ArrowRight size={9} className="opacity-40" />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Dynamic Telemetry & Strategy Console */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeNode.id}
+            initial={{ opacity: 0, y: 3 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -3 }}
+            transition={{ duration: 0.15 }}
+            className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2 flex flex-col gap-1 text-[9px] font-mono"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-white font-semibold flex items-center gap-1.5">
+                <span className="size-1 rounded-full bg-emerald-400" />
+                {activeNode.name}
+                <span className="text-[8px] text-zinc-400 font-normal">
+                  [{activeNode.protocol}]
+                </span>
               </span>
-              <Zap className="text-amber-400 size-4 lg:size-3.5 2xl:size-5" />
+              <div className="flex items-center gap-2">
+                <span className="text-zinc-400 text-[8px]">
+                  {activeNode.throughput}
+                </span>
+                <span className="text-emerald-400 font-bold">
+                  {activeNode.latency}
+                </span>
+              </div>
             </div>
-            <span className="text-[10px] lg:text-[9px] 2xl:text-[11px] font-black uppercase text-white/80 tracking-wider">Broker</span>
-          </div>
 
-          <div className="flex-1 border-t border-dashed border-white/20 mx-1 lg:mx-0.5 2xl:mx-2 min-w-[10px]" />
-
-          {/* Node 3: Services (Stacked group) */}
-          <div className="flex flex-col items-center gap-1.5 lg:gap-1 2xl:gap-2 text-center group/node shrink-0">
-            <div className="grid grid-cols-2 gap-1 lg:gap-0.5 2xl:gap-1.5 bg-white/[0.02] border border-white/10 p-1.5 lg:p-1 2xl:p-2 rounded-lg hover:border-blue-500/50 hover:bg-white/[0.04] transition-all shadow-lg">
-              <div className="bg-white/5 rounded px-1.5 py-0.5 text-[8px] lg:text-[7px] 2xl:text-[9px] font-black uppercase text-blue-400 text-center">Auth</div>
-              <div className="bg-white/5 rounded px-1.5 py-0.5 text-[8px] lg:text-[7px] 2xl:text-[9px] font-black uppercase text-indigo-400 text-center">User</div>
-              <div className="bg-white/5 rounded px-1.5 py-0.5 text-[8px] lg:text-[7px] 2xl:text-[9px] font-black uppercase text-purple-400 col-span-2 text-center">Notify</div>
+            <div className="text-[8px] text-zinc-400 flex items-center justify-between border-t border-white/[0.04] pt-1">
+              <span className="text-primary/90 font-medium truncate">
+                {activeNode.resilience}
+              </span>
+              <span className="text-zinc-500 truncate ml-2 hidden sm:inline">
+                {activeNode.description}
+              </span>
             </div>
-            <span className="text-[10px] lg:text-[9px] 2xl:text-[11px] font-black uppercase text-white/80 tracking-wider">Services</span>
-          </div>
+          </motion.div>
+        </AnimatePresence>
 
-          <div className="flex-1 border-t border-dashed border-white/20 mx-1 lg:mx-0.5 2xl:mx-2 min-w-[10px]" />
-
-          {/* Node 4: DB */}
-          <div className="flex flex-col items-center gap-1.5 lg:gap-1 2xl:gap-2 w-[60px] lg:w-[48px] 2xl:w-[70px] text-center group/node relative shrink-0">
-            <div className="h-10 w-10 lg:h-8 lg:w-8 2xl:h-12 2xl:w-12 rounded-full border border-white/10 bg-white/[0.03] flex items-center justify-center hover:border-primary/50 hover:bg-white/[0.05] transition-all relative shadow-lg">
-              <Database className="text-primary size-4 lg:size-3.5 2xl:size-5" />
-            </div>
-            <span className="text-[10px] lg:text-[9px] 2xl:text-[11px] font-black uppercase text-white/80 tracking-wider">Neon DB</span>
-          </div>
-
+        {/* Compact Footer */}
+        <div className="pt-1 border-t border-white/[0.05] flex items-center justify-between text-[8px] font-mono text-zinc-500">
+          <span>Event-driven distributed mesh</span>
+          <span className="text-zinc-400 flex items-center gap-1">
+            <CheckCircle2 size={9} className="text-emerald-400" />
+            Healthy
+          </span>
         </div>
-
-      </div>
-
-      {/* Specifications / Features Footer */}
-      <div className="mt-6 pt-4 border-t border-white/5 relative z-10 flex flex-wrap justify-between items-center text-[8px] font-black text-lightText/40 uppercase tracking-widest gap-2">
-        <div className="flex items-center gap-1">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          Broker Status: Online
-        </div>
-        <div className="flex items-center gap-1 hover:text-white transition-colors cursor-default group/refresh">
-          <RefreshCw className="size-2 transition-transform duration-1000 group-hover/refresh:rotate-180" />
-          Event Sync Active
-        </div>
-      </div>
-
-      {/* Background Decor */}
-      <div className="absolute -bottom-6 -right-6 opacity-[0.02] group-hover/arch:opacity-[0.05] transition-opacity rotate-12 pointer-events-none">
-        <Share2 size={160} className="text-primary" />
       </div>
     </div>
   );

@@ -3,8 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { type Project } from "content-collections";
-import { Briefcase, Layers, ArrowRight } from "lucide-react";
-import { InteractiveHoverButton } from "../magicui/interactive-hover-button";
+import { Briefcase, ArrowRight, ArrowUpRight, FolderGit2 } from "lucide-react";
 import { Marquee } from "../ui/marquee";
 import {
   Dialog,
@@ -40,161 +39,164 @@ const ProjectsGallery = () => {
   });
 
   return (
-    <motion.div 
-      id="projects"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-      className="flex flex-1 flex-col rounded-[2.5rem] border-premium card-gradient-blue p-6 lg:p-4 2xl:p-8 hover-glow-purple transition-all duration-500 group/gallery relative overflow-hidden"
-    >
-      {/* Background Decoration */}
-      <div className="absolute -right-6 -bottom-6 opacity-5 group-hover/gallery:scale-110 group-hover/gallery:rotate-12 transition-transform duration-1000">
-        <Layers size={180} className="text-primary" />
-      </div>
-
-      <div className="flex flex-col items-center justify-center text-center mb-2 lg:mb-1 relative z-10">
-        <h4 className="text-[10px] mb-1.5 flex items-center gap-2 text-primary font-black uppercase tracking-[0.2em] opacity-80 group-hover/gallery:opacity-100 transition-opacity">
-          <Briefcase size={12} className="fill-primary/20" /> Portfolio
-        </h4>
-        <h3 className="text-2xl font-black text-white tracking-tightest lg:text-lg 2xl:text-3xl leading-none">Work Gallery</h3>
-      </div>
-      
-      <div className="relative flex-1 min-h-0 overflow-hidden rounded-2xl border border-white/5 bg-black/40 mb-2 lg:mb-1.5 group/marquee transition-colors hover:border-white/10 p-4 lg:p-2.5 flex flex-col justify-between">
-        {/* Top Marquee */}
-        <div className="relative pt-2 lg:pt-1">
-          <Marquee className="[--duration:40s]">
+    <div id="projects" className="bezel-outer w-full">
+      <div className="bezel-inner !p-3.5 gap-2.5">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
+          <div className="flex items-center gap-2">
+            <div className="size-6 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+              <Briefcase className="size-3.5 text-primary" />
+            </div>
+            <div>
+              <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-zinc-400">
+                Portfolio Showcase
+              </span>
+              <h3 className="text-xs font-bold text-white tracking-tight leading-none mt-0.5">
+                Featured Case Studies
+              </h3>
+            </div>
+          </div>
+          <span className="text-[8px] font-mono text-zinc-400 uppercase tracking-wider">
+            {allProjects.length} Projects
+          </span>
+        </div>
+        
+        {/* Marquee Visual Scroller */}
+        <div className="relative rounded-xl border border-white/[0.05] bg-white/[0.015] p-2 overflow-hidden">
+          <Marquee className="[--duration:35s]">
             {allProjects?.map((project) => (
               <Link
                 key={project.title}
                 href={`/projects/${project.slug}`}
                 scroll={false}
-                className="px-2 cursor-pointer block"
+                className="px-1.5 block group/thumb"
               >
-                <Image
-                  loading="lazy"
-                  alt={`${project.title} project image`}
-                  height={120}
-                  width={240}
-                  src={project.cover ?? "/next.svg"}
-                  className="rounded-xl object-cover aspect-video h-auto max-h-[70px] lg:max-h-[50px] 2xl:max-h-[100px] border border-white/10 shadow-2xl transition-all duration-500 hover:scale-105 hover:border-primary/50"
-                  style={{ width: "auto" }}
-                />
+                <div className="relative rounded-lg overflow-hidden border border-white/10 aspect-video h-12 transition-all duration-300 group-hover/thumb:border-primary/50 group-hover/thumb:scale-[1.03]">
+                  <Image
+                    loading="lazy"
+                    alt={`${project.title} cover`}
+                    fill
+                    src={project.cover ?? "/next.svg"}
+                    className="object-cover opacity-75 group-hover/thumb:opacity-100 transition-opacity"
+                    sizes="180px"
+                  />
+                </div>
               </Link>
             ))}
           </Marquee>
-        </div>
 
-        {/* Recent Projects List */}
-        <div className="mt-3 lg:mt-2 flex-1 flex flex-col justify-center gap-2 overflow-hidden">
-          <h5 className="text-[10px] font-black text-primary/80 uppercase tracking-widest border-b border-white/5 pb-1 mb-1 flex justify-between items-center">
-            <span>Featured Case Studies</span>
-            <span className="text-white/40">{featuredCaseStudies.length} Featured</span>
-          </h5>
-          <div className="flex flex-col gap-2 overflow-y-auto pr-1">
-            {featuredCaseStudies.map((project) => (
+          {/* Featured Case Studies List */}
+          <div className="mt-2 flex flex-col gap-1.5">
+            {featuredCaseStudies.slice(0, 3).map((project) => (
               <Link
                 key={project.title}
                 href={`/projects/${project.slug}`}
                 scroll={false}
-                className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-white/2 p-2.5 lg:p-2 hover:bg-white/6 hover:border-primary/20 transition-all cursor-pointer group/row"
+                className="flex items-center justify-between gap-2.5 rounded-lg border border-white/[0.04] bg-white/[0.02] p-1.5 hover:bg-white/[0.05] hover:border-white/15 transition-all duration-150 group/row"
               >
-                <div className="flex items-center gap-3 lg:gap-2.5 min-w-0">
-                  <div className="relative size-10 lg:size-8 2xl:size-12 rounded-lg overflow-hidden border border-white/10 shrink-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="relative size-7 rounded-md overflow-hidden border border-white/10 shrink-0">
                     <Image
                       src={project.cover ?? "/next.svg"}
                       alt={project.title}
                       fill
-                      className="object-cover group-hover/row:scale-105 transition-transform"
+                      className="object-cover group-hover/row:scale-105 transition-transform duration-300"
                     />
                   </div>
                   <div className="flex flex-col min-w-0">
-                    <h4 className="text-xs font-black text-white truncate leading-snug group-hover/row:text-primary transition-colors">
+                    <h4 className="text-[11px] font-semibold text-white truncate leading-tight group-hover/row:text-primary transition-colors">
                       {project.title}
                     </h4>
-                    <span className="text-[10px] text-white/50 font-bold truncate">
+                    <span className="text-[9px] text-zinc-400 font-normal truncate mt-0.5">
                       {project.slug === "modular-mart"
-                        ? "Microservices E-Commerce"
+                        ? "Microservices Architecture & Outbox"
                         : project.slug === "enterprise-knowledgebase"
-                          ? "Agentic RAG Workspace"
+                          ? "Agentic RAG Distributed Workspace"
                           : project.slug === "quick-chat"
-                            ? "Realtime Messaging"
-                            : (project.role?.[0] || "Full-stack Engineer")}
+                            ? "Realtime Messaging & WebSockets"
+                            : (project.role?.[0] || "Full-stack System")}
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-[10px] text-white/60 bg-white/5 px-2 py-0.5 rounded font-black">
+                <div className="flex items-center gap-1 shrink-0 text-zinc-400 group-hover/row:text-white">
+                  <span className="text-[8px] font-mono bg-white/[0.04] px-1 py-0.5 rounded border border-white/5">
                     {project.year}
                   </span>
-                  <ArrowRight className="size-3.5 text-white/30 group-hover/row:text-primary group-hover/row:translate-x-0.5 transition-all" />
+                  <ArrowUpRight size={11} className="text-zinc-500 group-hover/row:text-primary transition-all duration-150 group-hover/row:translate-x-0.5 group-hover/row:-translate-y-0.5" />
                 </div>
               </Link>
             ))}
           </div>
         </div>
-      </div>
 
-      <div className="flex justify-center pb-0 relative z-10">
-        <InteractiveHoverButton
-          onClick={() => setGalleryOpen(true)}
-          className="bg-primary/10 text-primary border border-primary/20 hover:bg-primary transition-all duration-300 shadow-[0_0_20px_-5px_rgba(168,85,247,0.3)] px-8 h-12 lg:h-10 rounded-xl font-black uppercase tracking-widest text-[10px] lg:text-[8px]"
-        >
-          Explore Archive
-        </InteractiveHoverButton>
-      </div>
+        {/* Footer with Explore Archive Button */}
+        <div className="pt-1 border-t border-white/[0.05] flex items-center justify-between">
+          <span className="text-[8px] font-mono text-zinc-400">
+            Click to open case study
+          </span>
+          <button
+            type="button"
+            onClick={() => setGalleryOpen(true)}
+            className="inline-flex items-center gap-1.5 text-[11px] font-mono font-semibold px-2.5 py-1 rounded-lg border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.08] hover:border-white/20 text-zinc-200 hover:text-white transition-all duration-150 active:scale-[0.97] cursor-pointer"
+          >
+            <FolderGit2 size={12} className="text-primary" />
+            <span>Archive ({allProjects.length})</span>
+          </button>
+        </div>
 
-      {/* Main Gallery Dialog */}
-      <Dialog open={galleryOpen} onOpenChange={setGalleryOpen}>
-        <DialogContent className="max-h-[95vh] max-w-(--breakpoint-xl) overflow-y-auto border-none bg-black md:max-w-[85vw] lg:max-w-[75vw] p-0 px-6 lg:px-8 rounded-2xl">
-          <div className="sticky top-0 z-20 bg-black py-4 lg:py-6 border-b border-white/5">
-            <DialogTitle className="text-2xl font-black text-white lg:text-3xl tracking-tightest">
-              Project Archive
-            </DialogTitle>
-            <DialogDescription className="text-[11px] text-lightText/60 mt-1 uppercase tracking-widest font-bold">
-              A curated timeline of engineering projects and digital experiments.
-            </DialogDescription>
-          </div>
+        {/* Main Gallery Dialog (Untouched markdown dialog functionality) */}
+        <Dialog open={galleryOpen} onOpenChange={setGalleryOpen}>
+          <DialogContent className="max-h-[95vh] max-w-(--breakpoint-xl) overflow-y-auto border border-white/10 bg-[#090a0f] md:max-w-[85vw] lg:max-w-[75vw] p-0 px-6 lg:px-8 rounded-2xl shadow-2xl">
+            <div className="sticky top-0 z-20 bg-[#090a0f]/90 backdrop-blur-xl py-4 lg:py-6 border-b border-white/[0.08]">
+              <DialogTitle className="text-2xl font-bold text-white tracking-tight">
+                Project Archive
+              </DialogTitle>
+              <DialogDescription className="text-xs text-zinc-400 mt-1 font-mono uppercase tracking-wider">
+                Curated index of distributed systems, production web apps, and engineering prototypes.
+              </DialogDescription>
+            </div>
 
-          <div className="flex flex-col gap-6 py-6 lg:gap-8 lg:py-8">
-            {sortedYears.map((year) => (
-              <div key={year} className="space-y-4 lg:space-y-6">
-                <div className="flex items-center gap-4">
-                  <h2 className="text-2xl font-black text-primary/40 lg:text-3xl tracking-tighter">
-                    {year}
-                  </h2>
-                  <div className="h-px flex-1 bg-linear-to-r from-white/10 to-transparent" />
-                </div>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
-                  {groupedProjects[year].map(
-                    (project: Project, index: number) => (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        key={project.title}
-                        className="cursor-pointer group/item"
-                      >
-                        <Link
-                          href={`/projects/${project.slug}`}
-                          scroll={false}
-                          onClick={() => setGalleryOpen(false)}
-                          className="block"
+            <div className="flex flex-col gap-6 py-6 lg:gap-8 lg:py-8">
+              {sortedYears.map((year) => (
+                <div key={year} className="space-y-4 lg:space-y-6">
+                  <div className="flex items-center gap-4">
+                    <h2 className="text-xl font-mono font-bold text-primary/60 tracking-wider">
+                      {year}
+                    </h2>
+                    <div className="h-px flex-1 bg-linear-to-r from-white/10 to-transparent" />
+                  </div>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
+                    {groupedProjects[year].map(
+                      (project: Project, index: number) => (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          whileInView={{ opacity: 1, scale: 1 }}
+                          viewport={{ once: true }}
+                          key={project.title}
+                          className="cursor-pointer group/item"
                         >
-                          <ProjectCard
-                            project={project}
-                            priority={index < 3}
-                          />
-                        </Link>
-                      </motion.div>
-                    )
-                  )}
+                          <Link
+                            href={`/projects/${project.slug}`}
+                            scroll={false}
+                            onClick={() => setGalleryOpen(false)}
+                            className="block"
+                          >
+                            <ProjectCard
+                              project={project}
+                              priority={index < 3}
+                            />
+                          </Link>
+                        </motion.div>
+                      )
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
-    </motion.div>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </div>
   );
 };
 

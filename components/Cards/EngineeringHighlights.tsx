@@ -1,47 +1,61 @@
-import { Zap, CheckCircle2, Cpu } from "lucide-react";
+"use client";
+
+import { Gauge, CheckCircle2 } from "lucide-react";
+
+const STANDARDS = [
+  { name: "Zero-Loss Outbox", sub: "Transactional CDC" },
+  { name: "Circuit Breakers", sub: "Fallback isolation" },
+  { name: "p99 Latency SLA", sub: "Redis cache-aside" },
+  { name: "Strict Schemas", sub: "End-to-end types" },
+  { name: "OpenTelemetry", sub: "Distributed tracing" },
+  { name: "Local-First Sync", sub: "IndexedDB client state" },
+];
 
 const EngineeringHighlights = () => {
-  const highlights = [
-    "Microservices Architecture",
-    "RabbitMQ Event Bus",
-    "Redis Caching & Pub/Sub",
-    "Transactional Outbox Pattern",
-    "CQRS Design Pattern",
-    "OpenTelemetry Observability",
-    "Circuit Breaker Resilience",
-    "Event Sourcing",
-    "Local-First Sync (IndexedDB)",
-    "Kong API Gateway",
-    "Docker Containerization",
-    "AWS Infrastructure",
-  ];
-
   return (
-    <div className="flex flex-1 flex-col rounded-[2rem] border-premium card-gradient-orange p-6 lg:p-4 2xl:p-8 hover-glow-purple transition-all duration-500 group/highlights">
-      <div className="mb-6 flex flex-col items-center justify-center text-center">
-        <h4 className="text-[10px] mb-1 flex items-center gap-2 text-primary font-black uppercase tracking-[0.2em] opacity-80 group-highlights:opacity-100 transition-opacity">
-          <Zap className="fill-primary/20" size={12} /> Technical Depth
-        </h4>
-        <h3 className="text-xl font-black text-white tracking-tighter lg:text-base 2xl:text-2xl leading-none">
-          Engineering Highlights
-        </h3>
-      </div>
-      
-      <div className="grid grid-cols-2 gap-x-4 gap-y-3 lg:gap-x-3 lg:gap-y-2 2xl:gap-x-6 2xl:gap-y-4">
-        {highlights.map((highlight, index) => (
-          <div key={index} className="flex items-center gap-2 group/item">
-            <div className="flex size-4 shrink-0 items-center justify-center rounded-full bg-primary/10 border border-primary/20 transition-colors group-hover/item:bg-primary/20">
-              <CheckCircle2 className="text-primary" size={8} />
-            </div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-white/70 group-hover/item:text-white transition-colors leading-tight truncate" title={highlight}>
-              {highlight}
-            </p>
+    <div className="bezel-outer w-full">
+      <div className="bezel-inner !p-3.5 gap-2.5">
+        {/* Compact Header */}
+        <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
+          <div className="flex items-center gap-1.5">
+            <Gauge className="size-3 text-primary" />
+            <h3 className="text-xs font-bold text-white tracking-tight">
+              Production Standards
+            </h3>
           </div>
-        ))}
-      </div>
+          <span className="text-[8px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+            99.98% SLA
+          </span>
+        </div>
 
-      <div className="mt-auto pt-6 opacity-10 group-hover/highlights:opacity-20 transition-opacity flex justify-end">
-        <Cpu size={40} className="text-primary rotate-12" />
+        {/* Compact 2-Column Tenets Grid */}
+        <div className="grid grid-cols-2 gap-1.5 py-0.5">
+          {STANDARDS.map((item, idx) => (
+            <div
+              key={idx}
+              className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg border border-white/[0.05] bg-white/[0.015] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-150 group/chip cursor-default"
+            >
+              <span className="size-1 rounded-full bg-primary/80 group-hover/chip:bg-emerald-400 group-hover/chip:scale-125 transition-all shrink-0" />
+              <div className="flex flex-col min-w-0">
+                <span className="text-[10px] font-semibold text-white truncate leading-tight group-hover/chip:text-primary transition-colors">
+                  {item.name}
+                </span>
+                <span className="text-[8px] font-mono text-zinc-400 truncate leading-none mt-0.5">
+                  {item.sub}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Compact Footer */}
+        <div className="pt-1 border-t border-white/[0.05] flex items-center justify-between text-[8px] font-mono text-zinc-500">
+          <span>High-resilience architecture</span>
+          <span className="text-zinc-400 flex items-center gap-1">
+            <CheckCircle2 size={9} className="text-emerald-400" />
+            Enforced
+          </span>
+        </div>
       </div>
     </div>
   );
