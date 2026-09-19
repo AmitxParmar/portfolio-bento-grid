@@ -400,12 +400,12 @@ export const ApiDialog = ({ children }: { children: React.ReactNode }) => (
         <Server size={16} className="mr-2" /> Explore API Endpoints
       </Button>
     </DialogTrigger>
-    <DialogContent className="max-w-2xl h-[80vh] bg-bg border-iconBg flex flex-col p-0">
-      <DialogHeader className="p-6 border-b border-iconBg">
+    <DialogContent className="max-w-2xl sm:max-w-2xl h-[80vh] max-h-[calc(100dvh-2rem)] bg-bg border-iconBg flex flex-col gap-0 overflow-hidden p-0">
+      <DialogHeader className="p-6 border-b border-iconBg shrink-0">
         <DialogTitle>API Reference</DialogTitle>
       </DialogHeader>
-      <ScrollArea className="flex-1 p-6">
-        <div className="space-y-8">
+      <ScrollArea className="flex-1 min-h-0">
+        <div className="space-y-8 p-6">
           {children}
         </div>
       </ScrollArea>

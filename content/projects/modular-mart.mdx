@@ -16,7 +16,7 @@ tech:
   - Turborepo
 github: ""
 demo: ""
-cover: /projects/modular-mart/index.png
+cover: /projects/modular-mart/screenshot-2026-09-17_02-28-32.png
 ---
 
 <ProjectHero
@@ -245,45 +245,163 @@ Kong acts as our **centralized entry point**, handling cross-cutting concerns li
 
 ---
 
-## Project Structure
+## API Reference
 
-<ProjectTree>
-  <Folder name="apps" id="apps">
-    <Folder name="kong-gateway" id="kong-gateway" />
-    <Folder name="order-service" id="order-service" />
-    <Folder name="catalog-service" id="catalog-service" />
-    <Folder name="payment-service" id="payment-service" />
-    <Folder name="web" id="web" />
-  </Folder>
-  <Folder name="packages" id="packages">
-    <Folder name="common" id="common-chassis" />
-    <Folder name="contracts" id="shared-contracts" />
-    <Folder name="database" id="shared-database" />
-    <Folder name="ui" id="shared-ui" />
-  </Folder>
-</ProjectTree>
+All traffic enters through Kong Gateway (JWT via Clerk, rate limiting, routing) and fans out to domain services. Event names are the versioned contracts from `@modular-mart/contracts` (`EVENT_PATTERNS`).
+
+<ApiDialog>
+  <p className="text-[11px] font-black uppercase tracking-widest text-primary">REST — Orders</p>
+  <ApiEndpoint 
+    method="POST" 
+    path="/orders" 
+    description="Create order. Persists PENDING order + outbox row atomically, then emits stock.reserve.requested.v1 to start the checkout saga." 
+  />
+  <ApiEndpoint 
+    method="GET" 
+    path="/orders" 
+    description="List the current user's orders with status timeline." 
+  />
+  <ApiEndpoint 
+    method="GET" 
+    path="/orders/:id" 
+    description="Order detail with full saga status (PENDING_STOCK → STOCK_CONFIRMED → PAYMENT_PENDING → PAID)." 
+  />
+  <ApiEndpoint 
+    method="GET" 
+    path="/orders/:id/tracking" 
+    description="Shipping/tracking state for a delivered or in-flight order." 
+  />
+  <ApiEndpoint 
+    method="GET" 
+    path="/orders/seller" 
+    description="Incoming orders for the authenticated seller." 
+  />
+  <ApiEndpoint 
+    method="PATCH" 
+    path="/orders/seller/:id/status" 
+    description="Seller advances order status (processing → shipped → delivered), emits order.status_updated.v1." 
+  />
+  <p className="text-[11px] font-black uppercase tracking-widest text-primary pt-2">REST — Catalog</p>
+  <ApiEndpoint 
+    method="GET" 
+    path="/catalog/products?categoryId=" 
+    description="Public product listing with category, price-range, and rating filters." 
+  />
+  <ApiEndpoint 
+    method="GET" 
+    path="/catalog/products/:slug" 
+    description="Product detail page payload." 
+  />
+  <ApiEndpoint 
+    method="GET" 
+    path="/catalog/categories" 
+    description="Category tree for storefront navigation." 
+  />
+  <ApiEndpoint 
+    method="POST" 
+    path="/catalog/products" 
+    description="Seller submits a product (enters PENDING approval queue)." 
+  />
+  <ApiEndpoint 
+    method="POST" 
+    path="/catalog/admin/products/:id/approve" 
+    description="Admin approves a product → goes live on the storefront." 
+  />
+  <ApiEndpoint 
+    method="POST" 
+    path="/catalog/admin/products/:id/reject" 
+    description="Admin rejects a product with a reason." 
+  />
+  <p className="text-[11px] font-black uppercase tracking-widest text-primary pt-2">REST — Payments</p>
+  <ApiEndpoint 
+    method="POST" 
+    path="/payments/create-intent" 
+    description="Create a Stripe payment intent for a stock-confirmed order." 
+  />
+  <ApiEndpoint 
+    method="POST" 
+    path="/payments/stripe-webhook" 
+    description="Stripe webhook. On success emits payment.succeeded.v1 (order finalizes); on failure emits payment.failed.v1 (triggers stock-release compensation)." 
+  />
+  <ApiEndpoint 
+    method="GET" 
+    path="/payments/order/:orderId" 
+    description="Payment status for a given order." 
+  />
+  <p className="text-[11px] font-black uppercase tracking-widest text-primary pt-2">REST — Notifications & Users</p>
+  <ApiEndpoint 
+    method="GET" 
+    path="/notifications/me" 
+    description="Current user's notification feed (order confirmations, status updates)." 
+  />
+  <ApiEndpoint 
+    method="GET" 
+    path="/notifications/unread-count" 
+    description="Unread badge count for the bell icon." 
+  />
+  <ApiEndpoint 
+    method="PATCH" 
+    path="/notifications/:id/read" 
+    description="Mark a single notification as read." 
+  />
+  <ApiEndpoint 
+    method="GET" 
+    path="/users/me" 
+    description="Current user profile (role: CUSTOMER, SELLER, ADMIN)." 
+  />
+  <ApiEndpoint 
+    method="GET" 
+    path="/users/me/addresses" 
+    description="Address book for checkout and shipping defaults." 
+  />
+</ApiDialog>
 
 ---
 
-## Architectural Patterns
+## Domain Events
 
-<ApiDialog>
-  <ApiEndpoint 
-    method="EVENT" 
-    path="STOCK_RESERVE_REQUESTED" 
-    description="Published by Order Service via Outbox to reserve inventory in Catalog Service." 
-  />
-  <ApiEndpoint 
-    method="EVENT" 
-    path="STOCK_RESERVED" 
-    description="Published by Catalog Service upon successful pessimistic lock of inventory." 
-  />
-  <ApiEndpoint 
-    method="EVENT" 
-    path="PAYMENT_SUCCEEDED" 
-    description="Published by Payment Service upon Stripe Webhook confirmation to finalize order." 
-  />
-</ApiDialog>
+The checkout saga and cross-service fan-out run on RabbitMQ. Consumers are idempotent (processed_messages table) with dead-letter routing on repeated failure.
+
+<ApiEndpoint 
+  method="EVENT" 
+  path="stock.reserve.requested.v1" 
+  description="Order → Catalog (saga step 1). Published via transactional outbox when an order is created." 
+/>
+<ApiEndpoint 
+  method="EVENT" 
+  path="stock.reserved.v1" 
+  description="Catalog → Order (saga step 2). Pessimistic inventory lock succeeded; order advances to payment." 
+/>
+<ApiEndpoint 
+  method="EVENT" 
+  path="stock.reserve.failed.v1" 
+  description="Catalog → Order. Insufficient stock; order transitions to STOCK_FAILED, customer is notified." 
+/>
+<ApiEndpoint 
+  method="EVENT" 
+  path="payment.succeeded.v1" 
+  description="Payment → Order + Notifications. Stripe webhook confirmed; order finalizes to PAID." 
+/>
+<ApiEndpoint 
+  method="EVENT" 
+  path="payment.failed.v1" 
+  description="Payment → Order + Catalog. Triggers compensating transaction that releases reserved stock." 
+/>
+<ApiEndpoint 
+  method="EVENT" 
+  path="stock.released.v1" 
+  description="Catalog → Order. Compensation acknowledged; saga closes without ghost inventory." 
+/>
+<ApiEndpoint 
+  method="EVENT" 
+  path="order.status_updated.v1" 
+  description="Order → Notifications. Powers the live notification feed (approved, shipped, delivered)." 
+/>
+<ApiEndpoint 
+  method="EVENT" 
+  path="user.created.v1" 
+  description="User → Notifications. Welcome flow and read-model sync for new accounts." 
+/>
 
 ---
 
@@ -311,7 +429,9 @@ Kong acts as our **centralized entry point**, handling cross-cutting concerns li
 
 <ImageGallery 
   images={[
-    { src: "/projects/modular-mart/index.png", alt: "Modular Mart Storefront", title: "Modern Storefront Interface" },
-    { src: "/projects/modular-mart/index.png", alt: "Grafana Observability Dashboard", title: "System Observability Dashboard" }
+    { src: "/projects/modular-mart/screenshot-2026-09-17_02-28-32.png", alt: "Modular Mart Storefront with live order notifications", title: "Storefront with Live Notifications" },
+    { src: "/projects/modular-mart/screenshot-2026-09-17_02-27-40.png", alt: "Admin Platform Overview with real-time service health", title: "Admin Platform Overview & Service Health" },
+    { src: "/projects/modular-mart/screenshot-2026-09-17_02-28-46.png", alt: "Customer workspace with order history", title: "Customer Account & Order History" },
+    { src: "/projects/modular-mart/screenshot-2026-09-17_02-29-02.png", alt: "Seller Hub with revenue and product overview", title: "Seller Hub & Revenue Dashboard" }
   ]}
 />

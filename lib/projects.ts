@@ -12,5 +12,6 @@ export function getFeaturedProjects(): Project[] {
   return [
     allProjects.find((p) => p.slug === "enterprise-knowledgebase" || p.title.toLowerCase().includes("agentic")),
     allProjects.find((p) => p.slug === "modular-mart" || p.title.toLowerCase().includes("modular mart")),
+    allProjects.find((p) => p.slug === "quick-chat" || p.title.toLowerCase().includes("quick chat")),
   ].filter(Boolean) as Project[];
 }

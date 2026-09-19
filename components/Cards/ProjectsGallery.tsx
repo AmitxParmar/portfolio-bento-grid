@@ -112,7 +112,13 @@ const ProjectsGallery = () => {
                       {project.title}
                     </h4>
                     <span className="text-[10px] text-white/50 font-bold truncate">
-                      {project.slug === "modular-mart" ? "Microservices E-Commerce" : (project.role?.[0] || "Full-stack Engineer")}
+                      {project.slug === "modular-mart"
+                        ? "Microservices E-Commerce"
+                        : project.slug === "enterprise-knowledgebase"
+                          ? "Agentic RAG Workspace"
+                          : project.slug === "quick-chat"
+                            ? "Realtime Messaging"
+                            : (project.role?.[0] || "Full-stack Engineer")}
                     </span>
                   </div>
                 </div>
