@@ -4,6 +4,8 @@ import Image from "next/image";
 import { Github, Globe } from "lucide-react";
 import { Project } from "content-collections";
 
+const getProjectCover = (cover?: string) => cover?.trim() || "/next.svg";
+
 const ProjectCard = ({
   project: {
     title,
@@ -28,7 +30,7 @@ const ProjectCard = ({
       <div className="relative h-28 overflow-hidden sm:h-32">
         <div className="absolute inset-0 flex items-center justify-center">
           <Image
-            src={cover ?? "/next.svg"}
+            src={getProjectCover(cover)}
             alt={`${title} project cover image`}
             fill
             className="object-cover opacity-60 transition-all duration-700 group-hover:opacity-100 group-hover:scale-110"

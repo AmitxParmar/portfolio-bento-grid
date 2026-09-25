@@ -3,12 +3,12 @@
 import { Gauge, CheckCircle2 } from "lucide-react";
 
 const STANDARDS = [
-  { name: "Zero-Loss Outbox", sub: "Transactional CDC" },
-  { name: "Circuit Breakers", sub: "Fallback isolation" },
-  { name: "p99 Latency SLA", sub: "Redis cache-aside" },
-  { name: "Strict Schemas", sub: "End-to-end types" },
-  { name: "OpenTelemetry", sub: "Distributed tracing" },
-  { name: "Local-First Sync", sub: "IndexedDB client state" },
+  { name: "Exactly-Once Consumers", sub: "processed_messages guard" },
+  { name: "Compensating Saga", sub: "auto stock rollback" },
+  { name: "Circuit Breakers", sub: "unit-tested transitions" },
+  { name: "50ms Batched Frames", sub: "server coalescing" },
+  { name: "Local-First Sync", sub: "Dexie.js / IndexedDB" },
+  { name: "Distributed Tracing", sub: "Jaeger + LGTM stack" },
 ];
 
 const EngineeringHighlights = () => {
@@ -24,7 +24,7 @@ const EngineeringHighlights = () => {
             </h3>
           </div>
           <span className="text-[8px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
-            99.98% SLA
+            &lt;100ms Delivery
           </span>
         </div>
 

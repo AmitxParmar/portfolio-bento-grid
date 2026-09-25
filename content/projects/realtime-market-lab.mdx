@@ -1,0 +1,191 @@
+---
+title: Realtime Market Lab
+description: Frontend performance engineering lab that stays responsive at 5k+ updates/sec across 10k instruments
+featured: false
+status: Completed
+year: 2026
+role:
+  - Frontend Engineer
+  - Performance Engineer
+tech:
+  - Next.js
+  - React 19
+  - Zustand
+  - TanStack Query
+  - TanStack Virtual
+  - FastAPI
+  - WebSocket
+  - Web Workers
+github: ""
+demo: ""
+cover: /projects/realtime-market-lab/cover.svg
+---
+
+<ProjectHero
+  title="Realtime Market Lab"
+  subtitle="A simulator-driven performance lab dressed as a market dashboard. A fake exchange generates 500–5,000+ ticks/sec so you can prove which React techniques hold 60 FPS — and which collapse."
+  status="Completed"
+  timeline="1 Month"
+/>
+
+<InfoGrid>
+  <InfoCard title="Frontend" value="Next.js 16" icon={Layout} />
+  <InfoCard title="State" value="Zustand" icon={Database} />
+  <InfoCard title="Transport" value="WebSocket" icon={Activity} />
+  <InfoCard title="Compute" value="Web Worker" icon={Cpu} />
+  <InfoCard title="Render" value="Virtualized" icon={Layout} />
+  <InfoCard title="Backend" value="FastAPI" icon={Server} />
+</InfoGrid>
+
+## Overview
+
+This is a **simulator project**, not a trading product. A Python `MarketSimulator` fakes an entire exchange so the frontend is always the bottleneck under test. Push the Simulation Workload sliders to 5,000–10,000 instruments at 5,000+ updates/sec and compare rendering strategies side-by-side.
+
+Key focus areas:
+- Simulator heartbeat that scales to 10k symbols without choking
+- Server coalescing + 50ms batched frames
+- rAF-aligned drains + 1 commit per flush
+- Selective subscriptions + virtualization + Worker offload
+
+## Simulator — How Fake Counts Are Generated
+
+`backend/app/simulator.py` uses one heartbeat loop, not one task per instrument:
+
+1. Wake every 20ms (`TICK_SECONDS = 0.02`), add `updates_per_sec * 0.02` to fractional credit (`_owed`)
+2. Convert credit to integer `n_events` owed this tick — O(events/tick), not O(instruments)
+3. Sample `random.choice(instruments)` that many times, group by `burst_size` to fake bursty fills
+4. Mutate via `_mutate(inst)`: price jitter `±volatility` (default 0.06%), update high/low/volume, emit by mix — quote 70% / trade 20% / book 10%
+5. `put_nowait` to bounded `asyncio.Queue`; on `QueueFull` drop, never block heartbeat — producer-side backpressure
+
+Instruments are synthetic (`TECH00001` …): random base $5–$2,000, spread 1–8 bps. Quotes carry bid/ask + change%, trades carry qty/side, books carry 5 bids + 5 asks. Same normalized schema as the live Binance adapter, so frontend code never changes.
+
+## Impact & Results
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+  <ProjectStat label="Workload" value="10k instruments" description="Simulated market with configurable update rate up to 5k+/sec." />
+  <ProjectStat label="Commits Cut" value="10x fewer" description="rAF + selective apply drops React commits while messages/sec stays identical." />
+  <ProjectStat label="FPS" value="60 FPS" description="Batched + virtualized path holds frame rate where naive collapses." />
+</div>
+
+---
+
+## Features
+
+<FeatureGrid>
+  <FeatureCard
+    title="Rendering Scenarios"
+    description="naive vs batched vs rAF + selective vs rAF + Worker offload — same workload, measurable FPS gap."
+    icon={Activity}
+  />
+  <FeatureCard
+    title="Server Batching"
+    description="FastAPI ws_manager coalesces quotes per symbol (last-value-wins), flushes one JSON frame every 50ms with orjson."
+    icon={Server}
+  />
+  <FeatureCard
+    title="Selective Store"
+    description="Three Zustand stores (market / config / metrics) + per-symbol selectors so rows only re-render on their own tick."
+    icon={Database}
+  />
+  <FeatureCard
+    title="Worker Ranking"
+    description="Top-movers computed in stats.worker.ts off the main thread, posted from drained events."
+    icon={Cpu}
+  />
+</FeatureGrid>
+
+---
+
+## Technical Challenges
+
+<ChallengeCard
+  title="Thousands of Ticks Per Second"
+  problem="Naive onFrame apply triggers a React commit per message — FPS collapses and dropped frames climb."
+  solution="Server 50ms coalesced flush + client drain (setInterval 100ms or rAF) with ONE set() per drain patching only touched symbols."
+  result="Messages/sec identical, React commits/sec drops 10x, FPS recovers to 60."
+/>
+
+<ChallengeCard
+  title="DOM Bloat at 10k Rows"
+  problem="Rendering 10k rows creates 10k DOM nodes regardless of viewport."
+  solution="TanStack Virtual in Watchlist and TradeFeed + capped trade feed (300) + capped client buffer (50k, drop-oldest)."
+  result="DOM node count independent of dataset size, smooth scroll under load."
+/>
+
+<ChallengeCard
+  title="Main-Thread Ranking"
+  problem="Sorting 10k instruments for top gainers/losers on every tick blocks paint."
+  solution="Moved ranking to Web Worker; PriceChart subscribes via store.subscribe outside React entirely."
+  result="No commit cost for charts and rankings during high-frequency ticks."
+/>
+
+---
+
+## Event Flow
+
+<EventFlow>
+  <EventStep
+    title="Simulator Generates Load"
+    description="Single heartbeat loop (20ms) computes owed events from configured rate — O(events/tick), not O(instruments)."
+  />
+  <EventStep
+    title="Server Coalesces + Flushes"
+    description="ClientConnection keeps latest quote/book per symbol, appends trades, flushes every 50ms as binary orjson frame."
+  />
+  <EventStep
+    title="Client Buffers"
+    description="MarketWebSocketClient decodes, records latency sample, pushes to array buffer with hard 50k cap (drop-oldest)."
+  />
+  <EventStep
+    title="Scenario Drains + Applies"
+    description="naive / batched / rAF / worker-offload drains buffer, calls marketStore.applyEvents once, fans out via selective subscriptions."
+    isLast={true}
+  />
+</EventFlow>
+
+---
+
+## Performance Techniques Used
+
+<MetricsTable>
+  <MetricRow label="Server coalesce: quotes/books last-value-wins, trades capped 500/flush" value="20 frames/sec" />
+  <MetricRow label="Server flush: 50ms orjson binary frame, not N JSON frames" value="50ms batch" />
+  <MetricRow label="Client drain: naive vs 100ms batch vs rAF vs rAF+Worker" value="1 set() per drain" />
+  <MetricRow label="Store patch: immutable patch only touched symbols" value="selective re-render" />
+  <MetricRow label="DOM: TanStack Virtual + trade feed capped 300 + buffer capped 50k drop-oldest" value="viewport-bound" />
+  <MetricRow label="Off-thread: stats.worker.ts ranking + canvas chart via store.subscribe" value="0 React commits" />
+</MetricsTable>
+
+## Performance Optimizations
+
+<MetricsTable>
+  <MetricRow label="Server flush" value="50ms coalesced" />
+  <MetricRow label="Client drain" value="rAF-aligned" />
+  <MetricRow label="State commits" value="1 per drain" />
+  <MetricRow label="Trade feed cap" value="300" />
+  <MetricRow label="Client buffer cap" value="50k drop-oldest" />
+  <MetricRow label="Metrics" value="FPS / commits / latency / memory" />
+</MetricsTable>
+
+---
+
+## Lessons Learned
+
+*   **Batching:** Server coalescing + client rAF drain beats per-message setState by an order of magnitude.
+*   **Isolation:** Separate market / config / metrics stores prevents perf-panel re-renders from polluting measurements.
+*   **Virtualization:** DOM cost must be viewport-bound, not data-bound.
+*   **Workers:** Even fast sorts hurt at 5k/sec — move them off-thread.
+
+---
+
+## Try It
+
+```tree
+frontend/
+├── app/                   Next.js App Router entry
+├── components/            Dashboard panels
+├── hooks/                 useMarketConnection, usePerfMetrics
+├── lib/                   marketStore, configStore, metricsStore, wsClient
+└── workers/
+    └── stats.worker.ts    Top-movers ranking off main thread
+```

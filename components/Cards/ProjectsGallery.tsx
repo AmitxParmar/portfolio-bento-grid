@@ -16,6 +16,9 @@ import { getAllProjects, getFeaturedProjects } from "@/lib/projects";
 import { useState } from "react";
 import { motion } from "motion/react";
 
+const PROJECT_COVER_FALLBACK = "/next.svg";
+const getProjectCover = (cover?: string) => cover?.trim() || PROJECT_COVER_FALLBACK;
+
 const ProjectsGallery = () => {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const allProjects = getAllProjects();
@@ -76,7 +79,7 @@ const ProjectsGallery = () => {
                     loading="lazy"
                     alt={`${project.title} cover`}
                     fill
-                    src={project.cover ?? "/next.svg"}
+                    src={getProjectCover(project.cover)}
                     className="object-cover opacity-75 group-hover/thumb:opacity-100 transition-opacity"
                     sizes="180px"
                   />
@@ -97,7 +100,7 @@ const ProjectsGallery = () => {
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="relative size-7 rounded-md overflow-hidden border border-white/10 shrink-0">
                     <Image
-                      src={project.cover ?? "/next.svg"}
+                      src={getProjectCover(project.cover)}
                       alt={project.title}
                       fill
                       className="object-cover group-hover/row:scale-105 transition-transform duration-300"
