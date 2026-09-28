@@ -1,11 +1,11 @@
 "use client";
 
-import { Gauge, CheckCircle2 } from "lucide-react";
+import { Gauge } from "lucide-react";
 
 const STANDARDS = [
   { name: "Exactly-Once Consumers", sub: "processed_messages guard" },
   { name: "Compensating Saga", sub: "auto stock rollback" },
-  { name: "Circuit Breakers", sub: "unit-tested transitions" },
+  { name: "Circuit Breakers", sub: "exponential backoff" },
   { name: "50ms Batched Frames", sub: "server coalescing" },
   { name: "Local-First Sync", sub: "Dexie.js / IndexedDB" },
   { name: "Distributed Tracing", sub: "Jaeger + LGTM stack" },
@@ -23,8 +23,8 @@ const EngineeringHighlights = () => {
               Production Standards
             </h3>
           </div>
-          <span className="text-[8px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
-            &lt;100ms Delivery
+          <span className="text-[8px] font-mono text-zinc-500 uppercase">
+            Across 3 projects
           </span>
         </div>
 
@@ -51,10 +51,7 @@ const EngineeringHighlights = () => {
         {/* Compact Footer */}
         <div className="pt-1 border-t border-white/[0.05] flex items-center justify-between text-[8px] font-mono text-zinc-500">
           <span>High-resilience architecture</span>
-          <span className="text-zinc-400 flex items-center gap-1">
-            <CheckCircle2 size={9} className="text-emerald-400" />
-            Enforced
-          </span>
+          <span className="text-zinc-400">No runtime telemetry</span>
         </div>
       </div>
     </div>

@@ -6,9 +6,7 @@ import {
   Database, 
   Zap, 
   Layers,
-  ArrowRight,
-  CheckCircle2,
-  Activity
+  ArrowRight
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -16,9 +14,7 @@ interface ServiceNode {
   id: string;
   name: string;
   protocol: string;
-  latency: string;
   resilience: string;
-  throughput: string;
   icon: typeof ShieldCheck;
   accent: string;
   badge: string;
@@ -30,8 +26,6 @@ const NODES: ServiceNode[] = [
     id: "gateway",
     name: "Kong Gateway",
     protocol: "HTTP/2",
-    latency: "1.4ms",
-    throughput: "45k req/s",
     resilience: "Edge Shield & Rate Limit",
     icon: ShieldCheck,
     accent: "text-emerald-400",
@@ -42,8 +36,6 @@ const NODES: ServiceNode[] = [
     id: "broker",
     name: "RabbitMQ",
     protocol: "AMQP 0-9",
-    latency: "0.8ms",
-    throughput: "120k msg/s",
     resilience: "Transactional Outbox",
     icon: Zap,
     accent: "text-amber-400",
@@ -54,8 +46,6 @@ const NODES: ServiceNode[] = [
     id: "services",
     name: "Microservices",
     protocol: "gRPC",
-    latency: "2.1ms",
-    throughput: "32k req/s",
     resilience: "Circuit Breakers",
     icon: Layers,
     accent: "text-purple-400",
@@ -66,8 +56,6 @@ const NODES: ServiceNode[] = [
     id: "database",
     name: "PostgreSQL",
     protocol: "Wire",
-    latency: "1.2ms",
-    throughput: "18k qps",
     resilience: "Read Replicas & Pool",
     icon: Database,
     accent: "text-indigo-400",
@@ -86,18 +74,13 @@ const SystemArchitecturePreview = () => {
         {/* Compact Header */}
         <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
           <div className="flex items-center gap-1.5">
-            <div className="relative flex size-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full size-1.5 bg-emerald-500" />
-            </div>
+            <span className="size-1.5 rounded-full bg-zinc-600" />
             <h3 className="text-xs font-bold text-white tracking-tight">
               System Architecture
             </h3>
           </div>
           <div className="flex items-center gap-1.5 text-[9px] font-mono text-zinc-400">
-            <span className="text-emerald-400 font-bold">p99: 1.4ms</span>
-            <span className="text-zinc-600">•</span>
-            <span className="text-zinc-500 uppercase">Interactive</span>
+            <span className="text-zinc-500 uppercase">As implemented</span>
           </div>
         </div>
 
@@ -167,20 +150,12 @@ const SystemArchitecturePreview = () => {
           >
             <div className="flex items-center justify-between">
               <span className="text-white font-semibold flex items-center gap-1.5">
-                <span className="size-1 rounded-full bg-emerald-400" />
+                <span className="size-1 rounded-full bg-zinc-500" />
                 {activeNode.name}
                 <span className="text-[8px] text-zinc-400 font-normal">
                   [{activeNode.protocol}]
                 </span>
               </span>
-              <div className="flex items-center gap-2">
-                <span className="text-zinc-400 text-[8px]">
-                  {activeNode.throughput}
-                </span>
-                <span className="text-emerald-400 font-bold">
-                  {activeNode.latency}
-                </span>
-              </div>
             </div>
 
             <div className="text-[8px] text-zinc-400 flex items-center justify-between border-t border-white/[0.04] pt-1">
@@ -198,8 +173,8 @@ const SystemArchitecturePreview = () => {
         <div className="pt-1 border-t border-white/[0.05] flex items-center justify-between text-[8px] font-mono text-zinc-500">
           <span>Event-driven distributed mesh</span>
           <span className="text-zinc-400 flex items-center gap-1">
-            <CheckCircle2 size={9} className="text-emerald-400" />
-            Healthy
+            <Layers size={9} className="text-zinc-600" />
+            5 bounded contexts
           </span>
         </div>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { ExternalLink, Github, Calendar, CheckCircle2, Server, Layout, Database, MessageSquare, Shield, Activity, Share2, Info, ChevronRight, Box, Cpu, Network, FileText } from "lucide-react";
+import { ExternalLink, Github, Calendar, CheckCircle2, Server, Layout, Database, MessageSquare, Shield, Activity, Share2, Info, ChevronRight, Box, Cpu, Network, FileText, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -67,46 +67,71 @@ export const ProjectArchitecture = ({ chart, title, description, showLegend, chi
 );
 
 // 1. Project Hero
-export const ProjectHero = ({ title, subtitle, status, github, demo, timeline, tech }: any) => (
-  <motion.div 
-    initial={{ opacity: 0, y: 30 }}
-    animate={{ opacity: 1, y: 0 }}
-    className="space-y-8 pb-12 border-b border-iconBg mb-16"
-  >
-    <div className="flex flex-wrap items-center gap-4">
-      <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 px-3 py-1 text-xs font-bold uppercase tracking-wider">
-        <CheckCircle2 size={12} className="mr-2" /> {status}
-      </Badge>
-      <div className="text-sm text-lightText flex items-center gap-2 bg-iconBg/30 px-3 py-1 rounded-full border border-iconBg">
-        <Calendar size={14} className="text-primary" /> {timeline}
+export const ProjectHero = ({ title, subtitle, status, github, demo, live, timeline, tech }: any) => {
+  const liveUrl = demo || live;
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-8 pb-12 border-b border-iconBg mb-16"
+    >
+      <div className="flex flex-wrap items-center gap-4">
+        <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 px-3 py-1 text-xs font-bold uppercase tracking-wider">
+          <CheckCircle2 size={12} className="mr-2" /> {status}
+        </Badge>
+        <div className="text-sm text-lightText flex items-center gap-2 bg-iconBg/30 px-3 py-1 rounded-full border border-iconBg">
+          <Calendar size={14} className="text-primary" /> {timeline}
+        </div>
       </div>
-    </div>
-    <div className="space-y-6">
-      <h1 className="text-5xl lg:text-8xl font-black tracking-tightest text-darkText leading-[0.9]">
-        {title}<span className="text-primary">.</span>
-      </h1>
-      <p className="text-xl lg:text-2xl text-lightText max-w-4xl leading-relaxed font-medium">
-        {subtitle}
-      </p>
-    </div>
-    <div className="flex flex-wrap gap-4 pt-4">
-      {demo && (
-        <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-white rounded-full px-8 h-14 font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-all">
-          <a href={demo} target="_blank" rel="noopener noreferrer">
-            <ExternalLink size={20} className="mr-2" /> Live Project
-          </a>
-        </Button>
-      )}
-      {github && (
-        <Button variant="outline" size="lg" asChild className="border-iconBg bg-cardBg hover:bg-iconBg rounded-full px-8 h-14 font-bold hover:scale-105 transition-all">
-          <a href={github} target="_blank" rel="noopener noreferrer">
-            <Github size={20} className="mr-2" /> View Source
-          </a>
-        </Button>
-      )}
-    </div>
-  </motion.div>
-);
+      <div className="space-y-6">
+        <h1 className="text-5xl lg:text-8xl font-black tracking-tightest text-darkText leading-[0.9]">
+          {title}<span className="text-primary">.</span>
+        </h1>
+        <p className="text-xl lg:text-2xl text-lightText max-w-4xl leading-relaxed font-medium">
+          {subtitle}
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-4 pt-4">
+        {liveUrl && (
+          <Button
+            asChild
+            size="lg"
+            className="group h-auto rounded-full bg-primary p-1.5 pl-2 text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-300 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/40"
+          >
+            <a
+              href={liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 pr-6"
+            >
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-black/10 transition-transform duration-300 group-hover:scale-105">
+                <ExternalLink size={18} />
+              </span>
+              <span className="flex flex-col items-start leading-none">
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/70">
+                  Live
+                </span>
+                <span className="mt-1 text-base font-bold">View Site</span>
+              </span>
+              <ArrowRight
+                size={18}
+                className="ml-1 shrink-0 transition-transform duration-300 group-hover:translate-x-1"
+              />
+            </a>
+          </Button>
+        )}
+        {github && (
+          <Button variant="outline" size="lg" asChild className="h-14 rounded-full border-iconBg bg-cardBg px-8 font-bold hover:bg-iconBg hover:border-primary/40 transition-all duration-300">
+            <a href={github} target="_blank" rel="noopener noreferrer" className="flex items-center">
+              <Github size={20} className="mr-2" /> View Source
+            </a>
+          </Button>
+        )}
+      </div>
+    </motion.div>
+  );
+};
 
 // 2. Info Grid & Card
 export const InfoGrid = ({ children }: { children: React.ReactNode }) => (

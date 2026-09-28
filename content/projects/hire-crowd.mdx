@@ -1,268 +1,526 @@
 ﻿---
 title: HireCrowd
-description: MERN-based job portal with recruiter ATS, resume generation, and application tracking.
+description: MERN job portal pairing an animated marketing landing with two complete product surfaces — a virtualized job feed for candidates and a recruiter ATS for hiring teams.
 featured: true
 status: Completed
 year: 2024
 role:
   - Full Stack Developer
 tech:
-  - React
-  - Node.js
+  - React 18
+  - Vite
+  - TailwindCSS
   - Express
   - MongoDB
-  - TailwindCSS
   - TanStack Query
+  - Radix UI
+  - Framer Motion
+  - Node.js
 github: https://github.com/AmitxParmar/job-portal-mern
 demo: https://job-portal-mern-sigma.vercel.app/
 cover: /projects/job-portal/index.png
 ---
 
-# HireCrowd
+<ProjectHero
+  title="HireCrowd"
+  subtitle="A MERN hiring platform where the marketing surface is as considered as the product. An animated, motion-led landing page fronts two complete workflows: a virtualized job feed for candidates and an applicant-tracking console for recruiters."
+  status="Completed"
+  timeline="Aug 2024 – Oct 2024"
+  github="https://github.com/AmitxParmar/job-portal-mern"
+  demo="https://job-portal-mern-sigma.vercel.app/"
+/>
+
+<div className="flex flex-wrap gap-2 mb-16">
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Framer Motion</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Scroll Reveals</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Infinite Marquee</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Autoplay Carousel</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Virtualized Feed</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">ATS Pipeline</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Resume Builder</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Invite Codes</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">OpenAPI Docs</Badge>
+</div>
+
+<InfoGrid>
+  <InfoCard title="Frontend" value="React 18 + Vite" icon={Layout} />
+  <InfoCard title="Backend" value="Express 4" icon={Cpu} />
+  <InfoCard title="Database" value="MongoDB" icon={Database} />
+  <InfoCard title="Server State" value="TanStack Query" icon={Activity} />
+  <InfoCard title="Auth" value="JWT + RBAC" icon={Shield} />
+  <InfoCard title="API Docs" value="Swagger / OpenAPI" icon={Network} />
+</InfoGrid>
 
 ## Overview
 
-HireCrowd is a full-stack hiring platform that connects job seekers with recruiters through a unified application workflow.
+HireCrowd is a full-stack hiring platform connecting job seekers with recruiters through one unified application workflow. It is deliberately two products sharing one backend:
 
-Job seekers can discover jobs, bookmark opportunities, generate resumes from their profiles, and track application progress. Recruiters can create job postings, review candidates, and manage hiring pipelines from a centralized dashboard.
+- **A marketing surface** — a motion-led landing page built to earn attention before asking for a signup.
+- **A candidate surface** — discover, filter, bookmark, build a resume once, and apply everywhere from stored profile data.
+- **A recruiter surface** — post jobs, review applicants, and move candidates through a hiring pipeline from a single ATS console.
 
-The goal was to create a complete hiring experience while maintaining a simple and scalable MERN architecture.
+The landing page targets three distinct audiences rather than one generic "job seekers" segment: students, companies, and colleges. Each gets its own narrative card, since a student and a hiring manager need completely different reasons to continue.
 
-## Highlights
+---
 
-- Job discovery and search
-- Resume generation from user profile
-- One-click job applications
-- Recruiter job management dashboard
-- Applicant Tracking System (ATS)
-- Bookmark jobs
-- Role-based access control
-- JWT authentication
-- API rate limiting
-- TanStack Query caching
+## System Architecture
 
-## Tech Stack
+<ProjectArchitecture 
+  title="High-Level System Architecture"
+  description="A single Express API serves three client surfaces. Mongoose models back five collections; validation, rate limiting, and auth are middleware, not per-route boilerplate."
+  showLegend={true}
+  chart={`graph TB
+    subgraph Client["React Client · Vite"]
+        LAND["Landing Page<br/>Framer Motion · Swiper · Marquee"]
+        SEEK["Candidate App<br/>Virtualized job feed"]
+        REC["Recruiter Console<br/>ATS dashboard"]
+    end
 
-| Category | Technology |
-|----------|------------|
-| Frontend | React |
-| Styling | TailwindCSS |
-| Backend | Node.js, Express |
-| Database | MongoDB |
-| State Management | TanStack Query |
-| Authentication | JWT |
-| Security | RBAC, Rate Limiting |
+    subgraph MW["Middleware Chain"]
+        RL["express-rate-limit"]
+        VAL["express-validator"]
+        AUTHMW["JWT auth + role guard"]
+    end
 
-## Architecture
+    subgraph API["Express API"]
+        AUTH["Auth Routes<br/>register · verify · login"]
+        JOBS["Jobs & Companies"]
+        APPS["Applications Pipeline"]
+        RESUME["Profile & Resume"]
+        INV["Invite Codes"]
+        DOCS["Swagger UI<br/>OpenAPI spec"]
+    end
 
-```mermaid
-flowchart LR
+    subgraph Svc["External Services"]
+        CLD["Cloudinary<br/>resume uploads"]
+        MAIL["Nodemailer<br/>email verification"]
+    end
 
-User --> React
+    DB[("MongoDB · Mongoose<br/>User · Job · Company<br/>Application · InviteCode")]
 
-React --> Express
+    LAND --> AUTH
+    SEEK --> AUTH
+    REC --> AUTH
 
-Express --> Auth
-Express --> Jobs
-Express --> Applications
-Express --> Resume
+    SEEK --> JOBS
+    SEEK --> APPS
+    SEEK --> RESUME
+    REC --> JOBS
+    REC --> APPS
+    REC --> RESUME
+    REC --> INV
 
-Auth --> MongoDB
-Jobs --> MongoDB
-Applications --> MongoDB
-Resume --> MongoDB
+    AUTH --> RL --> VAL --> AUTHMW
+    JOBS --> RL
+    APPS --> RL
+    INV --> AUTHMW
+    APPS --> DOCS
+
+    RESUME --> CLD
+    AUTH --> MAIL
+
+    AUTH --> DB
+    JOBS --> DB
+    APPS --> DB
+    RESUME --> DB
+    INV --> DB
+
+    style LAND fill:#c084fc,color:#000,stroke:#a855f7
+    style SEEK fill:#c084fc,color:#000,stroke:#a855f7
+    style REC fill:#c084fc,color:#000,stroke:#a855f7
+    style DOCS fill:#f97316,color:#000
+    style DB fill:#22c55e,color:#000
+  `}>
+```tree
+Client (React 18 + Vite, React Router)
+├── Landing — motion-led marketing surface
+├── Candidate — job feed, filters, bookmarks, resume builder
+└── Recruiter — ATS dashboard, job form, applicant review
+
+Middleware (runs before every protected route)
+├── express-rate-limit — abuse ceiling on auth + application endpoints
+├── express-validator — schema-checked request bodies
+└── auth.middleware — JWT verify → attach user → role guard
+
+Express API — 6 route groups
+├── /auth      register, verify-email, login, refresh
+├── /jobs      list (paginated), detail, create, update
+├── /companies employer profile + job ownership
+├── /applications  apply, list by job, update status
+├── /user      profile, professional details, resume
+└── /invitecode   employer invites candidates by code
+
+MongoDB via Mongoose — 5 models
+├── User        candidates + recruiters, role field
+├── Job         listings owned by a recruiter
+├── Company     employer profile
+├── Application job ↔ applicant ref + status enum
+└── InviteCode  gated registration
+
+External
+├── Cloudinary (multer) — resume & avatar storage
+├── Nodemailer — verification mail
+└── Swagger UI — generated from swagger-jsdoc annotations
 ```
+</ProjectArchitecture>
 
-## Job Application Flow
+---
 
-```mermaid
-sequenceDiagram
+## Impact & Results
 
-JobSeeker->>Frontend: Apply for Job
-Frontend->>Backend: Submit Application
-Backend->>MongoDB: Save Application
-Backend->>MongoDB: Attach Generated Resume
-MongoDB-->>Backend: Success
-Backend-->>Frontend: Application Submitted
-Recruiter->>Frontend: View Applicants
-Frontend->>Backend: Fetch Applicants
-Backend->>MongoDB: Query Applications
-MongoDB-->>Backend: Applicant Data
-Backend-->>Frontend: Applicant List
+<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+  <ProjectStat label="Audiences" value="3" description="Students, companies, and colleges each get a tailored narrative on the landing page." />
+  <ProjectStat label="Pipeline Stages" value="5" description="applied → reviewing → interview → hired, with rejected as the terminal off-ramp." />
+  <ProjectStat label="API Surface" value="6 Routes" description="Swagger-documented route groups with schema validation on every write path." />
+</div>
+
+---
+
+## The Landing Experience
+
+The landing page was the primary design investment. The brief was to avoid the templated hero-plus-three-cards pattern, so the page is built from layered motion and a deliberately non-generic palette.
+
+**Scroll-triggered reveals.** A small `TextAnimation` wrapper drives `framer-motion`'s `whileInView` with `viewport={{ once: true }}` — content rises into place as it enters the viewport and never re-animates on scroll-back. Staggered delays let a group of elements arrive in sequence rather than all at once.
+
+**An infinite marquee headline.** The "Built for" band runs on `react-fast-marquee` at speed 70, with alternating opacity (`odd:opacity-50 even:opacity-100`) so the repeated words read as a texture rather than duplicated text.
+
+**A self-advancing stats carousel.** The "Numbers we are proud of" section is a Swiper instance on a 2-second `Autoplay` delay with `EffectFade`, cross-fading between metrics. It is also a Headless UI tab group, so the same content is manually navigable on desktop and auto-advances on mobile — with a `useMediaQuery` branch at `768px` and `718px` deciding which of the two treatments renders.
+
+**A custom vertical slider.** `VerticleSlider` is a hand-rolled vertical track that swaps panels on a vertical axis — the kind of component that is normally reached for in a library but written by hand here to control the easing and the snap behaviour.
+
+**A three-audience role grid.** Instead of one generic value proposition, the page addresses students, companies, and colleges with their own card, icon treatment, and accent colour — teal `#0AA482`, coral `#FF6E76`, violet `#693CF3` on tinted backgrounds.
+
+**Palette and motion discipline.** The page runs on a near-black `#150f04` base with a single gold accent `#ddb15c`, set in `font-grotesk`. Transitions lean on a custom cubic-bezier `(.215, .61, .355, 1)` at `700ms` — slow enough to feel deliberate rather than snappy.
+
+<FeatureGrid>
+  <FeatureCard 
+    title="Scroll-Linked Reveals" 
+    description="framer-motion whileInView with once:true semantics and staggered per-index delays, so sections arrive in sequence and stay settled."
+    icon={Activity} 
+  />
+  <FeatureCard 
+    title="Infinite Marquee" 
+    description="react-fast-marquee headline band with alternating opacity so repeated words read as motion texture, not duplicated copy."
+    icon={Share2} 
+  />
+  <FeatureCard 
+    title="Autoplay Stats Carousel" 
+    description="Swiper Autoplay + EffectFade on a 2s cycle, paired with a Headless UI tab group so the same metrics stay manually navigable."
+    icon={Activity} 
+  />
+  <FeatureCard 
+    title="Hand-Rolled Vertical Slider" 
+    description="A custom vertical track component written to control easing and snap behaviour rather than pulling in a slider dependency."
+    icon={Layout} 
+  />
+  <FeatureCard 
+    title="Three-Audience Narrative" 
+    description="Students, companies, and colleges each get a distinct card, accent colour, and argument instead of one generic jobs pitch."
+    icon={MessageSquare} 
+  />
+  <FeatureCard 
+    title="Responsive Composition" 
+    description="useMediaQuery at 768px and 718px swaps between desktop and mobile compositions, rather than letting one layout stretch and shrink."
+    icon={Layout} 
+  />
+</FeatureGrid>
+
+---
+
+## Candidate Experience
+
+The candidate side optimises for one thing: a candidate should never re-type information they have already given the platform.
+
+- **Virtualized infinite feed.** The job listing uses `react-virtuoso` for windowed rendering, driven by TanStack Query's `useInfiniteQuery` with `fetchNextPage` / `hasNextPage`. Only visible rows mount, so scroll depth stays flat regardless of listing size.
+- **Debounced filtering.** Filter state runs through a `useFilters` hook (itself built on `useInfiniteQuery`) with a `useDebounce` hook on input, so typing does not fire a request per keystroke.
+- **A profile that becomes a resume.** Professional details — experience, education, projects — are captured once through validated forms and rendered into a resume via `react-quill` for free-form description fields. That resume is what gets attached on apply.
+- **One-click apply.** Applying pulls the stored resume and profile rather than prompting for an upload, which was the single largest source of drop-off.
+- **Bookmarks and applied-job tracking.** Saved jobs and application history live in their own Settings views, so a candidate can always answer "what did I apply to, and where does it stand?"
+
+<ProjectArchitecture 
+  title="Candidate Job Feed — windowed rendering"
+  description="Pagination is handled by useInfiniteQuery; virtualization by react-virtuoso. The two are independent concerns and splitting them keeps the cache queryable while keeping the DOM small."
+  chart={`sequenceDiagram
+    participant U as Candidate
+    participant F as useFilters hook
+    participant Q as TanStack Query cache
+    participant API as Express /jobs
+    participant DB as MongoDB
+
+    U->>F: types filter / scrolls to sentinel
+    F->>F: debounce input (useDebounce)
+    F->>Q: useInfiniteQuery(pageParam)
+    alt cache hit
+        Q-->>F: cached page, no request
+    else cache miss
+        Q->>API: GET /jobs?cursor&filters
+        API->>DB: filtered + paginated query
+        DB-->>API: page of jobs
+        API-->>Q: jobs + nextCursor
+    end
+    Q-->>F: pages[]
+    F-->>U: react-virtuoso windowed rows
+    Note over F,U: only rows in the viewport are mounted
+  `}>
+```tree
+Candidate job feed
+├── useDebounce — coalesces keystrokes into one request
+├── useFilters — owns filter state, wraps useInfiniteQuery
+├── useInfiniteQuery — cursor pagination, cached per filter set
+└── react-virtuoso — windowed rows, DOM size independent of result count
+
+Filter changes produce a new query key → new cache entry, so
+switching back to a previous filter is instant and costs no request.
 ```
+</ProjectArchitecture>
 
-## Key Features
+---
 
-### Job Seekers
+## Recruiter Experience
 
-- Browse available jobs
-- Search and filter opportunities
-- Bookmark jobs
-- Generate resume from profile data
-- Apply directly using generated resume
-- Track application status
+Recruiters get the mirror image: a console for turning a pile of applications into a decision.
 
-### Recruiters
+- **A dashboard with real aggregates.** Recent applications, recent job postings, and candidate counts by status — the counts come from the status enum, not a separate analytics store.
+- **Job authoring with rich text.** `react-quill` powers the job description editor, so postings keep formatting instead of degrading to plain text.
+- **Applicant review in context.** An application drawer surfaces the applicant's card, contact details, and resume without navigating away from the job.
+- **A visual pipeline.** `CandidateStatus` renders the five-stage pipeline as a stepper inside a sheet, and writes the new status through a TanStack mutation that invalidates the application queries — the dashboard counts update without a manual refresh.
+- **Invite-by-code onboarding.** Employers onboard candidates with `InviteCode`s. The code can be deep-linked: `Register.jsx` reads `inviteCode` from the query string and pre-fills the field, so the candidate lands pre-filled instead of retyping.
 
-- Create job postings
-- Manage active jobs
-- Review applicants
-- Update candidate status
-- Track hiring pipeline
+<ProjectArchitecture 
+  title="Recruiter Pipeline — status transitions"
+  description="The Application model enforces the stage enum in the schema, so an invalid status cannot be persisted regardless of what the client sends."
+  chart={`stateDiagram-v2
+    [*] --> applied : candidate applies
+    applied --> reviewing : recruiter opens application
+    reviewing --> interview : recruiter advances
+    interview --> hired : offer accepted
+    applied --> rejected
+    reviewing --> rejected
+    interview --> rejected
+    hired --> [*]
+    rejected --> [*]
+  `}>
+```tree
+Application.status — Mongoose enum, default "applied"
+  applied · reviewing · interview · hired · rejected
 
-## UI / UX Focus
+Both hired and rejected are terminal — no transition out.
 
-### Simplified Job Application
+Recruiter action
+├── CandidateStatus stepper (Radix Sheet) → Select → mutation
+├── onSuccess: queryClient.invalidateQueries(applications)
+└── Result: dashboard status counts re-derive, no manual refresh
 
-Users can create a profile once and generate a resume automatically.
-
-Instead of repeatedly uploading documents, applications can be submitted directly from the platform.
-
-### Faster Job Discovery
-
-- Infinite scrolling
-- Cached API responses
-- Reduced loading states
-- Optimized filtering experience
-
-### Recruiter Workflow
-
-The ATS dashboard helps recruiters move candidates through hiring stages without leaving the platform.
-
-Typical flow:
-
-```txt
-Applied
-↓
-Under Review
-↓
-Interview
-↓
-Selected / Rejected
+Schema-level guarantee: the enum lives on the Mongoose schema,
+so a hand-crafted request cannot write a stage outside the pipeline.
 ```
+</ProjectArchitecture>
+
+---
 
 ## Engineering Decisions
 
-### TanStack Query
+### Why virtualization instead of pagination controls?
+A job board is a scanning surface, not a document. Pagination forces a candidate to stop and click; windowed infinite scroll keeps the browsing gesture continuous. `react-virtuoso` handles the windowing while TanStack Query owns the cursor, so the two concerns stay separable.
 
-Used for:
+### Why TanStack Query alongside Zustand?
+Server state and client state have different lifecycles. Job listings, applications, and profiles are all cacheable server state with background refetch — that is TanStack Query's job. Zustand is reserved for genuinely local UI state. Putting fetched data in a global store would mean hand-rolling staleness, retries, and deduplication.
 
-- API response caching
-- Background refetching
-- Loading state management
-- Reduced duplicate network requests
+### Why an enum in the schema rather than app-level validation?
+The hiring pipeline has a fixed shape. Encoding it as a Mongoose enum means the database refuses any stage outside the pipeline, so an invalid transition is impossible even from a hand-crafted request — not merely rejected by a client that might be bypassed.
 
-Result:
+### Why invite codes instead of open registration?
+Employers onboard candidates they intend to hire. An `InviteCode` gates registration so a recruiter controls who reaches the platform, and the code travels as a link with the value pre-filled.
 
-- Faster page navigation
-- Better perceived performance
-- Lower backend load
+### Why Swagger UI?
+The API was the contract between two independently-built surfaces. `swagger-jsdoc` annotations generate the spec from the route definitions, so the docs cannot drift out of sync with the implementation the way hand-written docs do.
 
-### Rate Limiting
+---
 
-Implemented Express rate limiting to protect authentication and application endpoints from abuse.
+## Technical Challenges
 
-Benefits:
+<ChallengeCard
+  title="Keeping Scroll Performance Flat"
+  problem="An infinite job feed that mounts every row degrades quickly — DOM node count grows with result count, and scroll stutters as the list lengthens."
+  solution="Split the concerns: TanStack Query's useInfiniteQuery handles cursor pagination and caching per filter set, while react-virtuoso windowed the rendered rows so only what is in the viewport is mounted. Filter keystrokes were debounced so typing did not fan out into a request per character."
+  result="DOM size stays proportional to viewport height rather than result count, and each filter combination is cached — returning to a previous filter costs no network request."
+/>
 
-- Reduced spam submissions
-- Improved API stability
-- Better security posture
+<ChallengeCard
+  title="Making Re-Entry Lossless for Candidates"
+  problem="The classic job-portal failure: every application asks the candidate to re-upload a resume they already supplied, and a meaningful share of intended applications die at that step."
+  solution="Professional details (experience, education, projects) are captured once behind RHF + zod validated forms, then composed into a resume at apply time. The candidate's one-time investment is reused on every subsequent application."
+  result="Apply is a single action with no upload step, and the resume stays consistent across every application submitted from the profile."
+/>
 
-### JWT + RBAC
+<ChallengeCard
+  title="A Landing Page That Doesn't Read as a Template"
+  problem="Job portals are the most templated site category on the web — hero, search bar, three feature cards. A page that looks like every other one fails before the product is ever seen."
+  solution="Built the surface from layered motion instead of a static hero: whileInView scroll reveals with staggered delays, an infinite marquee headline, a 2-second autoplaying Swiper stats carousel paired with a manually navigable tab group, and a hand-rolled vertical slider. Grounded in a near-black base with a single gold accent and a deliberate custom easing curve."
+  result="Three distinct audience narratives (students, companies, colleges) with their own cards and accent colours, and a page whose composition changes by breakpoint rather than stretching one layout."
+/>
 
-Implemented role-based authorization for:
-
-- Recruiters
-- Job Seekers
-
-Protected routes ensure users only access permitted resources.
-
-## Challenges
-
-### Efficient Job Feed
-
-**Problem**
-
-Large job lists caused unnecessary API requests and re-renders.
-
-**Solution**
-
-Implemented TanStack Query caching with optimized pagination and query invalidation.
-
-**Outcome**
-
-Reduced redundant requests and improved browsing performance.
-
-### Resume-Based Applications
-
-**Problem**
-
-Users had to upload resumes repeatedly for every application.
-
-**Solution**
-
-Built a profile-driven resume generator and attached generated resumes automatically during job applications.
-
-**Outcome**
-
-Reduced friction in the application process.
-
-## Engineering Impact
-
-### Frontend
-
-- Reduced duplicate API requests using TanStack Query caching
-- Faster page transitions through cached server state
-- Improved perceived performance with optimistic UI patterns
-- Better component reuse through modular architecture
-- Reduced unnecessary re-renders through query-driven state management
-
-### Backend
-
-- Secure JWT authentication
-- Role-based access control
-- Rate limiting for abuse prevention
-- Centralized validation and middleware
-- Scalable REST API architecture
+---
 
 ## Project Structure
 
-```txt
-client/
-├── public/
-└── src/
-    ├── assets/
-    ├── components/
-    ├── constants/
-    ├── hooks/
-    ├── lib/
-    ├── pages/
-    ├── ProtectedRoutes/
-    └── services/
+<ProjectTree>
+  <Folder name="client" id="client">
+    <Folder name="src" id="src">
+      <Folder name="components" id="components">
+        <Folder name="Landing" id="landing" />
+        <Folder name="Dashboard" id="dashboard">
+          <Folder name="EmployerComponents" id="employer" />
+          <Folder name="JobListings" id="listings" />
+          <Folder name="Filters" id="filters" />
+          <Folder name="Settings" id="settings" />
+          <Folder name="common" id="common" />
+        </Folder>
+        <Folder name="ui" id="ui" />
+      </Folder>
+      <Folder name="pages" id="pages" />
+      <Folder name="hooks" id="hooks" />
+      <Folder name="services" id="services" />
+      <Folder name="ProtectedRoutes" id="protected" />
+    </Folder>
+  </Folder>
+  <Folder name="backend" id="backend">
+    <Folder name="config" id="config" />
+    <Folder name="controllers" id="controllers" />
+    <Folder name="middleware" id="middleware" />
+    <Folder name="models" id="models" />
+    <Folder name="routes" id="routes" />
+    <Folder name="utils" id="utils" />
+  </Folder>
+</ProjectTree>
 
-backend/
-├── config/
-├── controllers/
-├── db/
-├── middleware/
-├── models/
-├── routes/
-├── utils/
-└── index.js
-```
+---
+
+## API Reference
+
+<ApiDialog>
+  <ApiEndpoint 
+    method="POST" 
+    path="/api/auth/register" 
+    description="Register a candidate or recruiter. Optional inviteCode — accepts a deep link that pre-fills the field." 
+  />
+  <ApiEndpoint 
+    method="POST" 
+    path="/api/auth/verify-email" 
+    description="Consume the Nodemailer verification token to activate an account." 
+  />
+  <ApiEndpoint 
+    method="POST" 
+    path="/api/auth/login" 
+    description="Exchange credentials for a JWT carrying the user's role." 
+  />
+  <ApiEndpoint 
+    method="GET" 
+    path="/api/jobs" 
+    description="Paginated job feed. Accepts filter and cursor query params; rate-limited." 
+  />
+  <ApiEndpoint 
+    method="GET" 
+    path="/api/jobs/:id" 
+    description="Job detail with company profile and application eligibility." 
+  />
+  <ApiEndpoint 
+    method="POST" 
+    path="/api/jobs" 
+    description="Create a job posting (recruiter only). Rich-text description via Quill." 
+  />
+  <ApiEndpoint 
+    method="GET" 
+    path="/api/applications" 
+    description="Applications for a job, with candidate details for the ATS drawer." 
+  />
+  <ApiEndpoint 
+    method="POST" 
+    path="/api/applications" 
+    description="Apply to a job, attaching the resume generated from stored profile data." 
+  />
+  <ApiEndpoint 
+    method="PUT" 
+    path="/api/applications/:id/status" 
+    description="Advance a candidate through the pipeline. Constrained to the schema enum." 
+  />
+  <ApiEndpoint 
+    method="PUT" 
+    path="/api/user/profile" 
+    description="Update personal info and professional details that compose the resume." 
+  />
+  <ApiEndpoint 
+    method="POST" 
+    path="/api/invitecode" 
+    description="Generate or redeem an employer invite code." 
+  />
+</ApiDialog>
+
+---
+
+## Engineering Details
+
+<MetricsTable>
+  <MetricRow label="Job feed rendering" value="react-virtuoso windowing" />
+  <MetricRow label="Server state" value="TanStack Query v5 (infinite + cache)" />
+  <MetricRow label="Input handling" value="Debounced filter queries" />
+  <MetricRow label="Form validation" value="React Hook Form + zod" />
+  <MetricRow label="Rich text" value="Quill (jobs + resume)" />
+  <MetricRow label="UI primitives" value="Radix UI (shadcn pattern)" />
+  <MetricRow label="Auth" value="JWT + bcrypt + role middleware" />
+  <MetricRow label="Abuse control" value="express-rate-limit" />
+  <MetricRow label="Request validation" value="express-validator" />
+  <MetricRow label="File uploads" value="Multer → Cloudinary" />
+  <MetricRow label="Transactional email" value="Nodemailer" />
+  <MetricRow label="API documentation" value="Swagger UI (swagger-jsdoc)" />
+</MetricsTable>
+
+---
 
 ## Lessons Learned
 
-- Building complete user journeys is more important than adding features.
-- Server-state management significantly improves frontend performance.
-- RBAC should be planned early in the architecture.
-- Small UX improvements can dramatically reduce user friction.
-- Modular folder structures make long-term maintenance easier.
+*   **Motion is a design decision, not decoration.** The scroll reveals, marquee, and autoplay carousel each carry information — pacing the page, or surfacing metrics — rather than existing to look busy.
+*   **One breakpoint strategy beats one flexible layout.** Branching composition at `768px` and `718px` produced a better mobile page than letting a desktop layout compress.
+*   **Server state and client state are different problems.** TanStack Query for anything cacheable, Zustand for local UI — mixing them costs staleness bugs.
+*   **Schema-level constraints beat application-level checks.** Putting the pipeline enum on the Mongoose model made invalid states unrepresentable rather than merely rejected.
+*   **Reuse is a product feature.** Generating the resume from stored profile data removed an upload step from every application — the highest-leverage friction reduction in the project.
+*   **Invite links should arrive pre-filled.** Reading `inviteCode` from the query string is a two-line change that removes a manual step from onboarding.
 
-## Repository
+---
 
-GitHub: https://github.com/AmitxParmar/job-portal-mern
+## Screenshots
 
-## Demo
+<ImageGallery 
+  images={[
+    { src: "/projects/job-portal/landing.png", alt: "HireCrowd landing page", title: "Landing Page — motion-led marketing surface" },
+    { src: "/projects/job-portal/job-listing.png", alt: "Candidate job listing", title: "Candidate — Virtualized Job Feed" },
+    { src: "/projects/job-portal/job-details-drawer.png", alt: "Job details drawer", title: "Candidate — Job Details Drawer" },
+    { src: "/projects/job-portal/resume-builder.png", alt: "Resume builder", title: "Candidate — Profile-Driven Resume Builder" },
+    { src: "/projects/job-portal/bookmarked-jobs.png", alt: "Bookmarked jobs", title: "Candidate — Bookmarked Jobs" },
+    { src: "/projects/job-portal/applied-jobs.png", alt: "Applied jobs", title: "Candidate — Applied Job Tracking" },
+    { src: "/projects/job-portal/recruiter-dashboard.png", alt: "Recruiter dashboard", title: "Recruiter — ATS Dashboard" },
+    { src: "/projects/job-portal/recruiter-create-job.png", alt: "Create job form", title: "Recruiter — Job Authoring" },
+    { src: "/projects/job-portal/recruiter-view-applicants.png", alt: "View applicants", title: "Recruiter — Applicant Review" },
+    { src: "/projects/job-portal/recruiter-update-status.png", alt: "Update candidate status", title: "Recruiter — Pipeline Stepper" },
+    { src: "/projects/job-portal/recruiter-applicant-resume.png", alt: "Applicant resume", title: "Recruiter — In-Context Resume Review" },
+    { src: "/projects/job-portal/recruiter-invite-users.png", alt: "Invite users", title: "Recruiter — Invite-By-Code Onboarding" }
+  ]}
+/>
 
-Live: https://job-portal-mern-sigma.vercel.app/
+---
+
+## Design References
+
+<Callout type="info">
+The three images below are **third-party design references** that informed this project — concept work sourced from Behance and Dribbble while planning the interface. They are *not* screenshots of HireCrowd, and none of the imagery is my own. Included for attribution and design context only. All application screenshots appear in the gallery above.
+</Callout>
+
+<ImageGallery 
+  images={[
+    { src: "/projects/job-portal/ref-recruiter-dashboard.png", alt: "Design reference — recruiter dashboard concept", title: "[Reference] Recruiter Dashboard concept — Behance" },
+    { src: "/projects/job-portal/ref-candidate-status.png", alt: "Design reference — candidate status concept", title: "[Reference] Candidate Status concept — Behance" },
+    { src: "/projects/job-portal/ref-job-details-drawer.png", alt: "Design reference — job details drawer concept", title: "[Reference] Job Details Drawer concept — Behance / Dribbble" }
+  ]}
+/>
+
+The job-listing layout was inspired by a public [Dribbble job-search concept](https://dribbble.com/shots/21587286-Job-Search-Platform). The implemented feed diverges substantially — it adds cursor pagination and windowed virtualization that the static concept has no equivalent for.

@@ -15,6 +15,7 @@ const ProjectCard = ({
     cover,
     github,
     demo,
+    live,
     year,
     role,
   },
@@ -23,6 +24,8 @@ const ProjectCard = ({
   project: Project;
   priority?: boolean;
 }) => {
+  const liveUrl = demo || live;
+
   return (
     <div
       className="group h-auto min-h-fit cursor-pointer overflow-hidden rounded-[1.5rem] border-premium bg-black/40 pb-3 transition-all duration-500 hover:scale-[1.03] hover-glow-purple"
@@ -97,7 +100,7 @@ const ProjectCard = ({
                 <Github className="size-3.5 sm:size-4" />
               </div>
             )}
-            {demo && (
+            {liveUrl && (
               <div className="text-lightText/40 transition-colors hover:text-white">
                 <Globe className="size-3.5 sm:size-4" />
               </div>

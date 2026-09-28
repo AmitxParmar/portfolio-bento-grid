@@ -16,7 +16,7 @@ import { motion } from "motion/react";
 
 const ContactMe = () => {
   const [copied, setCopied] = useState(false);
-  const emailAddress = "amitxparmar.dev@gmail.com";
+  const emailAddress = "amitparmar901@gmail.com";
 
   const handleCopyEmail = (e: React.MouseEvent) => {
     e.preventDefault();

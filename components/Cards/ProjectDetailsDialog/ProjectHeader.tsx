@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { Project } from "content-collections";
-import { Github, ExternalLink, Calendar, BookOpen } from "lucide-react";
+import { Github, ExternalLink, Calendar, BookOpen, ArrowRight } from "lucide-react";
 
 interface ProjectHeaderProps {
   project: Project;
@@ -42,15 +42,16 @@ const ProjectHeader = ({ project }: ProjectHeaderProps) => {
           </p>
           
           <div className="mt-4 flex flex-wrap gap-4">
-            {project.demo && (
+            {(project.demo || project.live) && (
               <a 
-                href={project.demo}
+                href={project.demo || project.live}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg hover:bg-primary/90 transition-all hover:-translate-y-0.5"
+                className="group flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-xl"
               >
-                <ExternalLink size={16} />
+                <ExternalLink size={16} className="transition-transform duration-300 group-hover:scale-110" />
                 Live Demo
+                <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-0.5" />
               </a>
             )}
             {project.github && (
