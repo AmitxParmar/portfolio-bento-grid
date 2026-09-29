@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useMemo } from "react";
-import { ExternalLink, Github, Calendar, CheckCircle2, Server, Layout, Database, MessageSquare, Shield, Activity, Share2, Info, ChevronRight, Box, Cpu, Network, FileText, ArrowRight } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { ExternalLink, Github, Calendar, CheckCircle2, Server, Layout, Database, MessageSquare, Shield, Activity, Share2, Info, ChevronRight, Box, Cpu, Network, FileText, ArrowRight, Maximize2 } from "lucide-react";
+import { Lightbox } from "@/components/mdx/ImageGallery";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -176,21 +177,39 @@ export const ArchitectureHeader = ({ title, description }: any) => (
 );
 
 // 3. Architecture components
-export const ArchitectureImage = ({ src, alt }: { src: string, alt?: string }) => (
-  <motion.div 
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    className="relative aspect-video w-full overflow-hidden rounded-3xl border border-iconBg bg-cardBg mb-8 group"
-  >
-    <Image src={src} alt={alt || "Architecture Diagram"} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
-    <div className="absolute inset-0 bg-linear-to-t from-bg/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
-      <p className="text-sm font-bold text-darkText flex items-center gap-2">
-        <Share2 size={16} className="text-primary" /> {alt || "Architecture Diagram"}
-      </p>
-    </div>
-  </motion.div>
-);
+export const ArchitectureImage = ({ src, alt }: { src: string, alt?: string }) => {
+  const [open, setOpen] = useState(false);
+  const label = alt || "Architecture Diagram";
+
+  return (
+    <>
+      <motion.button
+        type="button"
+        onClick={() => setOpen(true)}
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="group relative mb-8 block aspect-video w-full cursor-zoom-in overflow-hidden rounded-3xl border border-iconBg bg-cardBg"
+      >
+        <Image src={src} alt={label} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+        <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-300 group-hover:bg-black/40 group-hover:opacity-100">
+          <span className="flex items-center gap-2 rounded-full border border-white/25 bg-black/60 px-3.5 py-2 text-[11px] font-bold text-white backdrop-blur-sm">
+            <Maximize2 size={13} />
+            Expand
+          </span>
+        </div>
+        <div className="absolute inset-0 flex items-end bg-linear-to-t from-bg/80 to-transparent p-8 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          <p className="flex items-center gap-2 text-sm font-bold text-darkText">
+            <Share2 size={16} className="text-primary" /> {label}
+          </p>
+        </div>
+      </motion.button>
+      {open && (
+        <Lightbox src={src} alt={label} title={label} onClose={() => setOpen(false)} />
+      )}
+    </>
+  );
+};
 
 // Custom paragraph: just tighten margins
 export const p = ({ children, ...props }: any) =>
@@ -503,19 +522,8 @@ export const MetricRow = ({ label, value }: { label: string, value: string }) =>
   </tr>
 );
 
-// 9. Project Gallery
-export const ImageGallery = ({ images }: { images: { src: string, alt: string, title: string }[] }) => (
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-    {images.map((img, i) => (
-      <div key={i} className="group space-y-3">
-        <div className="relative aspect-video overflow-hidden rounded-2xl border border-iconBg bg-cardBg">
-          <Image loading="lazy" src={img.src} alt={img.alt} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-        </div>
-        <p className="text-xs font-bold text-lightText px-2">{img.title}</p>
-      </div>
-    ))}
-  </div>
-);
+// 9. Project Gallery (click-to-expand lightbox)
+export { ImageGallery } from "@/components/mdx/ImageGallery";
 
 // 10. Project Tree
 export const ProjectTree = ({ children }: { children: React.ReactNode }) => (
