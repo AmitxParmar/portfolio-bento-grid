@@ -41,16 +41,16 @@ export { InteractiveCanvas };
 
 
 // Architecture Wrapper — renders Mermaid diagram + inline structured breakdown
-export const ProjectArchitecture = ({ chart, title, description, showLegend, children }: any) => (
-  <div className="my-16 space-y-8 w-full max-w-full min-w-0 overflow-hidden">
+export const ProjectArchitecture = ({ chart, d2, engine, title, description, showLegend, children }: any) => (
+  <div className="my-16 space-y-8 w-full max-w-full min-w-0">
     <ArchitectureHeader
       title={title || "Technical Architecture"}
       description={description}
     />
 
-    <div className="relative group w-full max-w-full min-w-0 overflow-hidden">
+    <div className="relative group w-full max-w-full min-w-0">
       <div className="absolute -inset-1 bg-linear-to-r from-primary/20 to-primary/5 rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition duration-1000" />
-      <ArchitectureViewer chart={chart} showLegend={showLegend} />
+      <ArchitectureViewer chart={chart} d2={d2} engine={engine} showLegend={showLegend} />
     </div>
 
     {children && (
@@ -274,8 +274,22 @@ export const pre = ({ children, ...props }: any) => {
 
   if (isMermaid) {
     return (
-      <div className="my-8 w-full max-w-full min-w-0 overflow-hidden">
+      <div className="my-8 w-full max-w-full min-w-0">
         <ArchitectureViewer chart={rawText.trim()} />
+      </div>
+    );
+  }
+
+  const isD2 = lang.includes('d2') || 
+               props?.['data-language'] === 'd2' ||
+               children?.props?.['data-language'] === 'd2' ||
+               children?.props?.className?.includes('d2') ||
+               children?.props?.children?.props?.className?.includes('d2');
+
+  if (isD2) {
+    return (
+      <div className="my-8 w-full max-w-full min-w-0">
+        <ArchitectureViewer d2={rawText.trim()} engine="d2" />
       </div>
     );
   }

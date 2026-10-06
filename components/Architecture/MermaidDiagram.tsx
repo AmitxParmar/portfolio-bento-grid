@@ -5,11 +5,59 @@ import React, { useEffect, useRef, useState } from "react";
 interface MermaidDiagramProps {
   chart: string;
   className?: string;
+  minWidth?: number;
+  maxWidth?: number;
+  mode?: "card" | "modal";
 }
 
 let mermaidIdCounter = 0;
 
-export const MermaidDiagram = ({ chart, className }: MermaidDiagramProps) => {
+/**
+ * Robustly extract intrinsic width and height from Mermaid SVG.
+ */
+function getSvgDimensions(svgEl: SVGSVGElement) {
+  let width = 0;
+  let height = 0;
+
+  // 1. Try viewBox attribute (most accurate across SVG engines)
+  const viewBoxAttr = svgEl.getAttribute("viewBox");
+  if (viewBoxAttr) {
+    const parts = viewBoxAttr.trim().split(/[\s,]+/);
+    if (parts.length >= 4) {
+      width = parseFloat(parts[2]) || 0;
+      height = parseFloat(parts[3]) || 0;
+    }
+  }
+
+  // 2. Fallback to viewBox DOM baseVal
+  if (!width && svgEl.viewBox?.baseVal?.width) {
+    width = svgEl.viewBox.baseVal.width;
+    height = svgEl.viewBox.baseVal.height;
+  }
+
+  // 3. Fallback to style max-width if present (Mermaid sets this by default)
+  if (!width && svgEl.style.maxWidth) {
+    width = parseFloat(svgEl.style.maxWidth) || 0;
+  }
+
+  // 4. Fallback to width attribute if not percentage
+  if (!width) {
+    const widthAttr = svgEl.getAttribute("width");
+    if (widthAttr && !widthAttr.includes("%")) {
+      width = parseFloat(widthAttr) || 0;
+    }
+  }
+
+  return { width, height };
+}
+
+export const MermaidDiagram = ({
+  chart,
+  className,
+  minWidth,
+  maxWidth,
+  mode = "card",
+}: MermaidDiagramProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [svg, setSvg] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +88,7 @@ export const MermaidDiagram = ({ chart, className }: MermaidDiagramProps) => {
             clusterBorder: "#27272a",
             titleColor: "#fafafa",
             fontFamily: "ui-sans-system, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
-            fontSize: "13px",
+            fontSize: "15px",
             noteBkgColor: "#27272a",
             noteTextColor: "#d4d4d8",
             noteBorderColor: "#3f3f46",
@@ -69,16 +117,19 @@ export const MermaidDiagram = ({ chart, className }: MermaidDiagramProps) => {
             useMaxWidth: true,
             mirrorActors: false,
             showSequenceNumbers: false,
-            actorMargin: 24,
-            boxMargin: 8,
-            messageMargin: 16,
+            width: 200,
+            actorMargin: 36,
+            boxMargin: 12,
+            messageMargin: 22,
+            actorFontSize: "15px",
+            messageFontSize: "14px",
+            noteFontSize: "13px",
             wrap: true,
-            width: 800,
           },
           er: {
             useMaxWidth: true,
             layoutDirection: "TB",
-            minEntityWidth: 100,
+            minEntityWidth: 150,
             minEntityHeight: 75,
           },
         });
@@ -107,6 +158,58 @@ export const MermaidDiagram = ({ chart, className }: MermaidDiagramProps) => {
     };
   }, [chart]);
 
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const svgEl = containerRef.current.querySelector<SVGSVGElement>("svg");
+    if (!svgEl) return;
+
+    svgEl.removeAttribute("width");
+    svgEl.removeAttribute("height");
+
+    const { width: intrinsicWidth } = getSvgDimensions(svgEl);
+
+    if (!intrinsicWidth) {
+      svgEl.style.width = "100%";
+      svgEl.style.maxWidth = "100%";
+      svgEl.style.height = "auto";
+      svgEl.style.display = "block";
+      svgEl.style.margin = "0 auto";
+      return;
+    }
+
+    if (mode === "modal") {
+      // In modal viewer: render at 1:1 intrinsic scale for maximum crispness and readability
+      svgEl.style.width = `${intrinsicWidth}px`;
+      svgEl.style.minWidth = `${intrinsicWidth}px`;
+      svgEl.style.maxWidth = "none";
+      svgEl.style.height = "auto";
+      svgEl.style.display = "block";
+      svgEl.style.margin = "0 auto";
+    } else {
+      // In card viewer:
+      // 1. Max width is capped at intrinsic width to prevent small diagrams (e.g. 250px)
+      //    from blowing up into cartoonish, oversized diagrams.
+      const effectiveMaxWidth = maxWidth || intrinsicWidth;
+
+      // 2. Readability floor: allows gentle scaling down to ~72% of intrinsic width (text >= 11px).
+      //    Below this floor, horizontal scrolling preserves readability instead of crushing text.
+      const defaultFloor = Math.round(intrinsicWidth * 0.72);
+      const effectiveFloor = minWidth ? Math.min(intrinsicWidth, minWidth) : defaultFloor;
+      const effectiveMinWidth = Math.min(effectiveMaxWidth, effectiveFloor);
+
+      svgEl.style.width = "100%";
+      svgEl.style.maxWidth = `${effectiveMaxWidth}px`;
+      svgEl.style.minWidth = `${effectiveMinWidth}px`;
+      svgEl.style.height = "auto";
+      svgEl.style.overflow = "visible";
+      svgEl.style.display = "block";
+      svgEl.style.margin = "0 auto";
+    }
+  }, [svg, minWidth, maxWidth, mode]);
+
+  // NOTE: this early return sits after every hook — returning before the
+  // useEffect above used to crash the page with "rendered fewer hooks"
+  // whenever a chart had a syntax error.
   if (error) {
     return (
       <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-mono">
@@ -115,27 +218,11 @@ export const MermaidDiagram = ({ chart, className }: MermaidDiagramProps) => {
     );
   }
 
-  useEffect(() => {
-    if (!containerRef.current) return;
-    const svgEl = containerRef.current.querySelector("svg");
-    if (svgEl) {
-      svgEl.removeAttribute("width");
-      svgEl.removeAttribute("height");
-      svgEl.setAttribute("width", "100%");
-      svgEl.setAttribute("height", "auto");
-      svgEl.style.maxWidth = "100%";
-      svgEl.style.minWidth = "0";
-      svgEl.style.overflow = "hidden";
-      svgEl.style.display = "block";
-      svgEl.style.margin = "0 auto";
-    }
-  }, [svg]);
-
   return (
     <div
       ref={containerRef}
-      className={`${className || ""}`}
-      style={{ width: "100%", maxWidth: "100%", minWidth: 0, overflow: "hidden" }}
+      className={`mermaid-diagram w-full min-w-0 pb-2 ${className || ""}`}
+      style={{ overflow: "visible" }}
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   );

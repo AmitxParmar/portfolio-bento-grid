@@ -27,6 +27,12 @@ cover: /projects/quick-chat/index.png
   demo="https://quick-chat-redesigned-five.vercel.app/"
 />
 
+<div className="flex flex-wrap gap-2 mb-16">
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Infinite Reconnect</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Keyset Catch-up</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">RTT Instrumented</Badge>
+</div>
+
 <InfoGrid>
   <InfoCard title="Real-time" value="Socket.io" icon={MessageSquare} />
   <InfoCard title="Broker" value="Redis" icon={Activity} />
@@ -79,7 +85,41 @@ Key focus areas:
     style SocketCluster fill:#c084fc,color:#000
     style Redis fill:#ef4444,color:#fff
     style MongoDB fill:#22c55e,color:#000
-  `}>
+  `}
+  d2={`direction: down
+
+Client: {
+  NextJS: "Next.js Clients\\nSocket.io Client"
+  IndexedDB: "IndexedDB\\nDexie.js Local Store"
+}
+
+Service Layer: {
+  SocketCluster: "Socket.io Cluster\\nWebSocket Servers" {
+    style.fill: "#c084fc"
+    style.font-color: "#000000"
+  }
+  Redis: "Redis Pub/Sub\\nCross-server Broadcast" {
+    style.fill: "#ef4444"
+    style.font-color: "#ffffff"
+  }
+}
+
+Persistence: {
+  MongoDB: "MongoDB Atlas\\nChat History" {
+    shape: cylinder
+    style.fill: "#22c55e"
+    style.font-color: "#000000"
+  }
+}
+
+Client.NextJS -> Service Layer.SocketCluster: WebSockets
+Client.NextJS -> Client.IndexedDB: Offline Sync {
+  style.stroke-dash: 4
+}
+Service Layer.SocketCluster -> Service Layer.Redis: Broadcast
+Service Layer.Redis -> Persistence.MongoDB: Persist
+`}
+>
 ```tree
 Browser Clients
 ├── Local DB (Dexie.js/IndexedDB)
@@ -103,6 +143,9 @@ Persistence Layer
   <ProjectStat label="Message Latency" value="< 100ms" description="Achieved through optimized Socket.io events and Redis Pub/Sub." />
   <ProjectStat label="UI Performance" value="60 FPS" description="Virtualized lists maintain smooth scrolling with 10k+ messages." />
   <ProjectStat label="Offline Capable" value="100%" description="Dexie.js ensures zero message loss during network drops." />
+  <ProjectStat label="Reconnects" value="Seamless" description="Infinite backoff + room re-join + keyset catch-up — no reload ever." />
+  <ProjectStat label="Presence" value="Deduped" description="Online/offline broadcasts only on first/last socket per user." />
+  <ProjectStat label="Ingest" value="Batched" description="Bounded buffer flushed per macrotask via bulkPut — one store update per burst." />
 </div>
 
 
@@ -129,6 +172,55 @@ Persistence Layer
   <FeatureCard 
     title="60 FPS Scrolling" 
     description="Virtualized message lists ensuring smooth performance even with 10k+ messages."
+    icon={Layout}
+  />
+</FeatureGrid>
+
+---
+
+## Performance Engineering
+
+Connection resilience and hot-path efficiency shipped in 7 rollback-safe phases — every reconnect resyncs, every send is timed, every broadcast is scoped.
+
+<FeatureGrid>
+  <FeatureCard 
+    title="Infinite Reconnect" 
+    description="Reconnect attempts capped at 5 meant a dead socket until reload. Now unbounded with 500ms→10s exponential backoff + jitter — subway rides included."
+    icon={Share2}
+  />
+  <FeatureCard 
+    title="Room Re-join on Connect" 
+    description="Server-side rooms die with the socket, so read receipts silently froze after blips. conversation:join re-fires on every connect."
+    icon={MessageSquare}
+  />
+  <FeatureCard 
+    title="Send-Path Instrumentation" 
+    description="Server stamps receivedAt on every ack; client keeps a 200-sample RTT ring with p50/p95 and sent/acked/failed counters. Latency claims are measured, not estimated."
+    icon={Activity}
+  />
+  <FeatureCard 
+    title="Presence Dedup" 
+    description="user:online/offline broadcast to every socket on every tab connect. Now emitted only on first/last socket per user — multi-tab flapping gone."
+    icon={Server}
+  />
+  <FeatureCard 
+    title="Auth Handshake Cache" 
+    description="Every (re)connect hit Mongo for the user record. Cache-aside snapshot in Redis (15m TTL) turns reconnect storms into cache hits."
+    icon={Database}
+  />
+  <FeatureCard 
+    title="Pipelined Heartbeat" 
+    description="Presence refresh was one Redis RTT per connected user every 30s. Now a single pipeline round trip for all of them."
+    icon={Server}
+  />
+  <FeatureCard 
+    title="Keyset Catch-up" 
+    description="Reconnects ask for everything since the newest stored timestamp — no offsets, so concurrent inserts can't shift windows. Merged via idempotent bulkPut."
+    icon={CheckCircle2}
+  />
+  <FeatureCard 
+    title="Batched Ingest + Quiet Logs" 
+    description="Bursts buffered (500-cap, drop-oldest) and flushed per macrotask in one Dexie transaction. Per-message logs demoted to debug; console output dev-only."
     icon={Layout}
   />
 </FeatureGrid>
@@ -178,6 +270,10 @@ Persistence Layer
   <EventStep 
     title="Target Delivery" 
     description="The target user's server instance receives the Redis event and emits it to their client."
+  />
+  <EventStep 
+    title="Reconnect & Catch-up" 
+    description="On reconnect the client re-joins rooms and requests everything since its newest stored timestamp; the server answers that socket only."
     isLast={true}
   />
 </EventFlow>
@@ -213,6 +309,9 @@ Persistence Layer
   <MetricRow label="Scroll Performance" value="60 FPS" />
   <MetricRow label="Concurrent Capacity" value="10k+ Users" />
   <MetricRow label="Offline Sync" value="Automatic" />
+  <MetricRow label="Reconnect Policy" value="Infinite + backoff" />
+  <MetricRow label="Catch-up" value="Keyset since-ts" />
+  <MetricRow label="Send RTT" value="Instrumented p50/p95" />
 </MetricsTable>
 
 ---
@@ -223,6 +322,8 @@ Persistence Layer
 *   **Offline State:** Managing complex reconciliation between local and server databases.
 *   **Browser Optimization:** Mastering virtualization and layout stabilization for high-volume UIs.
 *   **Scalability:** Implementing horizontal scaling strategies for persistent connections.
+*   **Measure first:** Latency numbers without instrumentation are hopes — the RTT ring made every later optimization rankable.
+*   **Bound the buffers:** An unbounded queue and a global broadcast are the same bug at different scales.
 
 ---
 

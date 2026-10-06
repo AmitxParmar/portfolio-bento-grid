@@ -92,7 +92,56 @@ Key focus areas:
     style OrderSvc fill:#c084fc,color:#000
     style Finalized fill:#22c55e,color:#000
     style Released fill:#ef4444,color:#fff
-  `}/>
+  `}
+  d2={`direction: down
+
+OrderSvc: "Order Service\\nSaga Initiator" {
+  style.fill: "#c084fc"
+  style.font-color: "#000000"
+}
+
+Step 1: Reserve Inventory: {
+  CatalogSvc: "Catalog Service"
+}
+
+Step 2: Process Payment: {
+  PaymentSvc: "Payment Service"
+}
+
+Finalized: "Order Finalized" {
+  shape: circle
+  style.fill: "#22c55e"
+  style.font-color: "#000000"
+}
+
+Released: "Stock Released" {
+  shape: circle
+  style.fill: "#ef4444"
+  style.font-color: "#ffffff"
+}
+
+OrderSvc -> Step 1.CatalogSvc: STOCK_RESERVE_REQUESTED {
+  style.stroke-dash: 4
+}
+Step 1.CatalogSvc -> OrderSvc: STOCK_RESERVED {
+  style.stroke-dash: 4
+}
+OrderSvc -> Step 2.PaymentSvc: PROCESS_PAYMENT {
+  style.stroke-dash: 4
+}
+
+Step 2.PaymentSvc -> Finalized: PAYMENT_SUCCEEDED {
+  style.stroke-dash: 4
+}
+
+Step 2.PaymentSvc -> Step 1.CatalogSvc: PAYMENT_FAILED -> RELEASE_STOCK {
+  style.stroke-dash: 4
+}
+Step 1.CatalogSvc -> Released {
+  style.stroke-dash: 4
+}
+`}
+/>
 
 <ProjectArchitecture 
   title="Observability Architecture"
@@ -125,12 +174,52 @@ Key focus areas:
 
     style OTel fill:#c084fc,color:#000
     style Grafana fill:#f97316,color:#000
-  `}/>
+  `}
+  d2={`direction: down
+
+Svc: "Microservices\\nInstruments + Exports"
+
+Collection: {
+  OTel: "OpenTelemetry Collector\\nOTLP Gateway" {
+    style.fill: "#c084fc"
+    style.font-color: "#000000"
+  }
+}
+
+Storage: {
+  Loki: "Loki\\nLogs" {
+    shape: cylinder
+  }
+  Prometheus: "Prometheus\\nMetrics" {
+    shape: cylinder
+  }
+  Jaeger: "Jaeger\\nTraces" {
+    shape: cylinder
+  }
+}
+
+Visualization: {
+  Grafana: "Grafana Dashboard\\nUnified View" {
+    style.fill: "#f97316"
+    style.font-color: "#000000"
+  }
+}
+
+Svc -> Collection.OTel: PUSH TELEMETRY
+Collection.OTel -> Storage.Loki: LOGS
+Collection.OTel -> Storage.Prometheus: METRICS
+Collection.OTel -> Storage.Jaeger: TRACES
+
+Storage.Loki -> Visualization.Grafana
+Storage.Prometheus -> Visualization.Grafana
+Storage.Jaeger -> Visualization.Grafana
+`}
+/>
 
 <ProjectArchitecture 
   title="Domain & Bounded Contexts"
   description="Illustrating business boundaries and service ownership based on Domain-Driven Design principles."
-  chart={`graph TB
+  chart={`graph LR
     subgraph "Identity Domain"
         UserService["User Service"]
     end
@@ -156,7 +245,46 @@ Key focus areas:
     style OrderService fill:#c084fc,color:#000
     style PaymentService fill:#c084fc,color:#000
     style NotificationService fill:#c084fc,color:#000
-  `}/>
+  `}
+  d2={`grid-columns: 5
+grid-gap: 20
+
+Identity Domain: {
+  UserService: "User Service" {
+    style.fill: "#c084fc"
+    style.font-color: "#000000"
+  }
+}
+
+Commerce Domain: {
+  CatalogService: "Catalog Service" {
+    style.fill: "#c084fc"
+    style.font-color: "#000000"
+  }
+}
+
+Ordering Domain: {
+  OrderService: "Order Service" {
+    style.fill: "#c084fc"
+    style.font-color: "#000000"
+  }
+}
+
+Payments Domain: {
+  PaymentService: "Payment Service" {
+    style.fill: "#c084fc"
+    style.font-color: "#000000"
+  }
+}
+
+Communication Domain: {
+  NotificationService: "Notification Service" {
+    style.fill: "#c084fc"
+    style.font-color: "#000000"
+  }
+}
+`}
+/>
 
 ---
 

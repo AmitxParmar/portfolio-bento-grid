@@ -42,6 +42,9 @@ cover: /projects/enterprise-knowledgebase/chat-view.png
   <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">AG-UI SSE</Badge>
   <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">arq Workers</Badge>
   <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Logfire Traced</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Circuit Breaker</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Pydantic-Validated</Badge>
+  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">Token Streaming</Badge>
 </div>
 
 <InfoGrid>
@@ -79,6 +82,9 @@ Key focus areas:
   <ProjectStat label="Ingestion" value="< 60s" description="10-page PDF upload → searchable (extract → chunk → embed → pgvector)." />
   <ProjectStat label="Citations" value="100%" description="Every claim rendered as [n] grounded to a chunk with source_ref." />
   <ProjectStat label="Run Budget" value="≤ 5 iters" description="60s wall / 30s per-call / 60k token caps — no runaway loops." />
+  <ProjectStat label="Eval" value="Gated" description="Retrieval + answer gates in CI: recall/nDCG, coverage, ungrounded-ratio, correctness." />
+  <ProjectStat label="Streaming" value="Token-level" description="Synthesize streams AG-UI deltas; usage trailer keeps cost accounting exact." />
+  <ProjectStat label="Budgets" value="Per-user" description="Daily token budgets enforced in run_agent; spend dashboard at /usage." />
 </div>
 
 ---
@@ -98,7 +104,7 @@ Key focus areas:
   />
   <FeatureCard 
     title="AG-UI Streaming" 
-    description="POST /api/research/chat opens SSE: RUN_STARTED → CUSTOM stages → CUSTOM citations → TEXT_MESSAGE_CONTENT → RUN_FINISHED."
+    description="POST /api/research/chat opens SSE: RUN_STARTED → CUSTOM stages → CUSTOM citations → incremental TEXT_MESSAGE_CONTENT deltas → RUN_FINISHED. Synthesize streams token-by-token; TanStack useChat appends natively."
     icon={MessageSquare}
   />
   <FeatureCard 
@@ -120,6 +126,55 @@ Key focus areas:
 
 ---
 
+## Production Hardening
+
+Reliability and cost engineering on top of the MVP loop — every LLM call validated, every provider failure contained, every token metered.
+
+<FeatureGrid>
+  <FeatureCard 
+    title="Pydantic-Validated LLM Output" 
+    description="Planner JSON, tool-call args, and provider payloads validated against schemas. Empty choices → typed error; malformed tool JSON skipped call-by-call. Zero uncaught IndexError/AttributeError paths."
+    icon={CheckCircle2}
+  />
+  <FeatureCard 
+    title="Prompt-Injection Defenses" 
+    description="Input length caps + control-char sanitization, retrieved chunks wrapped in <document> untrusted-data delimiters, and a system-prompt leak filter on the answer path."
+    icon={Shield}
+  />
+  <FeatureCard 
+    title="Circuit Breaker" 
+    description="5 failures / 30s opens per provider, 60s cooldown, half-open probe. The gateway leads with the fallback or fails fast when both trip — no burned rate limits."
+    icon={Activity}
+  />
+  <FeatureCard 
+    title="Fallback That Actually Fires" 
+    description="Per-provider timeout lives inside LiteLLM instead of a wait_for around it (which cancelled the fallback loop). Genuine 429s keep their RATE_LIMIT code through fallback exhaustion."
+    icon={Share2}
+  />
+  <FeatureCard 
+    title="Versioned Prompts" 
+    description="Every model instruction in a name@version registry — reviewable, rollback-safe. Each Langfuse generation is stamped with its prompt revision; regression tests pin the text."
+    icon={FileText}
+  />
+  <FeatureCard 
+    title="Token-Level Streaming" 
+    description="Gateway streams text deltas + a trailing usage object; synthesize forwards them as AG-UI content events (TanStack appends natively). Cost accounting preserved across the stream."
+    icon={MessageSquare}
+  />
+  <FeatureCard 
+    title="Cost Controls" 
+    description="Full token metering (planner + HyDE were silently dropped before), per-user daily budgets enforced once in run_agent across SSE/WS/voice, spend dashboard at /usage."
+    icon={Database}
+  />
+  <FeatureCard 
+    title="Golden-Set Eval in CI" 
+    description="Retrieval gates (recall/nDCG) plus recorded-answer gates (coverage, ungrounded-ratio, correctness). Multi-round [n] numbering drift fixed; every marker runtime-validated."
+    icon={Server}
+  />
+</FeatureGrid>
+
+---
+
 ## Low-Level: Ingestion
 
 <ProjectArchitecture 
@@ -128,24 +183,45 @@ Key focus areas:
   chart={`sequenceDiagram
     participant UI as Web / CLI
     participant API as FastAPI
-    participant FS as Storage (B2)
-    participant Q as arq Worker
-    participant P as Pipeline (Extract/Embed)
-    participant PG as PostgreSQL
+    participant FS as Storage
+    participant Q as arq
+    participant P as Pipeline
+    participant PG as Postgres
 
-    UI->>API: POST /api/ingestion/upload
+    UI->>API: POST /ingestion/upload
     API->>FS: write raw file
-    API->>PG: documents + jobs (queued)
-    API->>Q: enqueue ingestion job (Redis)
+    API->>PG: documents + jobs
+    API->>Q: enqueue job (Redis)
     API-->>UI: document_id + job_id
-    UI->>API: GET /api/ingestion/jobs/{id} (poll status)
-    Q->>P: extract & chunk (Docling + Chonkie)
-    P->>P: embed vectors (Cohere embed-v3)
-    P->>PG: INSERT chunks (text + vector + tsv)
-    Q->>PG: update job status = done
+    UI->>API: GET /jobs/{id} (poll)
+    Q->>P: extract + chunk
+    P->>P: embed vectors
+    P->>PG: INSERT chunks
+    Q->>PG: job status = done
 
-    Note over Q,PG: chunks.embedding (pgvector 1024) is the authoritative index
-  `}>
+    Note over Q,PG: chunks.embedding (1024) is the index
+  `}
+  d2={`shape: sequence_diagram
+
+UI: "Web / CLI"
+API: "FastAPI"
+FS: "Storage"
+Q: "arq"
+P: "Pipeline"
+PG: "Postgres"
+
+UI -> API: "POST /ingestion/upload"
+API -> FS: "write raw file"
+API -> PG: "documents + jobs"
+API -> Q: "enqueue job (Redis)"
+API -> UI: "document_id + job_id"
+UI -> API: "GET /jobs/{id} (poll)"
+Q -> P: "extract + chunk"
+P -> P: "embed vectors"
+P -> PG: "INSERT chunks"
+Q -> PG: "job status = done"
+`}
+>
 ```tree
 Request path (sync)
 ├── POST /api/ingestion/upload → write B2 + insert documents/ingestion_jobs (queued) → enqueue arq → return {document_id, job_id}
@@ -163,44 +239,75 @@ Worker path (async, off HTTP)
 
 <ProjectArchitecture 
   title="Research Loop — AG-UI SSE + ReAct"
-  description="Product path is SSE (TanStack AI useChat). Legacy WS retained for wscat. Fixed stage vocabulary per docs/ux.md."
+  description="Product path is SSE (TanStack AI useChat). Legacy WS retained for wscat. Fixed stage vocabulary per docs/ux.md. Labels kept short so six lifelines stay legible — exact paths live in the breakdown below."
   chart={`sequenceDiagram
-    participant UI as Web (TanStack useChat)
-    participant API as POST /api/research/chat (SSE)
-    participant AG as Research Agent
-    participant MG as Model Gateway
-    participant RET as Retrieval pipeline
-    participant PG as PostgreSQL
+    participant UI as Web UI
+    participant API as API /chat
+    participant AG as Agent
+    participant MG as Gateway
+    participant RET as Retrieval
+    participant PG as Postgres
 
-    UI->>API: POST {"question": "...", "threadId": "..."}
-    API-->>UI: RUN_STARTED / TEXT_MESSAGE_START
+    UI->>API: POST /api/research/chat
+    API-->>UI: RUN_STARTED
     API->>PG: research_runs (running)
-    AG->>MG: ReAct · may call retrieve_evidence
-    AG->>RET: retrieve(query, workspace_id)
+    API->>PG: check daily budget
+    AG->>MG: ReAct loop
+    AG->>RET: retrieve(query)
     RET->>MG: HyDE expand
-    RET->>PG: PostgreSQL FTS (allowlist)
-    RET->>PG: pgvector dense ANN
-    RET->>RET: RRF merge + Cohere rerank
-    RET-->>AG: chunks + source_ref (citations attached)
+    RET->>PG: FTS allowlist
+    RET->>PG: dense ANN
+    RET->>RET: RRF + rerank
+    RET-->>AG: chunks + refs
     loop progress
-        API-->>UI: CUSTOM stage (Searching → Reviewing → Generating → Finalizing)
+        API-->>UI: CUSTOM stage
     end
-    AG->>MG: draft answer (synthesis route)
-    AG->>PG: persist citations + answer
+    AG->>MG: draft answer (streamed)
+    loop tokens
+        API-->>UI: CONTENT deltas
+    end
     API-->>UI: CUSTOM citations
-    API-->>UI: TEXT_MESSAGE_CONTENT (answer with [n])
-    API-->>UI: TEXT_MESSAGE_END / RUN_FINISHED
-  `}>
+    API-->>UI: END / FINISHED
+  `}
+  d2={`shape: sequence_diagram
+
+UI: "Web UI"
+API: "API /chat"
+AG: "Agent"
+MG: "Gateway"
+RET: "Retrieval"
+PG: "Postgres"
+
+UI -> API: "POST /api/research/chat"
+API -> UI: "RUN_STARTED"
+API -> PG: "research_runs (running)"
+API -> PG: "check daily budget"
+AG -> MG: "ReAct loop"
+AG -> RET: "retrieve(query)"
+RET -> MG: "HyDE expand"
+RET -> PG: "FTS allowlist"
+RET -> PG: "dense ANN"
+RET -> RET: "RRF + rerank"
+RET -> AG: "chunks + refs"
+API -> UI: "CUSTOM stage (progress)"
+AG -> MG: "draft answer (streamed)"
+API -> UI: "CONTENT deltas (tokens)"
+AG -> PG: "persist answer"
+API -> UI: "CUSTOM citations"
+API -> UI: "END / FINISHED"
+`}
+>
 ```tree
 Client (TanStack AI useChat)
 ├── POST /api/research/chat {question, threadId} — opens SSE (AG-UI)
-└── Renders stages + [n] markers → CUSTOM citations → final answer markdown
+├── Budget gate runs first (daily tokens per user; 429 BUDGET_EXCEEDED on exhaust)
+└── Renders stages + streaming [n] answer → CUSTOM citations → RUN_FINISHED
 
 Server — LangGraph StateGraph
-├── entry → planner (cheap model, 1-3 queries, fallback [question]) → researcher ⇄ loop (≤5)
-│   └── synthesize → END (per specs/research-pipeline.md)
-├── Researcher ReAct: thought → retrieve_evidence → observation (bounded by 60k tokens / 60s / 30s per-call)
-└── Budget caps: MAX_ITERATIONS=5, AGENT_TOKEN_BUDGET=60k, AGENT_RUN_TIMEOUT=60s
+├── entry → planner (versioned prompt, 1-3 queries, fallback [question]) → researcher ⇄ loop (≤5)
+│   └── synthesize → END, streaming deltas via callback (per specs/research-pipeline.md)
+├── Researcher ReAct: thought → retrieve_evidence (pydantic-validated args) → observation (bounded by 60k tokens / 60s / 30s per-call)
+└── Budget caps: MAX_ITERATIONS=5, AGENT_TOKEN_BUDGET=60k, AGENT_RUN_TIMEOUT=60s; breaker skips tripped providers
 
 Retrieval
 ├── HyDE via Model Gateway → hybrid dense+FTS (same Postgres table, RRF) → Cohere rerank-v3
@@ -241,14 +348,76 @@ Retrieval
         text answer
         string status
         int iterations
+        int token_count
     }
-  `}>
+  `}
+  d2={`users: {
+  shape: sql_table
+  id: uuid
+}
+
+workspaces: {
+  shape: sql_table
+  id: uuid
+  user_id: uuid
+}
+
+documents: {
+  shape: sql_table
+  id: uuid
+  source_type: string
+  storage_path: string
+  processing_status: string
+}
+
+ingestion_jobs: {
+  shape: sql_table
+  id: uuid
+  document_id: uuid
+  status: string
+}
+
+chunks: {
+  shape: sql_table
+  id: uuid
+  text: text
+  embedding: vector
+  tsv: tsvector
+  source_ref: string
+}
+
+research_runs: {
+  shape: sql_table
+  id: uuid
+  question: text
+  answer: text
+  status: string
+  iterations: int
+  token_count: int
+}
+
+citations: {
+  shape: sql_table
+  id: uuid
+  research_run_id: uuid
+  chunk_id: uuid
+}
+
+users -> workspaces: owns
+workspaces -> documents: contains
+documents -> ingestion_jobs: tracks
+documents -> chunks: splits_into
+workspaces -> research_runs: has
+research_runs -> citations: cites
+citations -> chunks: points_to
+`}
+>
 ```tree
 Postgres (Neon) — authoritative
-├── users / workspaces (workspace_id allowlist on every retrieval)
+├── users / workspaces (workspace_id allowlist on every retrieval; users.daily_token_budget, NULL = unlimited)
 ├── documents + ingestion_jobs (queued → extracting → chunking → embedding → done/failed)
 ├── chunks (text + embedding vector(1024) + tsv generated + GIN index + source_ref + document_id)
-└── research_runs + citations (answer + [n] → chunk_id FK, persisted before streaming)
+└── research_runs + citations (answer + [n] → chunk_id FK, persisted before streaming; token_count fully metered)
 ```
 </ProjectArchitecture>
 
@@ -278,7 +447,7 @@ Ingestion is N4 async by spec — upload must return in ms. `arq` with `rediss:/
 - **Bounded cost**: iteration/token/time caps + fixed stage vocab → predictable UX & spend
 
 ### Cons
-- **Single-node agent**: no Planner decomposition yet — multi-hop needs `specs/research-pipeline.md` planner node (cheap model, fallback `[question]`)
+- **Single-node agent**: planner decomposition shipped (cheap model, fallback `[question]`) — multi-hop reasoning beyond 5 iterations still needs the Critic loop
 - **No Critic loop**: deferred per PRD non-goals until golden dataset shows need
 - **Free-tier cold start**: one Render service sleeps on idle; no keep-warm cron
 
@@ -335,7 +504,7 @@ Ingestion is N4 async by spec — upload must return in ms. `arq` with `rediss:/
   <ApiEndpoint 
     method="POST" 
     path="/api/research/chat" 
-    description="Primary: AG-UI SSE stream — stages → answer with [n] → citations (TanStack AI useChat)." 
+    description="Primary: AG-UI SSE stream — stages → incremental answer deltas with [n] → citations (TanStack AI useChat)." 
   />
   <ApiEndpoint 
     method="WS" 
@@ -345,7 +514,17 @@ Ingestion is N4 async by spec — upload must return in ms. `arq` with `rediss:/
   <ApiEndpoint 
     method="GET" 
     path="/api/research/runs/{id}" 
-    description="Fetch completed run + citations." 
+    description="Fetch completed run + citations + token_count." 
+  />
+  <ApiEndpoint 
+    method="GET" 
+    path="/api/research/runs" 
+    description="List workspace runs, newest first (paginated)." 
+  />
+  <ApiEndpoint 
+    method="GET" 
+    path="/api/research/usage" 
+    description="Per-user token spend (today/month) vs daily budget — powers the /usage dashboard." 
   />
   <ApiEndpoint 
     method="GET" 
@@ -364,9 +543,12 @@ Ingestion is N4 async by spec — upload must return in ms. `arq` with `rediss:/
 ## Reliability & Observability
 
 <MetricsTable>
-  <MetricRow label="Tracing" value="Logfire spans per run" />
+  <MetricRow label="Tracing" value="Logfire spans per run + Langfuse generations stamped name@prompt-version" />
   <MetricRow label="Rate Limit" value="5 uploads / 20 chats per min" />
-  <MetricRow label="Timeouts" value="30s per-call / 60s wall" />
+  <MetricRow label="Timeouts" value="12s per-provider in-LLM / 30s gateway / 30s per-node / 60s wall" />
+  <MetricRow label="Circuit Breaker" value="5 fails / 30s → skip provider + 60s cooldown + half-open probe" />
+  <MetricRow label="Budgets" value="60k tokens per run; per-user daily budget → 429 BUDGET_EXCEEDED" />
+  <MetricRow label="CI" value="ruff + basedpyright + pytest + TS lint/typecheck + golden-set eval gates" />
   <MetricRow label="Backfill" value="scripts/backfill_embeddings.py (NULL vectors only, Cohere-guarded)" />
   <MetricRow label="Deployment" value="Single Render container: alembic → arq + uvicorn" />
 </MetricsTable>
@@ -379,6 +561,8 @@ Ingestion is N4 async by spec — upload must return in ms. `arq` with `rediss:/
 *   **One authoritative store beats two synced ones** — pgvector + tsv in Postgres removed an entire sync/rebuild class.
 *   **Bound the agent before improving it** — caps + fixed stage vocab made the MVP shippable; Critic/Planner wait on golden eval data (docs/specs/evaluation.md).
 *   **Gateway abstraction pays off** — Groq → OpenRouter swap is env-only; agent code never branches on provider.
+*   **Never trust model output** — pydantic-validate every LLM response; probabilistic output *will* eventually return malformed JSON, empty choices, or non-string tool args.
+*   **A fallback that can't fire isn't a fallback** — timeouts must live inside the provider client (where the retry loop runs), never in a `wait_for` around it.
 
 ---
 

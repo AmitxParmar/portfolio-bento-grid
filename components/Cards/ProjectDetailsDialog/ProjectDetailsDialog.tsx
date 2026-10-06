@@ -22,7 +22,7 @@ const ProjectDetailsDialog = ({ project, open, onOpenChange }: ProjectDetailsDia
         </DialogDescription>
         
         <ScrollArea className="h-full w-full max-w-full min-w-0 [&>div>div]:!block [&>div>div]:!min-w-0 [&>div>div]:!max-w-full overflow-hidden">
-          <div className="flex flex-col px-4 py-8 sm:px-6 sm:py-12 lg:px-12 w-full max-w-full min-w-0 overflow-hidden">
+          <div className="flex flex-col px-4 py-8 sm:px-6 sm:py-12 lg:px-12 w-full max-w-full min-w-0">
             <ProjectContent project={project} />
           </div>
         </ScrollArea>
