@@ -2,15 +2,22 @@ import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
 import os from "os";
+import staticD2Cache from "@/lib/d2-cache.json";
 
-const cache = new Map<string, string>();
+const memoryCache = new Map<string, string>();
+const staticCache = staticD2Cache as Record<string, string>;
 
-function getD2BinaryPath(): string {
+function getD2BinaryPath(): string | null {
   const localBin = path.join(os.homedir(), ".local", "bin", "d2");
   if (fs.existsSync(localBin)) {
     return localBin;
   }
-  return "d2";
+  try {
+    execSync("which d2", { stdio: "ignore" });
+    return "d2";
+  } catch {
+    return null;
+  }
 }
 
 export async function POST(req: Request) {
@@ -22,11 +29,23 @@ export async function POST(req: Request) {
     }
 
     const cacheKey = `${theme}:${chart.trim()}`;
-    if (cache.has(cacheKey)) {
-      return Response.json({ svg: cache.get(cacheKey) });
+    if (memoryCache.has(cacheKey)) {
+      return Response.json({ svg: memoryCache.get(cacheKey) });
+    }
+
+    if (staticCache[cacheKey]) {
+      memoryCache.set(cacheKey, staticCache[cacheKey]);
+      return Response.json({ svg: staticCache[cacheKey] });
     }
 
     const d2Path = getD2BinaryPath();
+    if (!d2Path) {
+      return Response.json(
+        { error: "D2 binary is not installed on this server environment." },
+        { status: 501 }
+      );
+    }
+
     const rawOutput = execSync(`"${d2Path}" --theme ${Number(theme) || 200} --pad 20 --no-xml-tag -`, {
       input: chart,
       encoding: "utf-8",
@@ -45,7 +64,7 @@ export async function POST(req: Request) {
     // Make outer diagram background transparent so it blends into portfolio cards
     svg = svg.replace(/<rect([^>]+)fill="#1E1E2E"([^>]+class="[^"]*fill-N7[^"]*"[^>]*)>/, '<rect$1fill="transparent"$2>');
 
-    cache.set(cacheKey, svg);
+    memoryCache.set(cacheKey, svg);
 
     return Response.json({ svg });
   } catch (err) {

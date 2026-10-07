@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
+import staticD2Cache from "@/lib/d2-cache.json";
 
 interface D2DiagramProps {
   chart: string;
@@ -14,6 +15,7 @@ interface D2DiagramProps {
 
 // Module-level client cache to prevent refetching identical diagrams
 const clientSvgCache = new Map<string, string>();
+const staticCache = staticD2Cache as Record<string, string>;
 
 /**
  * Robustly extract intrinsic width and height from SVG element.
@@ -64,8 +66,8 @@ export const D2Diagram = ({
 }: D2DiagramProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const cacheKey = `${theme}:${chart.trim()}`;
-  const [svg, setSvg] = useState<string>(() => clientSvgCache.get(cacheKey) || "");
-  const [loading, setLoading] = useState<boolean>(!svg);
+  const [svg, setSvg] = useState<string>(() => clientSvgCache.get(cacheKey) || staticCache[cacheKey] || "");
+  const [loading, setLoading] = useState<boolean>(() => !clientSvgCache.get(cacheKey) && !staticCache[cacheKey]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -74,6 +76,15 @@ export const D2Diagram = ({
 
     if (clientSvgCache.has(currentKey)) {
       setSvg(clientSvgCache.get(currentKey)!);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
+    if (staticCache[currentKey]) {
+      const cached = staticCache[currentKey];
+      clientSvgCache.set(currentKey, cached);
+      setSvg(cached);
       setLoading(false);
       setError(null);
       return;

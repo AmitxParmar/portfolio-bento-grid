@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/compile-d2.mjs",
     "build": "next build",
+    "compile:d2": "node scripts/compile-d2.mjs",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
