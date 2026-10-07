@@ -18,7 +18,74 @@ function getD2BinaryPath() {
   }
 }
 
-function extractD2Charts() {
+function normalizeChart(str) {
+  if (!str || typeof str !== "string") return "";
+  return str
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join("\n");
+}
+
+async function extractFromCompiledProjects() {
+  const generatedPath = path.join(process.cwd(), ".content-collections", "generated", "allProjects.js");
+  if (!fs.existsSync(generatedPath)) return [];
+
+  const icons = [
+    "Cpu","Database","Server","Share2","Activity","MessageSquare","ExternalLink","Github",
+    "Calendar","CheckCircle2","Layout","Shield","Info","ChevronRight","Box","Network",
+    "FileText","Workflow","Terminal"
+  ];
+  icons.forEach((name) => { globalThis[name] = () => null; });
+
+  const captured = new Set();
+  const mockJsx = {
+    jsx: (type, props) => {
+      if (props && props.d2) captured.add(props.d2);
+      if (typeof type === "function") return type(props);
+      return null;
+    },
+    jsxs: (type, props) => {
+      if (props && props.d2) captured.add(props.d2);
+      if (typeof type === "function") return type(props);
+      return null;
+    },
+    Fragment: Symbol("Fragment")
+  };
+
+  const dummy = (props) => {
+    if (props && props.d2) captured.add(props.d2);
+    return null;
+  };
+
+  const componentNames = [
+    "ProjectArchitecture","ProjectHero","InfoGrid","InfoCard","ProjectStat","ArchitectureHeader",
+    "ArchitectureImage","p","pre","ArchitectureDialog","Grid","Step","OutcomeCard","FeatureGrid",
+    "FeatureCard","ChallengeCard","ApiDialog","ApiEndpoint","EventFlow","EventStep","MetricsTable",
+    "MetricRow","ProjectTree","TechBadge","TechStack","Callout","Timeline","ImageGallery","GalleryItem",
+    "Badge","Button","InteractiveCanvas","RoleList","RoleItem","WorkflowList","WorkflowItem","SectionHeader"
+  ];
+  const components = {};
+  for (const name of componentNames) components[name] = dummy;
+
+  try {
+    // Dynamic import generated file
+    const generatedUrl = new URL(`file://${generatedPath}`).href;
+    const { default: projects } = await import(generatedUrl);
+    for (const p of projects) {
+      if (!p.mdx) continue;
+      const mod = new Function("_jsx_runtime", p.mdx)(mockJsx);
+      mod.default({ components });
+    }
+  } catch (err) {
+    console.warn("[compile-d2] Note: could not extract directly from compiled projects:", err.message);
+  }
+
+  return Array.from(captured);
+}
+
+function extractFromRawMdx() {
   const contentDir = path.join(process.cwd(), "content");
   if (!fs.existsSync(contentDir)) return [];
 
@@ -49,7 +116,7 @@ function extractD2Charts() {
   return Array.from(charts);
 }
 
-function main() {
+async function main() {
   let existingCache = {};
   if (fs.existsSync(CACHE_FILE)) {
     try {
@@ -60,49 +127,63 @@ function main() {
   }
 
   const d2Path = getD2BinaryPath();
-  const charts = extractD2Charts();
-  console.log(`[compile-d2] Found ${charts.length} unique D2 charts across content files.`);
+  const runtimeCharts = await extractFromCompiledProjects();
+  const rawCharts = extractFromRawMdx();
+
+  const allCharts = new Set([...runtimeCharts, ...rawCharts]);
+  console.log(`[compile-d2] Found ${allCharts.size} charts (runtime: ${runtimeCharts.length}, raw: ${rawCharts.length}).`);
 
   if (!d2Path) {
-    console.warn("[compile-d2] Warning: d2 binary not found. Using existing cached SVGs if available.");
+    console.warn("[compile-d2] Warning: d2 binary not found. Using existing cached SVGs.");
     return;
   }
 
   let updatedCount = 0;
-  for (const chart of charts) {
+  for (const chart of allCharts) {
     const theme = 200;
-    const cacheKey = `${theme}:${chart}`;
-    if (existingCache[cacheKey]) {
-      continue;
+    const trimmed = chart.trim();
+    const normalized = normalizeChart(trimmed);
+
+    const keyExact = `${theme}:${trimmed}`;
+    const keyNorm = `${theme}:${normalized}`;
+    const keyPlainNorm = normalized;
+
+    let svg = existingCache[keyExact] || existingCache[keyNorm] || existingCache[keyPlainNorm];
+
+    if (!svg) {
+      try {
+        const rawOutput = execSync(`"${d2Path}" --theme ${theme} --pad 20 --no-xml-tag -`, {
+          input: trimmed,
+          encoding: "utf-8",
+          maxBuffer: 10 * 1024 * 1024,
+          timeout: 10000,
+        });
+
+        const svgStart = rawOutput.indexOf("<svg");
+        const svgEnd = rawOutput.lastIndexOf("</svg>");
+        if (svgStart !== -1 && svgEnd !== -1) {
+          svg = rawOutput.slice(svgStart, svgEnd + 6);
+          svg = svg.replace(
+            /<rect([^>]+)fill="#1E1E2E"([^>]+class="[^"]*fill-N7[^"]*"[^>]*)>/,
+            '<rect$1fill="transparent"$2>'
+          );
+          updatedCount++;
+        }
+      } catch (err) {
+        console.error(`[compile-d2] Failed to compile chart:`, err.message);
+      }
     }
 
-    try {
-      const rawOutput = execSync(`"${d2Path}" --theme ${theme} --pad 20 --no-xml-tag -`, {
-        input: chart,
-        encoding: "utf-8",
-        maxBuffer: 10 * 1024 * 1024,
-        timeout: 10000,
-      });
-
-      const svgStart = rawOutput.indexOf("<svg");
-      const svgEnd = rawOutput.lastIndexOf("</svg>");
-      if (svgStart !== -1 && svgEnd !== -1) {
-        let svg = rawOutput.slice(svgStart, svgEnd + 6);
-        svg = svg.replace(
-          /<rect([^>]+)fill="#1E1E2E"([^>]+class="[^"]*fill-N7[^"]*"[^>]*)>/,
-          '<rect$1fill="transparent"$2>'
-        );
-        existingCache[cacheKey] = svg;
-        updatedCount++;
-      }
-    } catch (err) {
-      console.error(`[compile-d2] Failed to compile chart:`, err.message);
+    if (svg) {
+      existingCache[keyExact] = svg;
+      existingCache[keyNorm] = svg;
+      existingCache[keyPlainNorm] = svg;
     }
   }
 
   fs.mkdirSync(path.dirname(CACHE_FILE), { recursive: true });
   fs.writeFileSync(CACHE_FILE, JSON.stringify(existingCache, null, 2), "utf-8");
-  console.log(`[compile-d2] Cache saved to lib/d2-cache.json (${Object.keys(existingCache).length} total, ${updatedCount} newly compiled).`);
+  console.log(`[compile-d2] Cache updated at lib/d2-cache.json (${Object.keys(existingCache).length} keys, ${updatedCount} newly compiled).`);
 }
 
 main();

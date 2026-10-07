@@ -79,7 +79,13 @@ const ViewerContent = ({ chart, d2, engine, showLegend }: ArchitectureViewerProp
 
       <div className="w-full max-w-full min-w-0 overflow-x-auto p-4 md:p-6 pb-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-iconBg">
         {currentEngine === "d2" && activeChart ? (
-          <D2Diagram chart={activeChart} mode="card" />
+          <D2Diagram
+            chart={activeChart}
+            mode="card"
+            onError={() => {
+              if (chart) setCurrentEngine("mermaid");
+            }}
+          />
         ) : activeChart ? (
           <MermaidDiagram chart={activeChart} mode="card" />
         ) : null}
@@ -194,7 +200,13 @@ const ViewerContent = ({ chart, d2, engine, showLegend }: ArchitectureViewerProp
               }}
             >
               {currentEngine === "d2" && activeChart ? (
-                <D2Diagram chart={activeChart} mode="modal" />
+                <D2Diagram
+                  chart={activeChart}
+                  mode="modal"
+                  onError={() => {
+                    if (chart) setCurrentEngine("mermaid");
+                  }}
+                />
               ) : activeChart ? (
                 <MermaidDiagram chart={activeChart} mode="modal" />
               ) : null}

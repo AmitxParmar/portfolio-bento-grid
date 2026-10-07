@@ -20,6 +20,16 @@ function getD2BinaryPath(): string | null {
   }
 }
 
+function normalizeChart(str: string): string {
+  if (!str) return "";
+  return str
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join("\n");
+}
+
 export async function POST(req: Request) {
   try {
     const { chart, theme = 200 } = await req.json();
@@ -28,14 +38,24 @@ export async function POST(req: Request) {
       return Response.json({ error: "Missing or invalid chart string" }, { status: 400 });
     }
 
-    const cacheKey = `${theme}:${chart.trim()}`;
-    if (memoryCache.has(cacheKey)) {
-      return Response.json({ svg: memoryCache.get(cacheKey) });
-    }
+    const trimmed = chart.trim();
+    const normalized = normalizeChart(trimmed);
 
-    if (staticCache[cacheKey]) {
-      memoryCache.set(cacheKey, staticCache[cacheKey]);
-      return Response.json({ svg: staticCache[cacheKey] });
+    const exactKey = `${theme}:${trimmed}`;
+    const normKey = `${theme}:${normalized}`;
+    const plainNorm = normalized;
+
+    const cached =
+      memoryCache.get(exactKey) ||
+      memoryCache.get(normKey) ||
+      memoryCache.get(plainNorm) ||
+      staticCache[exactKey] ||
+      staticCache[normKey] ||
+      staticCache[plainNorm];
+
+    if (cached) {
+      memoryCache.set(exactKey, cached);
+      return Response.json({ svg: cached });
     }
 
     const d2Path = getD2BinaryPath();
@@ -64,7 +84,8 @@ export async function POST(req: Request) {
     // Make outer diagram background transparent so it blends into portfolio cards
     svg = svg.replace(/<rect([^>]+)fill="#1E1E2E"([^>]+class="[^"]*fill-N7[^"]*"[^>]*)>/, '<rect$1fill="transparent"$2>');
 
-    memoryCache.set(cacheKey, svg);
+    memoryCache.set(exactKey, svg);
+    memoryCache.set(normKey, svg);
 
     return Response.json({ svg });
   } catch (err) {

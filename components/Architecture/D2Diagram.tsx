@@ -11,11 +11,40 @@ interface D2DiagramProps {
   maxWidth?: number;
   mode?: "card" | "modal";
   theme?: number;
+  onError?: (err: string) => void;
 }
 
 // Module-level client cache to prevent refetching identical diagrams
 const clientSvgCache = new Map<string, string>();
 const staticCache = staticD2Cache as Record<string, string>;
+
+function normalizeChart(str: string): string {
+  if (!str) return "";
+  return str
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join("\n");
+}
+
+function getCachedSvg(chart: string, theme: number): string | undefined {
+  const trimmed = chart.trim();
+  const normalized = normalizeChart(trimmed);
+
+  const exactKey = `${theme}:${trimmed}`;
+  const normKey = `${theme}:${normalized}`;
+  const plainNorm = normalized;
+
+  return (
+    clientSvgCache.get(exactKey) ||
+    clientSvgCache.get(normKey) ||
+    clientSvgCache.get(plainNorm) ||
+    staticCache[exactKey] ||
+    staticCache[normKey] ||
+    staticCache[plainNorm]
+  );
+}
 
 /**
  * Robustly extract intrinsic width and height from SVG element.
@@ -63,28 +92,22 @@ export const D2Diagram = ({
   maxWidth,
   mode = "card",
   theme = 200,
+  onError,
 }: D2DiagramProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const cacheKey = `${theme}:${chart.trim()}`;
-  const [svg, setSvg] = useState<string>(() => clientSvgCache.get(cacheKey) || staticCache[cacheKey] || "");
-  const [loading, setLoading] = useState<boolean>(() => !clientSvgCache.get(cacheKey) && !staticCache[cacheKey]);
+  const initialSvg = getCachedSvg(chart, theme) || "";
+  const [svg, setSvg] = useState<string>(initialSvg);
+  const [loading, setLoading] = useState<boolean>(!initialSvg);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     const currentKey = `${theme}:${chart.trim()}`;
+    const cachedSvg = getCachedSvg(chart, theme);
 
-    if (clientSvgCache.has(currentKey)) {
-      setSvg(clientSvgCache.get(currentKey)!);
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
-    if (staticCache[currentKey]) {
-      const cached = staticCache[currentKey];
-      clientSvgCache.set(currentKey, cached);
-      setSvg(cached);
+    if (cachedSvg) {
+      clientSvgCache.set(currentKey, cachedSvg);
+      setSvg(cachedSvg);
       setLoading(false);
       setError(null);
       return;
@@ -118,8 +141,10 @@ export const D2Diagram = ({
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to compile D2 diagram");
+          const errMsg = err instanceof Error ? err.message : "Failed to compile D2 diagram";
+          setError(errMsg);
           setSvg("");
+          onError?.(errMsg);
         }
       } finally {
         if (!cancelled) {
@@ -133,7 +158,7 @@ export const D2Diagram = ({
     return () => {
       cancelled = true;
     };
-  }, [chart, theme]);
+  }, [chart, theme, onError]);
 
   // Adjust SVG element styles after rendering into DOM
   useEffect(() => {
