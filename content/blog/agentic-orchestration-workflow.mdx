@@ -1,0 +1,171 @@
+---
+title: "How I Use AI Tools: Visual Architecture First, Living Docs, and Agentic Orchestration"
+description: "A deep dive into my development workflow: generating high-level visual diagrams first with visual skills before touching code, enforcing living docs, and orchestrating specialized agents."
+date: "2026-10-10"
+tags: ["AI Engineering", "Architecture", "Agentic Workflows", "System Design", "DevEx"]
+featured: true
+published: true
+author:
+  name: "Amit Parmar"
+  role: "Full-stack & AI Systems Engineer"
+  avatar: "/profile-pic.jpg"
+---
+
+<Callout type="info">
+  **TL;DR — The Orchestrated Workflow Pipeline:**
+
+  **1. Plan Ideas & Scope** (Determine what to build, feature requirements, and system boundaries)  
+  → **2. Generate Visual Diagrams First** (Translate ideas into Mermaid, D2, or interactive HTML maps via `Archify` & `Visual-Explainer`)  
+  → **3. Generate Living Documentation** (Lock down `PRD.md`, `ARCHITECTURE.md`, `API-SPECS.md`, Architecture Decision Records (ADRs), `README.md`, and `AGENTS.md`)  
+  → **4. Route to Specialized Skills** (Delegate implementation to isolated Backend, Performance, Frontend, and UI/UX skill layers)  
+  → **5. Guarded Execution & Forensic Debugging** (Execute safe refactoring, contract-pinned tests, and trace-driven fixes)  
+  → **6. Adversarial Code Review & CI Gates** (Scan PRs for edge cases, missing types, security gaps, and test coverage)  
+  → **7. Continuous Feedback Loop** (Keep living docs, diagrams, and codebase in continuous sync via AST knowledge graphs like `graphify`)
+</Callout>
+
+Modern software development is undergoing a massive shift from manual, line-by-line coding to agent-driven orchestration. 
+
+Most developers still interact with AI as an accelerated auto-complete engine—asking chat windows to generate isolated functions or letting copilot guess the next ten lines of code. When building complex distributed systems, event-driven backends, or stateful clients, that "prompt-and-pray" approach quickly collapses into architectural chaos: unhandled edge cases, subtle race conditions, broken schema contracts, and endless context drift.
+
+In my workflow, **I do not use AI for auto-complete.** 
+
+Instead, I orchestrate AI as a coordinated team of specialized agents operating under strict architectural constraints. And before anyone—human or AI—writes a single line of code, **I start by generating high-level diagrams first using specialized visual skills**.
+
+Here is the exact framework I use to design, write, and verify production-grade systems.
+
+---
+
+## 1. Visual Architecture First (Archify and Visual-Explainer)
+
+Code is an implementation detail; topology dictates whether a system survives production. 
+
+Whenever I begin a new feature or system design, I never open an editor to start coding immediately. I start by feeding requirements into my visual skills to map out system boundaries, service relationships, and data flows. Generating visual models upfront forces clarity: it exposes hidden coupling, circular dependencies, and edge cases before they become expensive refactoring headaches.
+
+I rely on two core visual skills in this initial phase:
+
+* **Archify**: Translates technical requirements, functional specs, and business rules into high-level architecture maps and data flows. It visualizes service boundaries, message queues, datastore partitions, and external dependencies so the entire topology is crystal clear.
+* **Visual-Explainer**: Breaks down complex logic into step-by-step visual mental models before anyone touches code. Whether it is an asynchronous event saga rollback, an optimistic UI state machine, or a token bucket rate limiter, Visual-Explainer diagrams the lifecycle states and transitions first.
+
+I connect these visual skills directly to declarative diagram tools like **D2** and **Mermaid**. This produces version-controlled, rendered diagrams that both human engineers and coding agents can reference as an immutable ground truth.
+
+Below is an interactive look at this visual-first philosophy in action—the end-to-end topology of my **Agentic Research Workspace**, mapping the async ingestion pipeline, hybrid retrieval system (pgvector + full-text search), and bounded LangGraph ReAct agent loop:
+
+<InteractiveCanvas
+  src="/embeds/diagrams/agentic-workspace-architecture.html"
+  title="Multi-Agent RAG Orchestration & Knowledge Graph"
+  badge="Interactive Topology"
+  description="Explore the end-to-end architecture: async document ingestion, hybrid retrieval (pgvector + PostgreSQL FTS + Cohere Rerank), LangGraph ReAct agent loop, and LiteLLM gateway."
+/>
+
+---
+
+## 2. The Living Documentation System
+
+Once the visual architecture is locked in, I establish the guardrails. AI agents do not fail because they don't know syntax; they fail because they lack architectural context.
+
+To keep agents strictly aligned, I maintain a **Living Documentation System** composed of foundational documents committed directly to the repository:
+
+| Document | Purpose | What It Enforces |
+| :--- | :--- | :--- |
+| **`AGENTS.md`** | Agent Operating Manual | Sets explicit behavior boundaries, forbidden patterns, strict typing rules, and tech stack constraints for coding agents. |
+| **`ARCHITECTURE.md`** | System Topology & State Patterns | Captures system topology, service communication protocols, caching tiers, and persistence patterns. |
+| **`PRD.md`** | Product Requirements Document | Defines feature scope, user flows, non-functional requirements, and strict acceptance criteria. |
+| **`API-SPECS.md`** | Interface Contracts | Locks down endpoint contracts, schemas, HTTP status codes, and event payloads before implementation begins. |
+| **`ADR.md`** | Architectural Decision Records | Chronicles technical trade-offs, discarded alternatives, and non-negotiable architectural rationales. |
+| **`README.md`** | System Overview & Runbook | Maintains quickstart setup, environmental invariants, operational scripts, and deployment verification commands. |
+
+When I dispatch an agent on a task, it does not scan the entire codebase blindly. It consults these living documents first. If a proposed change violates `API-SPECS.md` or introduces an unapproved dependency contrary to `AGENTS.md`, the plan is rejected immediately.
+
+---
+
+## 3. Specialized Skills: Modular Domain Expertise
+
+Rather than using a single monolithic prompt for every engineering problem, I route tasks to **Specialized Skill Files**. Each skill acts as a dedicated domain expert loaded with specialized guidelines, linting rules, and best practices:
+
+* **Backend Skill**: Enforces relational integrity, idempotency, and clean modular domain boundaries across microservices.
+* **Performance Skill**: Audits database query plans, reduces bundle sizes, and eliminates unnecessary re-renders.
+* **Frontend Skill**: Structures reusable component composition and keeps server and client state cleanly separated.
+* **UI/UX Skill**: Polishes spacing, micro-interactions, responsive typography, and design system tokens.
+
+By scoping the agent's context to a specific skill, the AI focuses entirely on domain-specific invariants—such as checking database query execution plans or verifying accessible keyboard navigation—without diluting its attention across unrelated concerns.
+
+---
+
+## 4. Everyday Use Cases and Workflows
+
+This orchestrated approach directly transforms how I tackle day-to-day development challenges:
+
+### Safe Refactoring
+Structural changes in complex codebases usually carry high regression risks. In my workflow:
+1. The agent reads `API-SPECS.md` and generates integration tests that pin existing contracts.
+2. The agent executes the refactoring within the defined architectural boundaries.
+3. Automated AST checks verify that public interfaces, export signatures, and return schemas remain completely intact.
+
+### Targeted Debugging
+Instead of dumping walls of logs into an LLM and hoping for a guess, I employ a forensic workflow:
+- The agent extracts stack traces and cross-references them against the visual flow in `ARCHITECTURE.md`.
+- It pinpoints the exact service boundary or state transition where failure occurred.
+- A failing regression test is synthesized first; the fix is only accepted when that test passes without modifying unrelated modules.
+
+### Automated Code Review
+Before any pull request reaches review, an adversarial review agent evaluates the code against our living docs:
+- Flags missing edge cases (e.g., unhandled message broker disconnections).
+- Spots untyped variables or loose type assertions.
+- Identifies potential security gaps, unindexed database queries, or missing input validations.
+
+---
+
+## 5. Real-World Case Studies from My Projects
+
+Here is how this exact workflow prevented critical failures across my own portfolio projects:
+
+### Case 1: Catching Distributed Saga Dual-Writes in ModularMart
+In **ModularMart** (my event-driven microservices e-commerce platform), checkout events trigger choreographed sagas across payment and inventory services via RabbitMQ. 
+
+During an agent-assisted refactor of the checkout pipeline, the **Backend Skill** evaluated the proposed change against `ARCHITECTURE.md` and flagged a classic dual-write vulnerability: the database commit was occurring before the message broker acknowledged the publication. 
+
+Because the agent was bound to our architectural rules, it introduced a Transactional Outbox pattern and an idempotent `processed_messages` deduplication guard before writing service code—catching a distributed data consistency bug that would have been a nightmare to trace in production.
+
+### Case 2: Eliminating Keyset Race Conditions in QuickChat
+In **QuickChat** (my real-time messaging platform engineered for sub-100ms latency), messages are stored offline in Dexie.js (IndexedDB) and synchronized over Socket.io.
+
+When designing the offline catch-up flow, **Visual-Explainer** diagrammed the sequence of incoming live WebSocket messages arriving simultaneously with historical catch-up queries. 
+
+The visual model immediately revealed a race condition where stale historical packets could overwrite fresh incoming messages. That visual insight prompted us to lock down a strict `last_synced_seq` keyset cursor and client-side timestamp deduplication upfront, ensuring zero message duplication upon reconnect.
+
+### Case 3: Bounding Token Loops in the Agentic Research Workspace
+While building the **Agentic Research Workspace** with LangGraph, research agents running ReAct loops can easily enter recursive cycles when queries are underspecified. 
+
+By defining strict runtime budgets ($\le 5$ iterations, 60s wall timeout, 60k token hard cap) and integrating circuit breakers via LiteLLM directly in `AGENTS.md`, we eliminated runaway loops and guaranteed predictable inference costs.
+
+---
+
+## 6. The Feedback Loop and Safety Guardrails
+
+A major risk in any documentation-driven architecture is **documentation drift**—the code moves forward, but markdown files rot.
+
+I prevent this by maintaining an automated **Feedback Loop**:
+- Knowledge graphs (via tools like `graphify`) continuously monitor AST changes, dependencies, and file relationships.
+- When pull requests introduce approved schema or API changes, automated hooks update `ARCHITECTURE.md` and `API-SPECS.md` in lockstep.
+- Code and documentation remain continuously synchronized.
+
+### Non-Negotiable Human Safety Guardrails
+
+While AI agents accelerate design and implementation, **human judgment remains the final release authority**:
+
+1. **Strict Type-Checking**: Every build must pass compile-time checks (`tsc --noEmit`) with zero warnings or bypassed types.
+2. **Automated CI Gates**: Unit, integration, and contract tests run inside isolated test environments on every commit.
+3. **Manual Human Sanity Verification**: I personally inspect visual interactions, layout responsiveness, and edge-case behavior before merging to `main`.
+
+---
+
+## Takeaways and Conclusion
+
+When developers treat AI as an auto-complete replacement, they get faster typing. When you treat AI as specialized team members orchestrated around visual architecture and living documentation, you get **higher engineering leverage**:
+
+* **Visual Architecture First** guarantees that system boundaries, message flows, and failure modes are understood before implementation.
+* **Living Documentation** transforms tribal knowledge into unambiguous, machine-readable contracts.
+* **Specialized Skills** ensure domain rigor across backends, performance tuning, and client interfaces.
+* **Automated Feedback Loops & Human Guardrails** ensure that speed never compromises architectural integrity.
+
+By stepping into the role of an architect and orchestrator rather than a passive code prompter, you can deliver resilient systems with remarkable speed and confidence.

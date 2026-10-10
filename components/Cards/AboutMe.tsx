@@ -11,7 +11,6 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { Badge } from "../ui/badge";
-import Image from "next/image";
 import { motion } from "motion/react";
 
 const AboutMe = () => {
@@ -21,15 +20,10 @@ const AboutMe = () => {
         {/* Profile Header */}
         <div className="flex flex-col sm:flex-row gap-3.5 items-center sm:items-start text-center sm:text-left relative z-10">
           <div className="relative group/avatar shrink-0">
-            <div className="relative rounded-2xl border border-white/10 overflow-hidden shadow-2xl transition-transform duration-300 group-hover/avatar:scale-[1.02]">
-              <Image
-                src="/profile-pic.jpg"
-                className="aspect-square size-16 sm:size-18 object-cover"
-                height={72}
-                width={72}
-                alt="Amit Parmar"
-                priority
-              />
+            <div className="relative rounded-2xl border border-white/10 overflow-hidden shadow-2xl transition-transform duration-300 group-hover/avatar:scale-[1.02] size-16 sm:size-18 bg-linear-to-br from-primary/20 via-zinc-900 to-zinc-950 flex items-center justify-center">
+              <span className="text-xl sm:text-2xl font-bold font-mono tracking-tight text-primary">
+                AP
+              </span>
             </div>
             {/* Live Availability indicator */}
             <div className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center">
@@ -45,7 +39,7 @@ const AboutMe = () => {
                 Available To Build
               </span>
               <a
-                href="/amitxparmar@github.pdf"
+                href="/FDE-AI-FSD-Amit_Parmar.pdf"
                 download
                 className="inline-flex items-center gap-1 text-[9px] font-mono font-medium uppercase tracking-tight text-zinc-400 hover:text-white transition-colors duration-150"
               >
@@ -58,7 +52,7 @@ const AboutMe = () => {
               Amit Parmar
             </h2>
             <p className="text-[11px] text-zinc-400 font-normal leading-relaxed mt-0.5 text-pretty">
-              Full-stack Software Engineer crafting distributed backends, resilient event systems, and refined client experiences.
+              Full-stack & AI Systems Engineer crafting event-driven microservices, real-time messaging, and multi-agent RAG architectures.
             </p>
           </div>
         </div>
@@ -83,7 +77,7 @@ const AboutMe = () => {
         {/* Professional Bio */}
         <div className="relative z-10">
           <p className="text-[11px] text-zinc-400 leading-relaxed font-normal">
-            Specializing in event-driven microservices, transactional outbox patterns, and high-performance APIs. Focused on strict type safety, zero-downtime scalability, and meticulous UI craftsmanship.
+            Architecting across three core domains: resilient event-driven microservices with transactional outbox sagas (ModularMart), sub-100ms real-time chat with local-first sync (QuickChat), and citation-grounded multi-agent RAG engines with hybrid search (Agentic Workspace).
           </p>
         </div>
 

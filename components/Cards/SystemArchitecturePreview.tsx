@@ -45,12 +45,12 @@ const NODES: ServiceNode[] = [
   {
     id: "services",
     name: "Microservices",
-    protocol: "gRPC",
+    protocol: "HTTP/2 REST",
     resilience: "Circuit Breakers",
     icon: Layers,
     accent: "text-purple-400",
     badge: "Mesh",
-    description: "Strict protobuf contracts, exponential backoff & fail-safe fallbacks",
+    description: "Strict OpenAPI contracts, exponential backoff & fail-safe fallbacks",
   },
   {
     id: "database",
@@ -60,7 +60,7 @@ const NODES: ServiceNode[] = [
     icon: Database,
     accent: "text-indigo-400",
     badge: "Data",
-    description: "Connection pooling, WAL replication & ACID transactions",
+    description: "Connection pooling, Read replicas & ACID transactions",
   },
 ];
 

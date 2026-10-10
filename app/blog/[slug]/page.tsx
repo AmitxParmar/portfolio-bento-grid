@@ -98,13 +98,17 @@ export default async function BlogPostPage({ params }: Readonly<BlogPostPageProp
 
           <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-white/5">
             <div className="flex items-center gap-3">
-              <div className="relative size-10 rounded-full overflow-hidden border border-white/10">
-                <Image
-                  src={post.author?.avatar || "/profile-pic.jpg"}
-                  alt={post.author?.name || "Author"}
-                  fill
-                  className="object-cover"
-                />
+              <div className="relative size-10 rounded-full overflow-hidden border border-white/10 bg-linear-to-br from-primary/20 to-zinc-900 flex items-center justify-center shrink-0">
+                {post.author?.avatar && post.author.avatar !== "/profile-pic.jpg" ? (
+                  <Image
+                    src={post.author.avatar}
+                    alt={post.author?.name || "Author"}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <span className="text-xs font-bold font-mono text-primary">AP</span>
+                )}
               </div>
               <div>
                 <h4 className="text-sm font-bold text-white leading-none">
@@ -139,13 +143,17 @@ export default async function BlogPostPage({ params }: Readonly<BlogPostPageProp
         <footer className="mt-20 pt-12 border-t border-white/5 space-y-12">
           {/* Author Box */}
           <div className="rounded-3xl border border-white/5 bg-white/[0.02] p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-5">
-            <div className="relative size-16 rounded-2xl overflow-hidden border border-white/10 shrink-0">
-              <Image
-                src={post.author?.avatar || "/profile-pic.jpg"}
-                alt="Amit Parmar"
-                fill
-                className="object-cover"
-              />
+            <div className="relative size-16 rounded-2xl overflow-hidden border border-white/10 shrink-0 bg-linear-to-br from-primary/20 via-zinc-900 to-zinc-950 flex items-center justify-center">
+              {post.author?.avatar && post.author.avatar !== "/profile-pic.jpg" ? (
+                <Image
+                  src={post.author.avatar}
+                  alt="Amit Parmar"
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <span className="text-xl font-bold font-mono text-primary">AP</span>
+              )}
             </div>
             <div className="space-y-2 text-center sm:text-left flex-1">
               <h4 className="text-lg font-bold text-white">Written by Amit Parmar</h4>

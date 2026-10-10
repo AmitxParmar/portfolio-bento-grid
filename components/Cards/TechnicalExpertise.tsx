@@ -7,13 +7,13 @@ const CAPABILITIES = [
     title: "Distributed Systems",
     icon: Server,
     accent: "text-emerald-400",
-    tags: ["Outbox", "RabbitMQ", "gRPC", "Circuit Breaker"],
+    tags: ["Outbox", "RabbitMQ", "WebSockets", "Circuit Breaker"],
   },
   {
     title: "Data & Storage",
     icon: Database,
     accent: "text-amber-400",
-    tags: ["PostgreSQL", "Neon Pool", "Redis Cache", "WAL Sync"],
+    tags: ["PostgreSQL", "Neon Pool", "Redis Cache", "pgvector"],
   },
   {
     title: "Cloud & Reliability",
@@ -25,7 +25,7 @@ const CAPABILITIES = [
     title: "Client Systems",
     icon: Code2,
     accent: "text-indigo-400",
-    tags: ["Next.js RSC", "TypeScript", "Tailwind v4", "GPU Motion"],
+    tags: ["Next.js RSC", "TypeScript", "Tailwind v4", "Motion / UI"],
   },
 ];
 

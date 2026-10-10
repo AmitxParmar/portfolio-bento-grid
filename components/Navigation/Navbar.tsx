@@ -77,7 +77,7 @@ export default function Navbar() {
         {/* Quick actions */}
         <div className="flex items-center gap-1.5 pl-1.5 sm:pl-2 border-l border-white/10">
           <a
-            href="/amitxparmar@github.pdf"
+            href="/FDE-AI-FSD-Amit_Parmar.pdf"
             download
             className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-white/5 border border-white/10 text-white/90 hover:bg-primary hover:border-primary hover:text-white transition-all group"
             title="Download Resume"

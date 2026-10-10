@@ -73,13 +73,17 @@ export default function BlogCard({ post, featured = false }: Readonly<BlogCardPr
       {/* Footer Author & CTA */}
       <div className="relative z-10 mt-6 pt-6 border-t border-white/5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="relative size-8 rounded-full overflow-hidden border border-white/10">
-            <Image
-              src={post.author?.avatar || "/profile-pic.jpg"}
-              alt={post.author?.name || "Author"}
-              fill
-              className="object-cover"
-            />
+          <div className="relative size-8 rounded-full overflow-hidden border border-white/10 bg-linear-to-br from-primary/20 to-zinc-900 flex items-center justify-center shrink-0">
+            {post.author?.avatar && post.author.avatar !== "/profile-pic.jpg" ? (
+              <Image
+                src={post.author.avatar}
+                alt={post.author?.name || "Author"}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <span className="text-[10px] font-bold font-mono text-primary">AP</span>
+            )}
           </div>
           <div className="flex flex-col">
             <span className="text-xs font-bold text-white leading-none">
