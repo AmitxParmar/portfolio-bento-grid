@@ -1,4 +1,4 @@
-﻿---
+---
 title: HireCrowd
 description: MERN job portal pairing an animated marketing landing with two complete product surfaces — a virtualized job feed for candidates and a recruiter ATS for hiring teams.
 featured: true
@@ -50,6 +50,27 @@ cover: /projects/job-portal/index.png
   <InfoCard title="Auth" value="JWT + RBAC" icon={Shield} />
   <InfoCard title="API Docs" value="Swagger / OpenAPI" icon={Network} />
 </InfoGrid>
+
+## Screenshots
+
+<ImageGallery 
+  images={[
+    { src: "/projects/job-portal/landing.png", alt: "HireCrowd landing page", title: "Landing Page — motion-led marketing surface" },
+    { src: "/projects/job-portal/job-listing.png", alt: "Candidate job listing", title: "Candidate — Virtualized Job Feed" },
+    { src: "/projects/job-portal/job-details-drawer.png", alt: "Job details drawer", title: "Candidate — Job Details Drawer" },
+    { src: "/projects/job-portal/resume-builder.png", alt: "Resume builder", title: "Candidate — Profile-Driven Resume Builder" },
+    { src: "/projects/job-portal/bookmarked-jobs.png", alt: "Bookmarked jobs", title: "Candidate — Bookmarked Jobs" },
+    { src: "/projects/job-portal/applied-jobs.png", alt: "Applied jobs", title: "Candidate — Applied Job Tracking" },
+    { src: "/projects/job-portal/recruiter-dashboard.png", alt: "Recruiter dashboard", title: "Recruiter — ATS Dashboard" },
+    { src: "/projects/job-portal/recruiter-create-job.png", alt: "Create job form", title: "Recruiter — Job Authoring" },
+    { src: "/projects/job-portal/recruiter-view-applicants.png", alt: "View applicants", title: "Recruiter — Applicant Review" },
+    { src: "/projects/job-portal/recruiter-update-status.png", alt: "Update candidate status", title: "Recruiter — Pipeline Stepper" },
+    { src: "/projects/job-portal/recruiter-applicant-resume.png", alt: "Applicant resume", title: "Recruiter — In-Context Resume Review" },
+    { src: "/projects/job-portal/recruiter-invite-users.png", alt: "Invite users", title: "Recruiter — Invite-By-Code Onboarding" }
+  ]}
+/>
+
+---
 
 ## Overview
 
@@ -451,27 +472,6 @@ The API was the contract between two independently-built surfaces. `swagger-jsdo
 *   **Schema-level constraints beat application-level checks.** Putting the pipeline enum on the Mongoose model made invalid states unrepresentable rather than merely rejected.
 *   **Reuse is a product feature.** Generating the resume from stored profile data removed an upload step from every application — the highest-leverage friction reduction in the project.
 *   **Invite links should arrive pre-filled.** Reading `inviteCode` from the query string is a two-line change that removes a manual step from onboarding.
-
----
-
-## Screenshots
-
-<ImageGallery 
-  images={[
-    { src: "/projects/job-portal/landing.png", alt: "HireCrowd landing page", title: "Landing Page — motion-led marketing surface" },
-    { src: "/projects/job-portal/job-listing.png", alt: "Candidate job listing", title: "Candidate — Virtualized Job Feed" },
-    { src: "/projects/job-portal/job-details-drawer.png", alt: "Job details drawer", title: "Candidate — Job Details Drawer" },
-    { src: "/projects/job-portal/resume-builder.png", alt: "Resume builder", title: "Candidate — Profile-Driven Resume Builder" },
-    { src: "/projects/job-portal/bookmarked-jobs.png", alt: "Bookmarked jobs", title: "Candidate — Bookmarked Jobs" },
-    { src: "/projects/job-portal/applied-jobs.png", alt: "Applied jobs", title: "Candidate — Applied Job Tracking" },
-    { src: "/projects/job-portal/recruiter-dashboard.png", alt: "Recruiter dashboard", title: "Recruiter — ATS Dashboard" },
-    { src: "/projects/job-portal/recruiter-create-job.png", alt: "Create job form", title: "Recruiter — Job Authoring" },
-    { src: "/projects/job-portal/recruiter-view-applicants.png", alt: "View applicants", title: "Recruiter — Applicant Review" },
-    { src: "/projects/job-portal/recruiter-update-status.png", alt: "Update candidate status", title: "Recruiter — Pipeline Stepper" },
-    { src: "/projects/job-portal/recruiter-applicant-resume.png", alt: "Applicant resume", title: "Recruiter — In-Context Resume Review" },
-    { src: "/projects/job-portal/recruiter-invite-users.png", alt: "Invite users", title: "Recruiter — Invite-By-Code Onboarding" }
-  ]}
-/>
 
 ---
 

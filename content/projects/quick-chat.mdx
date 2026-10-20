@@ -42,6 +42,17 @@ cover: /projects/quick-chat/index.png
   <InfoCard title="Latency" value="< 100ms" icon={Activity} />
 </InfoGrid>
 
+## Screenshots
+
+<ImageGallery 
+  images={[
+    { src: "/projects/quick-chat/index.png", alt: "Chat Interface", title: "Real-time Chat View" },
+    { src: "/projects/quick-chat/index.png", alt: "Offline Mode", title: "Offline Resilience Demo" }
+  ]}
+/>
+
+---
+
 ## Overview
 
 QuickChat is a high-performance messaging platform designed to explore large-scale realtime communication architectures. It emphasizes horizontal scalability and a resilient offline-first user experience.
@@ -324,14 +335,3 @@ Connection resilience and hot-path efficiency shipped in 7 rollback-safe phases 
 *   **Scalability:** Implementing horizontal scaling strategies for persistent connections.
 *   **Measure first:** Latency numbers without instrumentation are hopes — the RTT ring made every later optimization rankable.
 *   **Bound the buffers:** An unbounded queue and a global broadcast are the same bug at different scales.
-
----
-
-## Screenshots
-
-<ImageGallery 
-  images={[
-    { src: "/projects/quick-chat/index.png", alt: "Chat Interface", title: "Real-time Chat View" },
-    { src: "/projects/quick-chat/index.png", alt: "Offline Mode", title: "Offline Resilience Demo" }
-  ]}
-/>
