@@ -1,0 +1,199 @@
+---
+title: Rain-Sensing Clothesline
+description: Arduino mechanism that detects the first drops of rain and pulls drying laundry under cover with a servo arm, then redeploys it when the surface dries.
+featured: false
+status: Completed
+year: 2026
+role:
+  - Embedded Systems Engineer
+tech:
+  - Arduino Uno
+  - ATmega328P
+  - Rain Sensor
+  - LM393
+  - SG-90 Servo
+  - Serial Telemetry
+cover: /projects/rain-clothesline/cover.png
+---
+
+{/* Build photos go in public/projects/rain-clothesline/ (cover.png is the
+    placeholder used today). When they exist, uncomment the <ImageGallery> block
+    in "Hardware Build" and point it at the new files. */}
+
+<ProjectHero
+  title="Rain-Sensing Clothesline"
+  subtitle="A weather-responsive actuator that watches a conductive rain sensor and pulls hanging laundry under shelter at the first drop — then sends it back out once the surface dries."
+  status="Completed"
+  timeline="Breadboard Prototype"
+/>
+
+<InfoGrid>
+  <InfoCard title="Platform" value="Arduino Uno R3" icon={Cpu} />
+  <InfoCard title="MCU" value="ATmega328P" icon={Box} />
+  <InfoCard title="Sensing" value="LM393 + Plate" icon={Database} />
+  <InfoCard title="Actuation" value="SG-90 Servo" icon={Server} />
+  <InfoCard title="Telemetry" value="Serial 9600" icon={Activity} />
+  <InfoCard title="Firmware" value="Arduino Sketch" icon={FileText} />
+</InfoGrid>
+
+---
+
+## Overview
+
+Open-air drying is a race against the weather. Laundry left out during a sudden downpour comes back wetter than it went out, and nothing about a manual clothesline notices the first drops.
+
+This build turns the clothesline into a small closed-loop machine: a nickel-plated serpentine sensor board (conditioned by an LM393 comparator) reports rain, and an SG-90 servo swings an arm that retracts the line under cover. When the plate dries, the arm extends again.
+
+Key focus areas:
+- Detecting the first drops without false triggers from dew or mist
+- Two-state actuation with a hard, repeatable arm position at each end
+- Continuous serial visibility into what the sensor is reporting
+- One firmware image that tolerates multiple Uno board revisions
+
+---
+
+## Operational Logic
+
+<MetricsTable headings={["Sensor State", "Arm Action"]}>
+  <MetricRow label="Droplets bridge the sensor traces → D0 LOW (0)" value="Retract to 90°" />
+  <MetricRow label="Plate surface dry → D0 HIGH (1)" value="Deploy to 0°" />
+  <MetricRow label="Sensor sampled every ~100 ms" value="10 Hz poll" />
+  <MetricRow label="State logged every sample" value="9600 baud" />
+</MetricsTable>
+
+The comparator's polarity is what makes the logic so short: moisture is a **LOW**, so the retract branch is the safety-default and a disconnected or failed jumper reads as dry rather than falsely raining.
+
+---
+
+## System Architecture
+
+<ProjectArchitecture
+  title="Sense, Compare, Actuate"
+  description="The LM393 board does the analog work; firmware is a two-branch state check driven by a single digital pin."
+  chart={`flowchart TD
+    A["Serpentine rain plate<br/>conductive traces"] --> B["LM393 comparator<br/>trimpot threshold"]
+    B --> C{"D0 on D7"}
+    C -->|"LOW - droplets bridge"| D["Servo on D6 → 90°<br/>retract under cover"]
+    C -->|"HIGH - surface dry"| E["Servo on D6 → 0°<br/>deploy to open air"]
+    D --> F["Serial log @ 9600"]
+    E --> F
+    F --> A
+
+    style A fill:#38bdf8,color:#000
+    style B fill:#c084fc,color:#000
+    style D fill:#22c55e,color:#000
+  `}>
+```tree
+Rain-Sensing Clothesline
+├── Sensing
+│   ├── Serpentine rain board   - exposed conductive grid
+│   └── LM393 comparator module - potentiometer-set threshold, D0 out
+├── Control
+│   └── Arduino Uno R3          - poll D7 every 100 ms
+├── Actuation
+│   └── SG-90 Servo (D6)        - 0 deg deployed / 90 deg retracted
+└── Observability
+    └── Serial @ 9600 baud      - raw sensor state every sample
+```
+</ProjectArchitecture>
+
+---
+
+## Hardware Build
+
+{/* Uncomment once the photos are in public/projects/rain-clothesline/:
+<ImageGallery
+  images={[
+    { src: "/projects/rain-clothesline/rig-open.jpg", alt: "Clothesline deployed in dry weather", title: "Deployed State" },
+    { src: "/projects/rain-clothesline/rig-covered.jpg", alt: "Servo arm retracting laundry under cover", title: "Retracted State" },
+    { src: "/projects/rain-clothesline/rain-sensor.jpg", alt: "Serpentine rain sensor board with water droplets", title: "Rain Sensor Board" }
+  ]}
+/>
+*/}
+
+### Wiring & Pinout
+
+<MetricsTable headings={["Component / Signal", "Arduino Pin"]}>
+  <MetricRow label="Rain module — D0 (digital out)" value="D7" />
+  <MetricRow label="SG-90 — signal (orange)" value="D6" />
+  <MetricRow label="Module power — shared bus" value="5V / GND" />
+  <MetricRow label="Serial telemetry" value="9600 baud" />
+</MetricsTable>
+
+### Firmware
+
+```cpp
+#include <Servo.h> // servo library
+Servo s1;
+int val = 0;
+
+void setup()
+{
+    Serial.begin(9600);
+    pinMode(7, INPUT);  // Rain sensor output pin connected
+    s1.attach(6);       // Servo Motor
+}
+
+void loop()
+{
+    val = digitalRead(7);   // Rain sensor output pin connected
+    Serial.println(val);    // see the value in serial monitor
+    delay(100);
+
+    if (val == 0)
+    {
+        s1.write(90);   // Servo Rotate 90 Degree
+        delay(500);     // delay time
+    }
+
+    if (val == 1)
+    {
+        s1.write(0);    // Servo Rotate 0 Degree
+    }
+}
+```
+
+---
+
+## Technical Challenges
+
+<ChallengeCard
+  title="False Positives From Dew and Mist"
+  problem="Morning condensation and light mist were enough to read as rain and retract the line on a clear morning."
+  solution="Tuned the LM393's onboard potentiometer so the comparator only trips once droplets actually bridge adjacent traces, keeping the trigger threshold in hardware where it belongs."
+  result="Dew and humidity no longer trigger a retraction, while the first real drops still flip the state on the next 100 ms poll."
+/>
+
+<ChallengeCard
+  title="Flashing Firmware Across Two USB Stacks"
+  problem="Uploads failed intermittently depending on which Uno was connected — the board's native ATmega16U2 CDC-ACM path and a third-party WCH CH340G USB-UART bridge enumerate differently."
+  solution="Diagnosed the driver mismatch with device-manager and lsusb inspection, installed the CH340/CH341 driver alongside the native CDC-ACM stack, and verified the correct COM/tty device before every upload."
+  result="A repeatable flash workflow across boards and operating systems, no more guessing why a compile succeeded but the upload did not."
+/>
+
+<ChallengeCard
+  title="Deadband Between the Two States"
+  problem="A two-state arm needs hard endpoints — a partially retracted line is the worst outcome in a downpour."
+  solution="Mapped the arm to absolute angles (0° deployed, 90° retracted) instead of incremental steps, so every command drives the servo to a known position from any previous state."
+  result="Predictable covered or uncovered states with no drift, and recovery is just a power cycle back to a defined angle."
+/>
+
+---
+
+## Results
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+  <ProjectStat label="Trigger Polarity" value="LOW" description="Comparator D0 is active-low: droplets bridging the plate pull the line down, and retract is the safe default." />
+  <ProjectStat label="Arm Travel" value="90°" description="0° deployed in open air, 90° retracted under cover, both absolute positions." />
+  <ProjectStat label="Poll Rate" value="10 Hz" description="Sensor sampled and logged every 100 ms over 9600 baud serial." />
+</div>
+
+---
+
+## Lessons Learned
+
+*   **Put thresholds in hardware when you can:** one trimpot replaced a pile of software filtering for mist and dew.
+*   **Absolute positions beat increments:** angle-based commands make a two-state mechanism self-recovering.
+*   **Instrument everything:** printing the raw sensor value each loop turned a vague "it didn't trigger" into an obvious wiring or polarity problem.
+*   **Drivers are part of the stack:** knowing which USB-UART bridge a board uses saves hours of "why won't it upload" debugging.
+*   **Next iteration:** add a debounce window and a hold-off timer so a single stray drop does not cause a retract-and-redeploy cycle.

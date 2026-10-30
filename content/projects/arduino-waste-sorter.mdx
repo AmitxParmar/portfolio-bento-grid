@@ -1,0 +1,265 @@
+---
+title: Smart Waste Segregator
+description: Arduino waste sorter that classifies wet vs. dry waste with an ultrasonic trigger, a resistive moisture probe, and a servo-driven flap.
+featured: false
+status: Completed
+year: 2026
+role:
+  - Embedded Systems Engineer
+tech:
+  - Arduino Uno
+  - ATmega328P
+  - HC-SR04
+  - LM393
+  - SG-90 Servo
+  - PWM
+cover: /projects/arduino-waste-sorter/cover.png
+---
+
+{/* Build photos go in public/projects/arduino-waste-sorter/ (cover.png is the
+    placeholder used today). When they exist, uncomment the <ImageGallery> block
+    in "Hardware Build" and point it at the new files. */}
+
+<ProjectHero
+  title="Smart Waste Segregator"
+  subtitle="An automated waste classification rig that senses an approaching item, measures its moisture content, and swings a servo flap into the correct bin — no human sorting required."
+  status="Completed"
+  timeline="Breadboard Prototype"
+/>
+
+<InfoGrid>
+  <InfoCard title="Platform" value="Arduino Uno R3" icon={Cpu} />
+  <InfoCard title="MCU" value="ATmega328P" icon={Box} />
+  <InfoCard title="Detection" value="HC-SR04" icon={Activity} />
+  <InfoCard title="Sensing" value="LM393 Probe" icon={Database} />
+  <InfoCard title="Actuation" value="SG-90 Servo" icon={Server} />
+  <InfoCard title="Firmware" value="Arduino Sketch" icon={FileText} />
+</InfoGrid>
+
+---
+
+## Overview
+
+Unsorted household waste cross-contaminates recycling streams and ruins compost batches. Manual segregation at the point of disposal is the cheapest place to fix it — and the most neglected.
+
+This prototype closes the loop mechanically: an ultrasonic sensor watches the disposal chute, a resistive moisture probe samples the item, and a servo-driven flap routes it to the **wet** or **dry** compartment.
+
+Key focus areas:
+- Distance gating so the probe only reads while an item is actually present
+- A deterministic wet/dry decision from the LM393 comparator output
+- Repeatable actuation sequence with a neutral rest position between cycles
+- A shared 5V/GND distribution rail instead of daisy-chained sensor power
+
+---
+
+## How It Works
+
+<EventFlow>
+  <EventStep
+    title="Detect Approach"
+    description="The HC-SR04 fires a 10 µs trigger pulse and measures the echo width. Anything inside 20 cm is treated as an item at the chute."
+  />
+  <EventStep
+    title="Settle on the Probe"
+    description="The flap holds at 90° for 500 ms so the item rests on the moisture probe instead of hanging in the air above it."
+  />
+  <EventStep
+    title="Classify"
+    description="The LM393 conditioning board pulls D0 LOW when moisture bridges the probe traces (wet) and HIGH when the surface is dry."
+  />
+  <EventStep
+    title="Sort and Reset"
+    description="Servo moves to 0° (wet) or 180° (dry), dwells 3 s for the item to slide clear, then returns to the 90° neutral rest position."
+    isLast={true}
+  />
+</EventFlow>
+
+---
+
+## System Architecture
+
+<ProjectArchitecture
+  title="Sensing and Sorting Loop"
+  description="One polling loop, two sensors, one actuator. The servo position is the only state the system carries between cycles."
+  chart={`flowchart TD
+    A["HC-SR04 Ultrasonic<br/>Trig D6 / Echo D7"] --> B{"Distance <= 20 cm?"}
+    B -->|"No"| A
+    B -->|"Yes"| C["Hold 500 ms<br/>item settles on probe"]
+    C --> D["Read moisture D0<br/>LM393 comparator"]
+    D -->|"LOW - conductive"| E["Servo 0 deg<br/>WET bin"]
+    D -->|"HIGH - dry"| F["Servo 180 deg<br/>DRY bin"]
+    E --> G["Dwell 3 s"]
+    F --> G
+    G --> H["Return to 90 deg neutral"]
+    H --> A
+
+    style A fill:#38bdf8,color:#000
+    style D fill:#c084fc,color:#000
+    style G fill:#22c55e,color:#000
+  `}>
+```tree
+Smart Waste Segregator
+├── Sensors
+│   ├── HC-SR04 Ultrasonic   (Trig D6 / Echo D7) - presence gate
+│   └── LM393 Moisture Board (D0 on D5)          - wet / dry state
+├── Actuator
+│   └── SG-90 Servo          (PWM on D4)         - 0 / 90 / 180 degrees
+└── Power
+    └── Breadboard parallel 5V + GND rail for all modules
+```
+</ProjectArchitecture>
+
+---
+
+## Hardware Build
+
+{/* Uncomment once the photos are in public/projects/arduino-waste-sorter/:
+<ImageGallery
+  images={[
+    { src: "/projects/arduino-waste-sorter/build-top.jpg", alt: "Breadboard wiring with ultrasonic sensor and servo", title: "Breadboard Build" },
+    { src: "/projects/arduino-waste-sorter/flap-mechanism.jpg", alt: "Servo-driven sorting flap close-up", title: "Servo Flap Mechanism" },
+    { src: "/projects/arduino-waste-sorter/wet-vs-dry.jpg", alt: "Serial output showing wet and dry classifications", title: "Classification Log" }
+  ]}
+/>
+*/}
+
+### Wiring & Pinout
+
+<MetricsTable headings={["Component / Signal", "Arduino Pin"]}>
+  <MetricRow label="HC-SR04 — Trigger" value="D6" />
+  <MetricRow label="HC-SR04 — Echo" value="D7" />
+  <MetricRow label="Moisture module — D0 (digital out)" value="D5" />
+  <MetricRow label="SG-90 — PWM signal" value="D4" />
+  <MetricRow label="Module power — shared breadboard rail" value="5V / GND" />
+  <MetricRow label="Serial telemetry" value="9600 baud" />
+</MetricsTable>
+
+The moisture board exposes both a raw analog output (A0, 10-bit ADC) and a comparator-driven digital output (D0). The shipped firmware reads **D0** so the wet/dry decision is already thresholded in hardware — one digital read, no float comparison in the loop.
+
+### Firmware
+
+```cpp
+#include <Servo.h>
+
+// --- Pin Definitions (matching the breadboard diagram) ---
+const int echoPin     = 7;  // HC-SR04 Echo (Orange)
+const int trigPin     = 6;  // HC-SR04 Trig (Green)
+const int servoPin    = 4;  // Servo PWM signal (Maroon)
+const int moisturePin = 5;  // Moisture sensor D0 (Blue)
+
+// --- Operating Parameters ---
+const int DETECTION_DISTANCE = 20;  // Trigger threshold in centimeters
+const int POS_NEUTRAL        = 90;  // Center / rest position (flap level)
+const int POS_WET            = 0;   // Tilt flap toward wet bin
+const int POS_DRY            = 180; // Tilt flap toward dry bin
+
+Servo segregatorServo;
+
+void setup() {
+  Serial.begin(9600);
+
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(moisturePin, INPUT);
+
+  segregatorServo.attach(servoPin);
+  segregatorServo.write(POS_NEUTRAL);
+  delay(1000);
+
+  Serial.println("Smart Dustbin Ready.");
+}
+
+void loop() {
+  long distance = getDistance();
+
+  // Check if an object / hand is within the detection zone
+  if (distance > 0 && distance <= DETECTION_DISTANCE) {
+    Serial.print("Object detected at: ");
+    Serial.print(distance);
+    Serial.println(" cm");
+
+    // Brief pause to allow trash to rest on the sensor probe
+    delay(500);
+
+    // Standard LM393 modules pull D0 LOW when wet (conductive)
+    int moistureState = digitalRead(moisturePin);
+
+    if (moistureState == LOW) {
+      Serial.println("Classification: WET WASTE -> Tilting to Wet Bin");
+      segregatorServo.write(POS_WET);
+    } else {
+      Serial.println("Classification: DRY WASTE -> Tilting to Dry Bin");
+      segregatorServo.write(POS_DRY);
+    }
+
+    // Wait 3 seconds for trash to slide into the bin
+    delay(3000);
+
+    // Return flap back to center
+    segregatorServo.write(POS_NEUTRAL);
+    Serial.println("Returning to Neutral.");
+    delay(1000);
+  }
+
+  delay(100); // Polling delay
+}
+
+// Distance in centimeters from the HC-SR04 echo pulse width
+long getDistance() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  // Timeout after 30ms (~5 meters max) to prevent blocking
+  long duration = pulseIn(echoPin, HIGH, 30000);
+
+  if (duration == 0) return 999; // No echo received
+  return duration * 0.034 / 2;
+}
+```
+
+---
+
+## Technical Challenges
+
+<ChallengeCard
+  title="Parallel Power Rail, Not Daisy Chains"
+  problem="Every module drew its 5V through the previous module's jumper, so the servo's inrush current sagged the rail and reset the ultrasonic sensor mid-cycle."
+  solution="Rebuilt the power distribution as a shared parallel rail on the breadboard — each module taps 5V and GND directly off the bus instead of passing through another board."
+  result="Servo sweeps no longer corrupt sensor readings, and the same rail feeds the ultrasonic, probe, and servo without browning out the Uno."
+/>
+
+<ChallengeCard
+  title="Reading the Item, Not the Air"
+  problem="Sampling moisture the instant an item was detected returned ambient humidity readings, so a dry wrapper sometimes registered as wet waste."
+  solution="Added a 500 ms settle window after the distance gate opens (letting the item contact the probe) and set the LM393 comparator's trimpot so only real conductivity trips D0."
+  result="Stable bin decisions on objects with light surface dust, with the classification threshold tuned once in hardware rather than re-tuned in firmware."
+/>
+
+<ChallengeCard
+  title="Actuation Sequencing"
+  problem="The flap had to deflect, hold long enough for the item to clear the funnel, and return to neutral without leaving the mechanism parked at an extreme."
+  solution="Encoded the cycle as an explicit sequence: 500 ms settle, classify, 3 s dwell at the target angle, then 1 s return to 90° neutral. Echo timing runs with a 30 ms pulseIn timeout so a missing echo cannot hang the loop."
+  result="A predictable ~4.6 s cycle that always ends with the flap level and ready for the next item."
+/>
+
+---
+
+## Results
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+  <ProjectStat label="Detection Zone" value="20 cm" description="Ultrasonic gate that arms the probe only when an item is at the chute." />
+  <ProjectStat label="Servo Throw" value="180°" description="0° wet / 180° dry, with 90° neutral so both bins stay reachable." />
+  <ProjectStat label="Cycle Time" value="≈4.6 s" description="500 ms settle + 3 s dwell + 1 s reset per item." />
+</div>
+
+---
+
+## Lessons Learned
+
+*   **Power first:** most "flaky sensor" bugs on a breadboard are a shared-ground or current-sag problem, not a firmware bug.
+*   **Let hardware threshold:** the LM393 comparator makes the wet/dry decision deterministic and keeps the ADC out of the control loop.
+*   **Explicit sequences win:** naming each step (settle → classify → dwell → reset) made the mechanism easy to debug on the bench.
+*   **Next iteration:** replace the blocking `delay()` chain with a `millis()`-based state machine so the loop can keep monitoring distance while the servo is dwelling.
