@@ -513,13 +513,19 @@ export const EventStep = ({ title, description, isLast = false }: any) => (
 );
 
 // 8. Metrics Table
-export const MetricsTable = ({ children }: { children: React.ReactNode }) => (
+export const MetricsTable = ({
+  children,
+  headings = ["Optimization", "Result"],
+}: {
+  children: React.ReactNode;
+  headings?: [string, string];
+}) => (
   <div className="overflow-hidden rounded-2xl border border-iconBg bg-cardBg mb-12">
     <table className="w-full text-left text-sm">
       <thead className="bg-iconBg/30 text-lightText uppercase tracking-widest text-[10px] font-bold">
         <tr>
-          <th className="px-6 py-4">Optimization</th>
-          <th className="px-6 py-4 text-right">Result</th>
+          <th className="px-6 py-4">{headings[0]}</th>
+          <th className="px-6 py-4 text-right">{headings[1]}</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-iconBg">
